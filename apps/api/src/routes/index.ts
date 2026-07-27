@@ -13,12 +13,17 @@ const router = Router();
 // Public routes
 router.use('/users', usersRoutes);
 
+// Healthcheck
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
+
 // Protected routes (require auth)
 router.use('/products', protect, productsRoutes);
 router.use('/categories', protect, categoriesRoutes);
 router.use('/additionals', protect, additionalsRoutes);
 router.use('/orders', protect, ordersRoutes);
-router.use('/coupons', protect, couponsRoutes);
+router.use('/coupons', protect, isAdmin, couponsRoutes);
 router.use('/config', protect, isAdmin, configRoutes);
 
 export default router;

@@ -33,11 +33,11 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('passwordHash')) return next();
+userSchema.pre('save', async function () {
+  // When using an async pre hook, do not use the `next` callback.
+  if (!this.isModified('passwordHash')) return;
   const salt = await bcrypt.genSalt(10);
   this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-  next();
 });
 
 userSchema.methods.comparePassword = async function (enteredPassword: string) {
