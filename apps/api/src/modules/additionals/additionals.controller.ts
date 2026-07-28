@@ -1,56 +1,48 @@
 import { Request, Response } from 'express';
-import { AdicionalService } from './additionals.service';
+import { AdditionalsService } from './additionals.service';
 import { asyncHandler } from '../../utils/asyncHandler';
+import { sendSuccess, sendError } from '../../utils/response';
 
-export class AdicionalController {
+export class AdditionalsController {
+  static getPublic = asyncHandler(async (req: Request, res: Response) => {
+    const additionals = await AdditionalsService.viewPublic();
+    sendSuccess(res, additionals);
+  });
+
   static getAll = asyncHandler(async (req: Request, res: Response) => {
-    const adicionales = await AdicionalService.viewAll();
-    res.json({ success: true, data: adicionales });
-  });
-
-  static getActive = asyncHandler(async (req: Request, res: Response) => {
-    const adicionales = await AdicionalService.viewActive();
-    res.json({ success: true, data: adicionales });
-  });
-
-  static getById = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const adicional = await AdicionalService.viewById(id);
-    if (!adicional) {
-      return res.status(404).json({ success: false, error: 'Adicional no encontrado' });
-    }
-    res.json({ success: true, data: adicional });
+    const additionals = await AdditionalsService.viewAll();
+    sendSuccess(res, additionals);
   });
 
   static create = asyncHandler(async (req: Request, res: Response) => {
-    const adicional = await AdicionalService.create(req.body);
-    res.status(201).json({ success: true, data: adicional });
+    const adicional = await AdditionalsService.create(req.body);
+    sendSuccess(res, adicional, 201, 'Adicional creado');
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = await AdicionalService.modify(id, req.body);
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Adicional no encontrado' });
+    const adicional = await AdditionalsService.modify(id, req.body);
+    if (!adicional) {
+      return sendError(res, 'Adicional no encontrado', 404);
     }
-    res.json({ success: true, data: updated });
+    sendSuccess(res, adicional, 200, 'Adicional actualizado');
   });
 
   static toggleActive = asyncHandler(async (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = await AdicionalService.toggleActive(id);
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Adicional no encontrado' });
+    const adicional = await AdditionalsService.toggleActive(id);
+    if (!adicional) {
+      return sendError(res, 'Adicional no encontrado', 404);
     }
-    res.json({ success: true, data: updated });
+    sendSuccess(res, adicional, 200, 'Estado actualizado');
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const deleted = await AdicionalService.deleteById(id);
+    const deleted = await AdditionalsService.deleteById(id);
     if (!deleted) {
-      return res.status(404).json({ success: false, error: 'Adicional no encontrado' });
+      return sendError(res, 'Adicional no encontrado', 404);
     }
-    res.json({ success: true, message: 'Adicional eliminado' });
+    sendSuccess(res, { id }, 200, 'Adicional eliminado');
   });
 }

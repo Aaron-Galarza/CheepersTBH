@@ -48,7 +48,6 @@ export const OrdersService = {
         return {
           additionalId: additional._id,
           title: additional.title,
-          name: additional.title,
           price: additional.price,
           quantity: add.quantity,
         };
@@ -88,11 +87,16 @@ export const OrdersService = {
     const total = afterDiscount + surcharge + deliveryCost;
 
     const orderData = {
-      customer: data.customer,
+      customer: {
+        name: data.customer.name,
+        phone: data.customer.phone,
+        address: data.delivery?.address,
+      },
       items,
       notes: data.notes || '',
       couponCode: data.couponCode,
       discountPercent,
+      discountAmount,
       subtotal,
       deliveryType: data.deliveryType,
       paymentMethod: data.paymentMethod,

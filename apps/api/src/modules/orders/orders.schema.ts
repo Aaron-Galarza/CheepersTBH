@@ -22,9 +22,20 @@ export const OrderCreateSchema = z.object({
   notes: z.string().max(60, 'Las notas no pueden superar los 60 caracteres').optional().default(''),
   couponCode: z.string().optional(),
   delivery: z.object({
-    address: z.string().min(1, 'La dirección es requerida para delivery'),
+    address: z.string().optional(),
   }).optional(),
-});
+}).refine(
+  (data) => {
+    if (data.deliveryType === 'delivery') {
+      return !!data.delivery?.address && data.delivery.address.trim().length > 0;
+    }
+    return true;
+  },
+  {
+    message: 'La dirección es requerida cuando el tipo de envío es delivery',
+    path: ['delivery', 'address'],
+  }
+);
 
 export const OrderUpdateSchema = z.object({
   status: z.enum(['pending', 'in-preparation', 'ready', 'delivered', 'cancelled']).optional(),

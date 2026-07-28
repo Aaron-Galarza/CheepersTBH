@@ -9,7 +9,6 @@ export const validPaymentMethods: PaymentMethod[] = ['cash', 'debito', 'credito'
 export interface IOrderItemAddon {
   additionalId: mongoose.Types.ObjectId;
   title: string;
-  name?: string;
   price: number;
   quantity: number;
 }
@@ -32,6 +31,7 @@ export interface IOrder extends Document {
   notes?: string;
   couponCode?: string;
   discountPercent: number;
+  discountAmount: number;
   subtotal: number;
   deliveryType: 'pickup' | 'delivery';
   paymentMethod: PaymentMethod;
@@ -49,7 +49,6 @@ export interface IOrder extends Document {
 const OrderItemAddonSchema = new Schema<IOrderItemAddon>({
   additionalId: { type: Schema.Types.ObjectId, ref: 'Adicional', required: true },
   title: { type: String, required: true },
-  name: { type: String },
   price: { type: Number, required: true, min: 0 },
   quantity: { type: Number, required: true, min: 1, max: 10 },
 }, { _id: false });
@@ -78,6 +77,7 @@ const orderSchema = new Schema<IOrder>(
     },
     couponCode: { type: String },
     discountPercent: { type: Number, default: 0, min: 0 },
+    discountAmount: { type: Number, default: 0, min: 0 },
     subtotal: { type: Number, required: true, min: 0 },
     deliveryType: { type: String, enum: ['pickup', 'delivery'], required: true },
     paymentMethod: { type: String, enum: validPaymentMethods, required: true },

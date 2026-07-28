@@ -6,24 +6,21 @@ import additionalsRoutes from '../modules/additionals/additionals.routes';
 import ordersRoutes from '../modules/orders/orders.routes';
 import couponsRoutes from '../modules/coupons/coupons.routes';
 import configRoutes from '../modules/config/config.routes';
-import { protect, isAdmin } from '../middlewares/auth.middleware';
+import bannersRoutes from '../modules/banners/banners.routes';
 
 const router = Router();
 
-// Public routes
 router.use('/users', usersRoutes);
+router.use('/products', productsRoutes);
+router.use('/categories', categoriesRoutes);
+router.use('/additionals', additionalsRoutes);
+router.use('/orders', ordersRoutes);
+router.use('/coupons', couponsRoutes);
+router.use('/config', configRoutes);
+router.use('/banners', bannersRoutes);
 
-// Healthcheck
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
-
-// Protected routes (require auth)
-router.use('/products', protect, productsRoutes);
-router.use('/categories', protect, categoriesRoutes);
-router.use('/additionals', protect, additionalsRoutes);
-router.use('/orders', protect, ordersRoutes);
-router.use('/coupons', protect, isAdmin, couponsRoutes);
-router.use('/config', protect, isAdmin, configRoutes);
 
 export default router;

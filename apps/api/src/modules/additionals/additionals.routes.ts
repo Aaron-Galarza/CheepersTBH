@@ -1,16 +1,17 @@
 import { Router } from 'express';
-import { AdicionalController } from './additionals.controller';
+import { AdditionalsController } from './additionals.controller';
+import { protect, isAdmin } from '../../middlewares/auth.middleware';
 import { validateRequest } from '../../middlewares/validate.middleware';
 import { AdicionalCreateSchema, AdicionalUpdateSchema } from './additionals.schema';
 
 const router = Router();
 
-router.get('/', AdicionalController.getAll);
-router.get('/active', AdicionalController.getActive);
-router.get('/:id', AdicionalController.getById);
-router.post('/', validateRequest(AdicionalCreateSchema), AdicionalController.create);
-router.patch('/:id', validateRequest(AdicionalUpdateSchema), AdicionalController.update);
-router.patch('/:id/toggle', AdicionalController.toggleActive);
-router.delete('/:id', AdicionalController.delete);
+router.get('/', AdditionalsController.getPublic);
+
+router.get('/admin/all', protect, isAdmin, AdditionalsController.getAll);
+router.post('/admin', protect, isAdmin, validateRequest(AdicionalCreateSchema), AdditionalsController.create);
+router.put('/admin/:id', protect, isAdmin, validateRequest(AdicionalUpdateSchema), AdditionalsController.update);
+router.put('/admin/:id/toggleActive', protect, isAdmin, AdditionalsController.toggleActive);
+router.delete('/admin/:id', protect, isAdmin, AdditionalsController.delete);
 
 export default router;

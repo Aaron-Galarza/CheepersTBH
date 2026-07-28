@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import { OrdersController } from './orders.controller';
+import { protect } from '../../middlewares/auth.middleware';
 import { validateRequest } from '../../middlewares/validate.middleware';
 import { OrderCreateSchema, OrderUpdateSchema } from './orders.schema';
 
 const router = Router();
+
+router.use(protect);
 
 router.get('/', OrdersController.getAll);
 router.get('/:id', OrdersController.getById);

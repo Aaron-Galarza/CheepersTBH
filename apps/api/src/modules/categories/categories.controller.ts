@@ -1,56 +1,52 @@
 import { Request, Response } from 'express';
-import { CategoriaService } from './categories.service';
+import { CategoriesService } from './categories.service';
 import { asyncHandler } from '../../utils/asyncHandler';
+import { sendSuccess, sendError } from '../../utils/response';
 
-export class CategoriaController {
+export class CategoriesController {
+  static getPublic = asyncHandler(async (req: Request, res: Response) => {
+    const categories = await CategoriesService.viewPublic();
+    sendSuccess(res, categories);
+  });
+
   static getAll = asyncHandler(async (req: Request, res: Response) => {
-    const categorias = await CategoriaService.viewAll();
-    res.json({ success: true, data: categorias });
-  });
-
-  static getActive = asyncHandler(async (req: Request, res: Response) => {
-    const categorias = await CategoriaService.viewActive();
-    res.json({ success: true, data: categorias });
-  });
-
-  static getById = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const categoria = await CategoriaService.viewById(id);
-    if (!categoria) {
-      return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
-    }
-    res.json({ success: true, data: categoria });
+    const categories = await CategoriesService.viewAll();
+    sendSuccess(res, categories);
   });
 
   static create = asyncHandler(async (req: Request, res: Response) => {
-    const categoria = await CategoriaService.create(req.body);
-    res.status(201).json({ success: true, data: categoria });
+    const category = await CategoriesService.create(req.body);
+    sendSuccess(res, category, 201, 'Categoría creada');
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = await CategoriaService.modify(id, req.body);
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
+    const category = await CategoriesService.modify(id, req.body);
+    if (!category) {
+      return sendError(res, 'Categoría no encontrada', 404);
     }
-    res.json({ success: true, data: updated });
+    sendSuccess(res, category, 200, 'Categoría actualizada');
   });
 
   static toggleActive = asyncHandler(async (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = await CategoriaService.toggleActive(id);
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
+    const category = await CategoriesService.toggleActive(id);
+    if (!category) {
+      return sendError(res, 'Categoría no encontrada', 404);
     }
-    res.json({ success: true, data: updated });
+    sendSuccess(res, category, 200, 'Estado actualizado');
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const deleted = await CategoriaService.deleteById(id);
-    if (!deleted) {
-      return res.status(404).json({ success: false, error: 'Categoría no encontrada' });
+    try {
+      const deleted = await CategoriesService.deleteById(id);
+      if (!deleted) {
+        return sendError(res, 'Categoría no encontrada', 404);
+      }
+      sendSuccess(res, { id }, 200, 'Categoría eliminada');
+    } catch (error: any) {
+      sendError(res, error.message, 400);
     }
-    res.json({ success: true, message: 'Categoría eliminada' });
   });
 }
