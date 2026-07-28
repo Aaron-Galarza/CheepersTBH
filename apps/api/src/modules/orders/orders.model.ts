@@ -1,20 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type OrderStatus = 'pending' | 'in-preparation' | 'ready' | 'delivered' | 'cancelled';
-export const validOrderStatus: OrderStatus[] = ['pending', 'in-preparation', 'ready', 'delivered', 'cancelled'];
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+export const validOrderStatus: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
 
-export type PaymentMethod = 'cash' | 'debito' | 'credito' | 'transferencia';
-export const validPaymentMethods: PaymentMethod[] = ['cash', 'debito', 'credito', 'transferencia'];
+export type PaymentMethod = 'cash' | 'transfer' | 'mercadopago';
+export const validPaymentMethods: PaymentMethod[] = ['cash', 'transfer', 'mercadopago'];
 
 export interface IOrderItemAddon {
-  additionalId: mongoose.Types.ObjectId;
-  title: string;
+  name: string;
   price: number;
   quantity: number;
 }
 
 export interface IOrderItem {
-  productId: mongoose.Types.ObjectId;
   title: string;
   price: number;
   quantity: number;
@@ -25,36 +23,35 @@ export interface IOrder extends Document {
   customer: {
     name: string;
     phone: string;
-    address?: string;
   };
   items: IOrderItem[];
-  notes?: string;
-  couponCode?: string;
-  discountPercent: number;
-  discountAmount: number;
-  subtotal: number;
   deliveryType: 'pickup' | 'delivery';
   paymentMethod: PaymentMethod;
-  deliveryCost: number;
-  surcharge: number;
-  delivery?: {
-    address?: string;
-  };
+  couponCode?: string | null;
+  discountPercent: number;
+  subtotal: number;
+  deliveryCost?: number;
   total: number;
   status: OrderStatus;
+  delivery?: {
+    address?: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
+    distanceKm?: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
 
 const OrderItemAddonSchema = new Schema<IOrderItemAddon>({
-  additionalId: { type: Schema.Types.ObjectId, ref: 'Adicional', required: true },
-  title: { type: String, required: true },
+  name: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
-  quantity: { type: Number, required: true, min: 1, max: 10 },
+  quantity: { type: Number, required: true, min: 1 },
 }, { _id: false });
 
 const OrderItemSchema = new Schema<IOrderItem>({
-  productId: { type: Schema.Types.ObjectId, ref: 'Producto', required: true },
   title: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
   quantity: { type: Number, required: true, min: 1 },
@@ -64,39 +61,84 @@ const OrderItemSchema = new Schema<IOrderItem>({
 const orderSchema = new Schema<IOrder>(
   {
     customer: {
-      name: { type: String, required: [true, 'El nombre del cliente es obligatorio'] },
-      phone: { type: String, required: [true, 'El teléfono del cliente es obligatorio'] },
-      address: { type: String },
+      name: {
+        type: String,
+        required: [true, 'El nombre es obligatorio'],
+        trim: true,
+      },
+      phone: {
+        type: String,
+        required: [true, 'El teléfono es obligatorio'],
+        trim: true,
+      },
     },
-    items: { type: [OrderItemSchema], required: true },
-    notes: {
+    items: {
+      type: [OrderItemSchema],
+      required: true,
+      validate: {
+        validator: (items: any[]) => items.length > 0,
+        message: 'La orden debe tener al menos un artículo',
+      },
+    },
+    deliveryType: {
+      type: String,
+      enum: ['pickup', 'delivery'],
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: validPaymentMethods,
+      required: true,
+    },
+    couponCode: {
       type: String,
       trim: true,
-      maxlength: [60, 'Las notas no pueden superar los 60 caracteres'],
-      default: '',
+      default: null,
     },
-    couponCode: { type: String },
-    discountPercent: { type: Number, default: 0, min: 0 },
-    discountAmount: { type: Number, default: 0, min: 0 },
-    subtotal: { type: Number, required: true, min: 0 },
-    deliveryType: { type: String, enum: ['pickup', 'delivery'], required: true },
-    paymentMethod: { type: String, enum: validPaymentMethods, required: true },
-    deliveryCost: { type: Number, default: 0, min: 0 },
-    surcharge: { type: Number, default: 0, min: 0 },
-    delivery: {
-      address: { type: String },
+    discountPercent: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
     },
-    total: { type: Number, required: true, min: 0 },
+    subtotal: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    deliveryCost: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    total: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     status: {
       type: String,
       enum: validOrderStatus,
       default: 'pending',
       index: true,
     },
+    delivery: {
+      address: { type: String },
+      coordinates: {
+        lat: { type: Number },
+        lng: { type: Number },
+      },
+      distanceKm: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );
 
+orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ 'customer.phone': 1 });
 
 export const Order = mongoose.model<IOrder>('Order', orderSchema);

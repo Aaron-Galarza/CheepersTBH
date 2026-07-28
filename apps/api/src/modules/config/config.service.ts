@@ -10,16 +10,21 @@ export const ConfigService = {
   },
 
   update: async (data: Partial<IConfig>): Promise<IConfig | null> => {
-    const config = await ConfigModel.findOneAndUpdate({}, data, {
+    return await ConfigModel.findOneAndUpdate({}, data, {
       new: true,
       upsert: true,
     });
-    return config;
   },
 
-  toggleEmergency: async (): Promise<IConfig | null> => {
+  toggleEmergency: async (): Promise<IConfig> => {
     const config = await ConfigService.getOrCreateConfig();
     config.isEmergencyClosed = !config.isEmergencyClosed;
+    return await config.save();
+  },
+
+  updateEmergencyMessage: async (message: string): Promise<IConfig> => {
+    const config = await ConfigService.getOrCreateConfig();
+    config.emergencyMessage = message;
     return await config.save();
   },
 

@@ -1,42 +1,66 @@
 import { Request, Response } from 'express';
 import { OrdersService } from './orders.service';
 import { asyncHandler } from '../../utils/asyncHandler';
+import { sendSuccess, sendError } from '../../utils/response';
+
+// TODO: importar generateComandaText desde ../../utils/generateComanda cuando esté listo
 
 export class OrdersController {
-  static getAll = asyncHandler(async (req: Request, res: Response) => {
-    const orders = await OrdersService.viewAll();
-    res.json({ success: true, data: orders });
+  static createOrder = asyncHandler(async (req: Request, res: Response) => {
+    const order = await OrdersService.createOrder(req.body);
+    sendSuccess(res, order, 201, 'Orden creada exitosamente');
   });
 
-  static getById = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const order = await OrdersService.viewById(id);
+  static getOrder = asyncHandler(async (req: Request, res: Response) => {
+    const id = req.params.id as string;
+    const order = await OrdersService.getOrderById(id);
     if (!order) {
-      return res.status(404).json({ success: false, error: 'Orden no encontrada' });
+      return sendError(res, 'Orden no encontrada', 404);
     }
-    res.json({ success: true, data: order });
+    sendSuccess(res, order);
   });
 
-  static create = asyncHandler(async (req: Request, res: Response) => {
-    const order = await OrdersService.create(req.body);
-    res.status(201).json({ success: true, data: order });
+  // TODO: implementar comanda cuando se necesite
+  // static getComanda = asyncHandler(async (req: Request, res: Response) => { ... });
+
+  static getAllOrders = asyncHandler(async (req: Request, res: Response) => {
+    const orders = await OrdersService.getAllOrders();
+    sendSuccess(res, orders);
   });
 
-  static update = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = await OrdersService.modify(id, req.body);
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Orden no encontrada' });
-    }
-    res.json({ success: true, data: updated });
+  static getOrdersByStatus = asyncHandler(async (req: Request, res: Response) => {
+    const status = req.params.status as string;
+    const orders = await OrdersService.getOrdersByStatus(status);
+    sendSuccess(res, orders);
   });
 
-  static delete = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const deleted = await OrdersService.deleteById(id);
-    if (!deleted) {
-      return res.status(404).json({ success: false, error: 'Orden no encontrada' });
+  static updateOrderStatus = asyncHandler(async (req: Request, res: Response) => {
+    const id = req.params.id as string;
+    const { status } = req.body;
+
+    if (!status) {
+      return sendError(res, 'El estado es requerido', 400);
     }
-    res.json({ success: true, message: 'Orden eliminada' });
+
+    const order = await OrdersService.updateOrderStatus(id, status);
+    if (!order) {
+      return sendError(res, 'Orden no encontrada', 404);
+    }
+    sendSuccess(res, order, 200, 'Estado actualizado');
+  });
+
+  static updateDeliveryCost = asyncHandler(async (req: Request, res: Response) => {
+    const id = req.params.id as string;
+    const { deliveryCost } = req.body;
+
+    if (typeof deliveryCost !== 'number' || deliveryCost < 0) {
+      return sendError(res, 'El costo de envío debe ser un número positivo', 400);
+    }
+
+    const order = await OrdersService.updateDeliveryCost(id, deliveryCost);
+    if (!order) {
+      return sendError(res, 'Orden no encontrada', 404);
+    }
+    sendSuccess(res, order, 200, 'Costo de envío actualizado');
   });
 }

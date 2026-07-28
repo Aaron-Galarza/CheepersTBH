@@ -1,16 +1,18 @@
 import { Router } from 'express';
-import { CouponController } from './coupons.controller';
+import { CouponsController } from './coupons.controller';
+import { protect, isAdmin } from '../../middlewares/auth.middleware';
 import { validateRequest } from '../../middlewares/validate.middleware';
 import { CouponCreateSchema, CouponUpdateSchema } from './coupons.schema';
 
 const router = Router();
 
-router.get('/', CouponController.getAll);
-router.get('/active', CouponController.getActive);
-router.get('/:id', CouponController.getById);
-router.post('/', validateRequest(CouponCreateSchema), CouponController.create);
-router.patch('/:id', validateRequest(CouponUpdateSchema), CouponController.update);
-router.patch('/:id/toggle', CouponController.toggleActive);
-router.delete('/:id', CouponController.delete);
+router.post('/validate', CouponsController.validate);
+
+router.get('/', protect, isAdmin, CouponsController.getAll);
+router.get('/:id', protect, isAdmin, CouponsController.getById);
+router.post('/', protect, isAdmin, validateRequest(CouponCreateSchema), CouponsController.create);
+router.patch('/:id', protect, isAdmin, validateRequest(CouponUpdateSchema), CouponsController.modify);
+router.patch('/:id/toggle', protect, isAdmin, CouponsController.toggleActive);
+router.delete('/:id', protect, isAdmin, CouponsController.deleteById);
 
 export default router;

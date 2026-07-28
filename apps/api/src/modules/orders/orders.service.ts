@@ -1,120 +1,113 @@
-import mongoose from 'mongoose';
 import { Order, IOrder } from './orders.model';
-import { ProductModel } from '../products/products.model';
-import { AdicionalModel } from '../additionals/additionals.model';
-import { CouponModel } from '../coupons/coupons.model';
-
-const CREDIT_SURCHARGE_PERCENT = 10;
-const DELIVERY_BASE_COST = 0;
+import { CouponsService } from '../coupons/coupons.service';
+import { ConfigService } from '../config/config.service';
+import { CreateOrderInput } from './orders.schema';
 
 export const OrdersService = {
-  viewAll: async () => {
-    return await Order.find().sort({ createdAt: -1 });
+  createOrder: async (orderData: CreateOrderInput): Promise<IOrder> => {
+    const storeStatus = await ConfigService.getStatus();
+    if (!storeStatus.isOpen || storeStatus.isEmergencyClosed) {
+      throw new Error('El local está cerrado en este momento');
+    }
+
+    let subtotal = 0;
+    const validatedItems = [];
+
+    for (const item of orderData.items) {
+      const itemPrice = item.price * item.quantity;
+      let addonsPrice = 0;
+
+      for (const addon of item.additionals || []) {
+        addonsPrice += addon.price * addon.quantity;
+      }
+
+      subtotal += itemPrice + addonsPrice;
+
+      validatedItems.push({
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        additionals: item.additionals || [],
+      });
+    }
+
+    let discountPercent = 0;
+    let discountAmount = 0;
+
+    if (orderData.couponCode) {
+      try {
+        const coupon = await CouponsService.validateCoupon(
+          orderData.couponCode,
+          orderData.paymentMethod
+        );
+        discountPercent = coupon.discountPercent || 0;
+        discountAmount = (subtotal * discountPercent) / 100;
+      } catch (error: any) {
+        throw new Error(`Cupón inválido: ${error.message}`);
+      }
+    }
+
+    let deliveryCost = 0;
+    let delivery = undefined;
+
+    if (orderData.deliveryType === 'delivery') {
+      // deliveryCost se setea manualmente desde admin via PUT /admin/:id/delivery-cost
+      delivery = {
+        address: orderData.deliveryAddress || undefined,
+      };
+    }
+
+    const total = subtotal - discountAmount + deliveryCost;
+
+    const order = await Order.create({
+      customer: {
+        name: orderData.customer.name,
+        phone: orderData.customer.phone,
+      },
+      items: validatedItems,
+      deliveryType: orderData.deliveryType,
+      paymentMethod: orderData.paymentMethod,
+      couponCode: orderData.couponCode || null,
+      discountPercent,
+      subtotal,
+      deliveryCost,
+      total,
+      status: 'pending',
+      delivery,
+    });
+
+    return order;
   },
 
-  viewById: async (id: string) => {
+  getOrderById: async (id: string): Promise<IOrder | null> => {
     return await Order.findById(id);
   },
 
-  create: async (data: any) => {
-    const productIds = data.items.map((item: any) => item.productId);
-    const products = await ProductModel.find({ _id: { $in: productIds } });
-    const productMap = new Map(products.map(p => [p._id.toString(), p]));
+  getOrdersByStatus: async (status: string): Promise<IOrder[]> => {
+    return await Order.find({ status: status as any }).sort({ createdAt: -1 }).lean();
+  },
 
-    const additionalIds: string[] = [];
-    data.items.forEach((item: any) => {
-      (item.additionals || []).forEach((add: any) => {
-        if (add.additionalId) additionalIds.push(add.additionalId);
-      });
-    });
-    const additionals = await AdicionalModel.find({ _id: { $in: additionalIds } });
-    const additionalMap = new Map(additionals.map(a => [a._id.toString(), a]));
+  getAllOrders: async (): Promise<IOrder[]> => {
+    return await Order.find().sort({ createdAt: -1 }).lean();
+  },
 
-    let subtotal = 0;
-
-    const items = data.items.map((item: any) => {
-      const product = productMap.get(item.productId);
-      if (!product) {
-        throw new Error(`Producto no encontrado: ${item.productId}`);
-      }
-
-      let itemTotal = product.price * item.quantity;
-      const resolvedAdditionals = (item.additionals || []).map((add: any) => {
-        const additional = additionalMap.get(add.additionalId);
-        if (!additional) {
-          throw new Error(`Adicional no encontrado: ${add.additionalId}`);
-        }
-        itemTotal += additional.price * add.quantity;
-        return {
-          additionalId: additional._id,
-          title: additional.title,
-          price: additional.price,
-          quantity: add.quantity,
-        };
-      });
-
-      subtotal += itemTotal;
-
-      return {
-        productId: product._id,
-        title: product.title,
-        price: product.price,
-        quantity: item.quantity,
-        additionals: resolvedAdditionals,
-      };
-    });
-
-    const deliveryCost = data.deliveryType === 'delivery' ? DELIVERY_BASE_COST : 0;
-
-    let discountPercent = 0;
-    if (data.couponCode) {
-      const coupon = await CouponModel.findOne({
-        code: data.couponCode.toUpperCase(),
-        active: true,
-      });
-      if (!coupon) {
-        throw new Error('Cupón inválido o inactivo');
-      }
-      discountPercent = coupon.discountPercent;
+  updateOrderStatus: async (id: string, status: string): Promise<IOrder | null> => {
+    if (!['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'].includes(status)) {
+      throw new Error('Estado inválido');
     }
-
-    const discountAmount = subtotal * (discountPercent / 100);
-    const afterDiscount = subtotal - discountAmount;
-
-    const isCredit = data.paymentMethod === 'credito';
-    const surcharge = isCredit ? afterDiscount * (CREDIT_SURCHARGE_PERCENT / 100) : 0;
-
-    const total = afterDiscount + surcharge + deliveryCost;
-
-    const orderData = {
-      customer: {
-        name: data.customer.name,
-        phone: data.customer.phone,
-        address: data.delivery?.address,
-      },
-      items,
-      notes: data.notes || '',
-      couponCode: data.couponCode,
-      discountPercent,
-      discountAmount,
-      subtotal,
-      deliveryType: data.deliveryType,
-      paymentMethod: data.paymentMethod,
-      deliveryCost,
-      surcharge,
-      delivery: data.delivery,
-      total,
-    };
-
-    const order = new Order(orderData);
-    return await order.save();
+    return await Order.findByIdAndUpdate(id, { status }, { new: true });
   },
 
-  modify: async (id: string, data: any) => {
-    return await Order.findByIdAndUpdate(id, data, { new: true });
-  },
+  updateDeliveryCost: async (id: string, deliveryCost: number): Promise<IOrder | null> => {
+    const order = await Order.findById(id);
+    if (!order) return null;
 
-  deleteById: async (id: string) => {
-    return await Order.findByIdAndDelete(id);
+    const newTotal = order.subtotal - (order.subtotal * order.discountPercent) / 100 + deliveryCost;
+
+    return await Order.findByIdAndUpdate(
+      id,
+      { deliveryCost, total: newTotal },
+      { new: true }
+    );
   },
 };

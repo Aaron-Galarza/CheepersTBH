@@ -12,7 +12,7 @@ router.get('/admin/all', protect, isAdmin, ProductsController.getAll);
 router.get('/admin/:id', protect, isAdmin, ProductsController.getById);
 router.post('/admin', protect, isAdmin, validateRequest(ProductCreateSchema), ProductsController.create);
 router.put('/admin/:id', protect, isAdmin, validateRequest(ProductUpdateSchema), ProductsController.update);
-router.put('/admin/:id/toggleActive', protect, isAdmin, ProductsController.toggleActive);
+router.patch('/admin/:id/toggle', protect, isAdmin, ProductsController.toggleActive);
 router.delete('/admin/:id', protect, isAdmin, ProductsController.delete);
 
 export default router;

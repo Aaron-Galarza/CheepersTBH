@@ -19,20 +19,23 @@ export class ConfigController {
     sendSuccess(res, config, 200, 'Estado de emergencia toggled');
   });
 
+  static updateEmergencyMessage = asyncHandler(async (req: Request, res: Response) => {
+    const { message } = req.body;
+    if (!message) return sendError(res, 'El mensaje de emergencia es requerido', 400);
+    const config = await ConfigService.updateEmergencyMessage(message);
+    sendSuccess(res, config, 200, 'Mensaje de emergencia actualizado');
+  });
+
   static updateSchedule = asyncHandler(async (req: Request, res: Response) => {
     const { dailySchedule } = req.body;
-    if (!Array.isArray(dailySchedule)) {
-      return sendError(res, 'dailySchedule debe ser un array', 400);
-    }
+    if (!Array.isArray(dailySchedule)) return sendError(res, 'dailySchedule debe ser un array', 400);
     const config = await ConfigService.updateSchedule(dailySchedule);
     sendSuccess(res, config, 200, 'Horarios actualizados');
   });
 
   static updateBanner = asyncHandler(async (req: Request, res: Response) => {
     const { banner } = req.body;
-    if (!banner) {
-      return sendError(res, 'El banner es requerido', 400);
-    }
+    if (!banner) return sendError(res, 'El banner es requerido', 400);
     const config = await ConfigService.update({ banner });
     sendSuccess(res, config, 200, 'Banner actualizado');
   });
