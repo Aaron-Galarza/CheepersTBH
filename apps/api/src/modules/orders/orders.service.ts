@@ -2,12 +2,13 @@ import { Order, IOrder } from './orders.model';
 import { CouponsService } from '../coupons/coupons.service';
 import { ConfigService } from '../config/config.service';
 import { CreateOrderInput } from './orders.schema';
+import { AppError } from '../../utils/appError';
 
 export const OrdersService = {
   createOrder: async (orderData: CreateOrderInput): Promise<IOrder> => {
     const storeStatus = await ConfigService.getStatus();
     if (!storeStatus.isOpen || storeStatus.isEmergencyClosed) {
-      throw new Error('El local está cerrado en este momento');
+      throw new AppError('El local está cerrado en este momento', 400);
     }
 
     let subtotal = 0;
@@ -43,7 +44,7 @@ export const OrdersService = {
         discountPercent = coupon.discountPercent || 0;
         discountAmount = (subtotal * discountPercent) / 100;
       } catch (error: any) {
-        throw new Error(`Cupón inválido: ${error.message}`);
+        throw new AppError(`Cupón inválido: ${error.message}`, 400);
       }
     }
 
@@ -93,7 +94,7 @@ export const OrdersService = {
 
   updateOrderStatus: async (id: string, status: string): Promise<IOrder | null> => {
     if (!['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'].includes(status)) {
-      throw new Error('Estado inválido');
+      throw new AppError('Estado inválido', 400);
     }
     return await Order.findByIdAndUpdate(id, { status }, { new: true });
   },
@@ -101,6 +102,9 @@ export const OrdersService = {
   updateDeliveryCost: async (id: string, deliveryCost: number): Promise<IOrder | null> => {
     const order = await Order.findById(id);
     if (!order) return null;
+    if (typeof deliveryCost !== 'number' || deliveryCost < 0) {
+      throw new AppError('El costo de envío debe ser un número positivo', 400);
+    }
 
     const newTotal = order.subtotal - (order.subtotal * order.discountPercent) / 100 + deliveryCost;
 

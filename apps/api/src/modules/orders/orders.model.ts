@@ -120,7 +120,6 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       enum: validOrderStatus,
       default: 'pending',
-      index: true,
     },
     delivery: {
       address: { type: String },

@@ -38,10 +38,6 @@ export class OrdersController {
     const id = req.params.id as string;
     const { status } = req.body;
 
-    if (!status) {
-      return sendError(res, 'El estado es requerido', 400);
-    }
-
     const order = await OrdersService.updateOrderStatus(id, status);
     if (!order) {
       return sendError(res, 'Orden no encontrada', 404);
@@ -52,10 +48,6 @@ export class OrdersController {
   static updateDeliveryCost = asyncHandler(async (req: Request, res: Response) => {
     const id = req.params.id as string;
     const { deliveryCost } = req.body;
-
-    if (typeof deliveryCost !== 'number' || deliveryCost < 0) {
-      return sendError(res, 'El costo de envío debe ser un número positivo', 400);
-    }
 
     const order = await OrdersService.updateDeliveryCost(id, deliveryCost);
     if (!order) {

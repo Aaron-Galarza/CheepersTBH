@@ -1,6 +1,7 @@
 import { CategoriaModel, ICategoria } from './categories.model';
 import { makeCrud } from '../../utils/crudFactory';
 import { ProductModel } from '../products/products.model';
+import { AppError } from '../../utils/appError';
 
 export const CategoriesService = {
   ...makeCrud(CategoriaModel),
@@ -14,7 +15,7 @@ export const CategoriesService = {
   deleteById: async (id: string): Promise<boolean> => {
     const count = await ProductModel.countDocuments({ category: id, active: true });
     if (count > 0) {
-      throw new Error('No puedes eliminar una categoría con productos activos');
+      throw new AppError('No puedes eliminar una categoría con productos activos', 400);
     }
     const result = await CategoriaModel.findByIdAndDelete(id);
     return !!result;

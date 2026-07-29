@@ -1,5 +1,6 @@
 import { CouponModel, ICoupon } from './coupons.model';
 import { makeCrud } from '../../utils/crudFactory';
+import { AppError } from '../../utils/appError';
 
 export const CouponsService = {
   ...makeCrud(CouponModel),
@@ -11,20 +12,20 @@ export const CouponsService = {
     }).lean();
 
     if (!coupon) {
-      throw new Error('Cupón no válido');
+      throw new AppError('Cupón no válido', 400);
     }
 
     if (coupon.validDays && coupon.validDays.length > 0) {
       const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const today = DAYS[new Date().getDay()];
       if (!coupon.validDays.includes(today)) {
-        throw new Error('Este cupón no es válido hoy');
+        throw new AppError('Este cupón no es válido hoy', 400);
       }
     }
 
     if (coupon.validPaymentMethods && coupon.validPaymentMethods.length > 0) {
       if (!paymentMethod || !coupon.validPaymentMethods.includes(paymentMethod)) {
-        throw new Error('Este cupón no aplica con el método de pago seleccionado');
+        throw new AppError('Este cupón no aplica con el método de pago seleccionado', 400);
       }
     }
 

@@ -1,17 +1,18 @@
 import { User } from './users.model';
 import jwt from 'jsonwebtoken';
+import { AppError } from '../../utils/appError';
 
 export class UserService {
   static async login(email: string, password: string) {
     const user = await User.findOne({ email }).select('+passwordHash');
 
     if (!user) {
-      throw new Error('Usuario no encontrado');
+      throw new AppError('Usuario no encontrado', 404);
     }
 
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      throw new Error('Credenciales inválidas');
+      throw new AppError('Credenciales inválidas', 401);
     }
 
     const token = jwt.sign(
@@ -33,7 +34,7 @@ export class UserService {
   static async createUser(email: string, password: string) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new Error('El usuario ya existe');
+      throw new AppError('El usuario ya existe', 409);
     }
 
     const user = new User({
