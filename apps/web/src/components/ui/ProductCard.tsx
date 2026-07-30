@@ -1,63 +1,58 @@
-import { cn } from '@/utils/cn';
-import { formatCurrency, parsePromoText } from '@/utils/format';
+'use client';
+
 import { Product } from '@/types';
+import { ShoppingCart, Check } from 'lucide-react';
+import { formatCurrency } from '@/utils/format';
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
-  className?: string;
+  onAddClick: () => void;
+  isAdded?: boolean;
 }
 
-export function ProductCard({ product, onAddToCart, className = '' }: ProductCardProps) {
+export function ProductCard({ product, onAddClick, isAdded }: ProductCardProps) {
+  const title = product.title || product.name;
+  const img = product.image || product.imageUrl;
+
   return (
-    <div
-      className={cn(
-        'group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.1)] transition-transform duration-200 hover:scale-[1.02]',
-        className
-      )}
-    >
-      <div className="relative h-[210px] w-full overflow-hidden max-md:h-[270px]">
-        {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="h-full w-full border-b border-[#eee] object-cover"
-            loading="lazy"
-          />
+    <div className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+      <div className="relative h-40 w-full overflow-hidden bg-gradient-to-b from-[#3a2a1a] to-[#1a1008] sm:h-48 md:h-52 lg:h-56">
+        {img ? (
+          <img src={img} alt={title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#f0f2f5] text-[#a0aec0]">
-            Sin imagen
+          <div className="flex h-full w-full items-center justify-center text-[#757575]">
+            <ShoppingCart size={32} className="sm:size-[40px] md:size-[48px]" />
           </div>
+        )}
+        {product.promotionalLabel && (
+          <span className="absolute top-2 left-2 rounded-full bg-[#F9A825] px-2 py-0.5 text-[10px] font-bold text-white shadow sm:top-3 sm:left-3 sm:px-3 sm:py-1 sm:text-xs">
+            {product.promotionalLabel}
+          </span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col px-6 py-4">
-        <h3 className="mb-1 text-xl text-[#1f1e1e] max-md:text-lg">{product.name}</h3>
-        <p className="mb-3 min-h-[3.5rem] text-[15px] leading-relaxed text-[#555] max-md:text-[13px]">
-          {product.description}
-        </p>
+      <div className="flex flex-1 flex-col p-2.5 md:p-4">
+        <h3 className="mb-1 font-extrabold leading-tight text-[#212121] font-[var(--font-montserrat)] text-sm sm:text-base md:text-lg">
+          {title}
+        </h3>
 
-        {product.promotionalLabel && (
-          <p
-            className="mb-2 text-sm font-bold text-[#ff0000]"
-            dangerouslySetInnerHTML={{
-              __html: parsePromoText(product.promotionalLabel),
-            }}
-          />
+        {product.description && (
+          <p className="mb-3 leading-relaxed text-[#757575] font-[var(--font-open-sans)] text-xs sm:text-sm line-clamp-2">
+            {product.description}
+          </p>
         )}
 
-        <div className="mt-auto flex items-center justify-between">
-          <span className="text-lg font-bold text-[#e63946] max-md:text-base">
+        <div className="mt-auto flex items-center justify-between gap-2">
+          <span className="font-extrabold text-[#D9383A] font-[var(--font-montserrat)] text-sm sm:text-base md:text-lg">
             {formatCurrency(product.price)}
           </span>
-          {onAddToCart && (
-            <button
-              onClick={() => onAddToCart(product)}
-              className="rounded-lg bg-[#ce1d1d] px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#ee7f18]"
-            >
-              Agregar al carrito
-            </button>
-          )}
+          <button
+            onClick={onAddClick}
+            className={`flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg font-bold text-white transition-all duration-300 px-3 py-1.5 text-xs sm:text-sm ${isAdded ? 'bg-green-500 scale-95' : 'bg-[#D9383A] hover:bg-[#b52d2f] active:scale-95'}`}
+          >
+            {isAdded ? <Check size={14} /> : null}
+            {isAdded ? 'Agregado' : 'Agregar'}
+          </button>
         </div>
       </div>
     </div>

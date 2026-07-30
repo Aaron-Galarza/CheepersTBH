@@ -24,14 +24,13 @@ export function AboutSection({ className = '' }: { className?: string }) {
       <div className="flex gap-12 max-md:flex-col max-md:gap-8">
         <div className="flex-[2]">
           <h2 className="mb-6 font-['Montserrat'] text-[2.5rem] font-extrabold text-[#2d3748] max-md:text-center max-md:text-[2rem]">
-            Bienvenidos a Cheepers
+           BIENVENIDOS A CHEEPERS THE BURGUER HOUSE, LA MEJOR CALIDAD AL MEJOR PRECIO
           </h2>
-
+          
           <div className="mb-8 space-y-4">
             <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-justify max-md:text-[1.05em]">
               Fundado en {FOUNDATION_YEAR} por {FOUNDER}, Cheepers nació con una idea clara:
-              ofrecer comida rápida rica, accesible y sin vueltas. Inspirados en grandes cadenas,
-              apostamos por un modelo propio con identidad local.
+              ofrecer comida rápida rica, accesible y sin vueltas.
             </p>
 
             <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-justify max-md:text-[1.05em]">

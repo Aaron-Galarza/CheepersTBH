@@ -20,7 +20,7 @@ export function CartSummary({ items, className = '' }: CartSummaryProps) {
     <div className={cn('space-y-3', className)}>
       {items.map((item) => (
         <div
-          key={item.id}
+          key={item.cartItemId}
           className="border-b border-dashed border-[#e2e8f0] pb-3 last:border-0"
         >
           <div className="flex items-center justify-between">
@@ -28,16 +28,16 @@ export function CartSummary({ items, className = '' }: CartSummaryProps) {
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#e53e3e] text-xs font-bold text-white">
                 {item.quantity}
               </span>
-              <span className="text-sm font-medium text-[#4a5568]">{item.product.name}</span>
+              <span className="text-sm font-medium text-[#4a5568]">{item.name}</span>
             </div>
             <span className="text-sm font-semibold text-[#e53e3e]">
-              {formatCurrency(item.product.price * item.quantity)}
+              {formatCurrency(item.price * item.quantity)}
             </span>
           </div>
 
-          {item.addons.length > 0 && (
+          {item.addOns.length > 0 && (
             <div className="ml-9 mt-1 space-y-0.5">
-              {item.addons.map((addon) => (
+              {item.addOns.map((addon) => (
                 <div key={addon._id} className="flex justify-between text-xs text-[#718096]">
                   <span>+ {addon.name} x{addon.quantity}</span>
                   <span>{formatCurrency(addon.price * addon.quantity)}</span>

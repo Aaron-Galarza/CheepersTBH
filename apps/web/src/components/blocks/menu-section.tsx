@@ -2,7 +2,7 @@
 
 import { cn } from '@/utils/cn';
 import { ProductCard } from '@/components/ui/ProductCard';
-import { Product, CartAddon } from '@/types';
+import { Product } from '@/types';
 import { useCartStore } from '@/stores/cart.store';
 
 interface MenuSectionProps {
@@ -12,11 +12,10 @@ interface MenuSectionProps {
 }
 
 export function MenuSection({ category, products, className = '' }: MenuSectionProps) {
-  const addItem = useCartStore((s) => s.addItem);
+  const addToCart = useCartStore((s) => s.addToCart);
 
   const handleAddToCart = (product: Product) => {
-    const addons: CartAddon[] = [];
-    addItem(product, 1, addons);
+    addToCart(product, []);
   };
 
   if (products.length === 0) return null;
@@ -35,7 +34,7 @@ export function MenuSection({ category, products, className = '' }: MenuSectionP
           <ProductCard
             key={product._id}
             product={product}
-            onAddToCart={handleAddToCart}
+            onAddClick={() => handleAddToCart(product)}
           />
         ))}
       </div>

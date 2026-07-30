@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { CartItem, CartAddon, Coupon } from '@/types';
+import { CartItem, SelectedAddOn, Coupon, Addon } from '@/types';
+
+function generateCartItemId(productId: string, addOns: SelectedAddOn[]): string {
+  if (!addOns || addOns.length === 0) return productId;
+  const sorted = [...addOns].sort((a, b) => a._id.localeCompare(b._id));
+  const parts = sorted.map((a) => `${a._id}:${a.quantity}`).join(',');
+  return `${productId}__${parts}`;
+}
 
 interface CartState {
   items: CartItem[];
@@ -10,25 +17,26 @@ interface CartState {
   deliveryAddress: string;
   deliveryCoordinates: { lat: number; lng: number } | null;
   deliveryCost: number;
-  // Acciones
-  addItem: (product: any, quantity: number, addons: CartAddon[]) => void;
-  removeItem: (itemId: string) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
+
+  addToCart: (product: any, addOns: SelectedAddOn[]) => void;
+  removeFromCart: (cartItemId: string) => void;
+  updateCartItemAddOns: (oldCartItemId: string, newAddOns: SelectedAddOn[]) => void;
   clearCart: () => void;
-  setDeliveryType: (type: 'pickup' | 'delivery') => void;
-  setPaymentMethod: (
-      method: 'cash' | 'debito' | 'credito' | 'transferencia'
-  ) => void;
-  setCoupon: (coupon: Coupon) => void;
+  setDeliveryType: (t: 'pickup' | 'delivery') => void;
+  setPaymentMethod: (m: 'cash' | 'debito' | 'credito' | 'transferencia') => void;
+  setCoupon: (c: Coupon) => void;
   clearCoupon: () => void;
-  setDeliveryAddress: (address: string, coords: { lat: number; lng: number }) => void;
-  setDeliveryCost: (cost: number) => void;
+  setDeliveryAddress: (a: string, c: { lat: number; lng: number }) => void;
+  setDeliveryCost: (c: number) => void;
   clearDelivery: () => void;
-  // Computed getters
   getSubtotal: () => number;
   getDiscount: () => number;
   getTotal: () => number;
   getItemCount: () => number;
+}
+
+function getAddOns(item: any): SelectedAddOn[] {
+  return item.addOns ?? item.addons ?? [];
 }
 
 export const useCartStore = create<CartState>()(
@@ -42,127 +50,142 @@ export const useCartStore = create<CartState>()(
       deliveryCoordinates: null,
       deliveryCost: 0,
 
-      addItem: (product, quantity, addons) => {
-        set((state) => {
-          const existingItem = state.items.find(
-            (item) =>
-              item.product._id === product._id &&
-              JSON.stringify(item.addons) === JSON.stringify(addons)
-          );
-
-          if (existingItem) {
+      addToCart: (product: any, addOns: SelectedAddOn[]) => {
+        set((prev) => {
+          const id = generateCartItemId(product._id, addOns);
+          const exists = prev.items.find((item) => item.cartItemId === id);
+          if (exists) {
             return {
-              items: state.items.map((item) =>
-                item.id === existingItem.id
-                  ? { ...item, quantity: item.quantity + quantity }
-                  : item
+              items: prev.items.map((item) =>
+                item.cartItemId === id ? { ...item, quantity: item.quantity + 1 } : item
               ),
             };
           }
-
           return {
             items: [
-              ...state.items,
-              {
-                id: `${product._id}-${Date.now()}`,
-                product,
-                quantity,
-                addons,
-                itemTotal: 0,
-              },
+              ...prev.items,
+              { ...product, quantity: 1, addOns, cartItemId: id },
             ],
           };
         });
       },
 
-      removeItem: (itemId) => {
-        set((state) => ({
-          items: state.items.filter((item) => item.id !== itemId),
-        }));
-      },
-
-      updateQuantity: (itemId, quantity) => {
-        if (quantity <= 0) {
-          get().removeItem(itemId);
-          return;
-        }
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === itemId ? { ...item, quantity } : item
-          ),
-        }));
-      },
-
-      clearCart: () => {
-        set({
-          items: [],
-          coupon: null,
-          deliveryCost: 0,
-          deliveryCoordinates: null,
-          deliveryAddress: '',
-          deliveryType: null,
-          paymentMethod: null,
+      removeFromCart: (cartItemId: string) => {
+        set((prev) => {
+          const item = prev.items.find((i) => i.cartItemId === cartItemId);
+          if (!item) return prev;
+          if (item.quantity > 1) {
+            return {
+              items: prev.items.map((i) =>
+                i.cartItemId === cartItemId ? { ...i, quantity: i.quantity - 1 } : i
+              ),
+            };
+          }
+          return { items: prev.items.filter((i) => i.cartItemId !== cartItemId) };
         });
       },
 
-      setDeliveryType: (type) => {
-        set({ deliveryType: type });
-        if (type === 'pickup') {
-          get().clearDelivery();
-        }
-      },
+      updateCartItemAddOns: (oldCartItemId: string, newAddOns: SelectedAddOn[]) => {
+        set((prev) => {
+          const item = prev.items.find((i) => i.cartItemId === oldCartItemId);
+          if (!item) return prev;
 
-      setPaymentMethod: (method) => set({ paymentMethod: method }),
+          const newId = generateCartItemId(item._id, newAddOns);
+          const idx = prev.items.findIndex((i) => i.cartItemId === oldCartItemId);
 
-      setCoupon: (coupon) => set({ coupon }),
+          // RAMA 1 — FUSIÓN: quitar TODOS los adicionales
+          if (newAddOns.length === 0) {
+            const plainIdx = prev.items.findIndex(
+              (i) =>
+                i.cartItemId === item._id &&
+                (!i.addOns || i.addOns.length === 0) &&
+                i.cartItemId !== oldCartItemId
+            );
+            if (plainIdx !== -1) {
+              const next = [...prev.items];
+              next[plainIdx] = { ...next[plainIdx], quantity: next[plainIdx].quantity + item.quantity };
+              next.splice(idx, 1);
+              return { items: next };
+            }
+            const next = [...prev.items];
+            next[idx] = { ...item, addOns: [], cartItemId: newId };
+            return { items: next };
+          }
 
-      clearCoupon: () => set({ coupon: null }),
+          // RAMA 2 — DIVISIÓN: ítem con quantity > 1, se personaliza 1 unidad
+          if (item.quantity > 1) {
+            const next = [...prev.items];
+            next[idx] = { ...item, quantity: item.quantity - 1, addOns: [], cartItemId: generateCartItemId(item._id, []) };
+            const personalized = { ...item, quantity: 1, addOns: newAddOns, cartItemId: newId };
 
-      setDeliveryAddress: (address, coords) => {
-        set({
-          deliveryAddress: address,
-          deliveryCoordinates: coords,
-        });
-      },
+            const existingIdx = next.findIndex(
+              (i) => i.cartItemId === newId && i.cartItemId !== oldCartItemId
+            );
+            if (existingIdx !== -1) {
+              next[existingIdx] = { ...next[existingIdx], quantity: next[existingIdx].quantity + 1 };
+            } else {
+              next.splice(idx + 1, 0, personalized);
+            }
+            return { items: next };
+          }
 
-      setDeliveryCost: (cost) => {
-        set({ deliveryCost: cost });
-      },
-
-      clearDelivery: () => {
-        set({
-          deliveryAddress: '',
-          deliveryCoordinates: null,
-          deliveryCost: 0,
-        });
-      },
-
-      getSubtotal: () => {
-        return get().items.reduce((sum, item) => {
-          const itemPrice = item.product.price * item.quantity;
-          const addonsPrice = item.addons.reduce(
-            (addonSum, addon) => addonSum + addon.price * addon.quantity,
-            0
+          // RAMA 3 — ACTUALIZACIÓN SIMPLE: quantity=1, cambiar adicionales
+          const existingIdx = prev.items.findIndex(
+            (i) => i.cartItemId === newId && i.cartItemId !== oldCartItemId
           );
-          return sum + itemPrice + addonsPrice;
-        }, 0);
+          if (existingIdx !== -1) {
+            const next = [...prev.items];
+            next[existingIdx] = { ...next[existingIdx], quantity: next[existingIdx].quantity + 1 };
+            next.splice(idx, 1);
+            return { items: next };
+          }
+          const next = [...prev.items];
+          next[idx] = { ...item, addOns: newAddOns, cartItemId: newId };
+          return { items: next };
+        });
       },
 
-      getDiscount: () => {
-        if (!get().coupon) return 0;
-        return (get().getSubtotal() * get().coupon!.discountPercent) / 100;
-      },
+      clearCart: () => set({ items: [], coupon: null, deliveryCost: 0, deliveryCoordinates: null, deliveryAddress: '', deliveryType: null, paymentMethod: null }),
+      setDeliveryType: (t) => { set({ deliveryType: t }); if (t === 'pickup') get().clearDelivery(); },
+      setPaymentMethod: (m) => set({ paymentMethod: m }),
+      setCoupon: (c) => set({ coupon: c }),
+      clearCoupon: () => set({ coupon: null }),
+      setDeliveryAddress: (a, c) => set({ deliveryAddress: a, deliveryCoordinates: c }),
+      setDeliveryCost: (c) => set({ deliveryCost: c }),
+      clearDelivery: () => set({ deliveryAddress: '', deliveryCoordinates: null, deliveryCost: 0 }),
 
-      getTotal: () => {
-        return get().getSubtotal() - get().getDiscount() + get().deliveryCost;
-      },
-
-      getItemCount: () => {
-        return get().items.reduce((count, item) => count + item.quantity, 0);
-      },
+      getSubtotal: () =>
+        get().items.reduce((sum, item: any) => {
+          let price = item.price;
+          for (const ao of getAddOns(item)) price += ao.price * ao.quantity;
+          return sum + price * item.quantity;
+        }, 0),
+      getDiscount: () => (get().coupon ? (get().getSubtotal() * get().coupon!.discountPercent) / 100 : 0),
+      getTotal: () => get().getSubtotal() - get().getDiscount() + get().deliveryCost,
+      getItemCount: () => get().items.reduce((c, i) => c + i.quantity, 0),
     }),
     {
       name: 'cheepers-cart',
+      version: 2,
+      skipHydration: true,
+      migrate: (persisted: any) => {
+        const raw = (persisted?.items || []).map((item: any) => {
+          const addOns = item.addOns ?? item.addons ?? [];
+          const cartItemId =
+            item.cartItemId ??
+            generateCartItemId(item.product?._id ?? item._id, addOns);
+          return { ...item, addOns, cartItemId };
+        });
+        const merged = new Map<string, any>();
+        for (const item of raw) {
+          if (merged.has(item.cartItemId)) {
+            merged.get(item.cartItemId).quantity += item.quantity || 1;
+          } else {
+            merged.set(item.cartItemId, { ...item });
+          }
+        }
+        return { ...persisted, items: [...merged.values()] };
+      },
     }
   )
 );

@@ -1,13 +1,23 @@
 export interface Product {
   _id: string;
   name: string;
+  title?: string;
   description: string;
   price: number;
   promotionalLabel?: string;
+  featured?: boolean;
   imageUrl?: string;
-  category: string;
+  image?: string;
+  category: string | { _id: string; name: string; order?: number };
   isActive: boolean;
+  active?: boolean;
   tags?: string[];
+}
+
+export interface Category {
+  _id?: string;
+  name: string;
+  isActive?: boolean;
 }
 
 export interface IAddOn {
@@ -21,19 +31,19 @@ export interface IAddOn {
   associatedProductCategories: string[];
 }
 
-export interface CartAddon {
+export type Addon = IAddOn;
+
+export interface SelectedAddOn {
   _id: string;
   name: string;
   price: number;
   quantity: number;
 }
 
-export interface CartItem {
-  id: string;
-  product: Product;
+export interface CartItem extends Product {
   quantity: number;
-  addons: CartAddon[];
-  itemTotal: number;
+  addOns: SelectedAddOn[];
+  cartItemId: string;
 }
 
 export interface Coupon {
@@ -75,10 +85,7 @@ export interface OrderItem {
 
 export interface Order {
   _id?: string;
-  customer: {
-    name: string;
-    phone: string;
-  };
+  customer: { name: string; phone: string };
   items: OrderItem[];
   deliveryType: 'pickup' | 'delivery';
   paymentMethod: 'cash' | 'transfer' | 'mercadopago';
@@ -88,14 +95,14 @@ export interface Order {
   deliveryCost: number;
   total: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
-  delivery?: {
-    address: string;
-    coordinates: {
-      lat: number;
-      lng: number;
-    };
-    distanceKm: number;
-  };
+  delivery?: { address: string; coordinates: { lat: number; lng: number }; distanceKm: number };
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface StoreConfig {
+  isOpen: boolean;
+  message?: string;
+  schedule?: string;
+  deliveryAvailable: boolean;
 }

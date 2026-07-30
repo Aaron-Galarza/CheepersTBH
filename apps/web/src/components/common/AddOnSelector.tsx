@@ -1,9 +1,9 @@
 import { cn } from '@/utils/cn';
-import { CartAddon, IAddOn } from '@/types';
+import { SelectedAddOn, IAddOn } from '@/types';
 
 interface AddOnSelectorProps {
   availableAddOns: IAddOn[];
-  selectedAddOns: CartAddon[];
+  selectedAddOns: SelectedAddOn[];
   onToggle: (addon: IAddOn) => void;
   className?: string;
 }

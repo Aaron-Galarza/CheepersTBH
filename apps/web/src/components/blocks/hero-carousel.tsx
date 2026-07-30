@@ -46,7 +46,7 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative mx-auto mb-20 flex min-h-[500px] w-full max-w-[1200px] items-center justify-center overflow-hidden rounded-[70px] bg-[#FFF8E1] shadow-[0_5px_20px_rgba(0,0,0,0.08)] max-md:mb-12 max-md:min-h-[420px] max-md:rounded-[30px]"
+      className="relative mx-auto mt-4 mb-20 flex min-h-[500px] w-full max-w-[1200px] items-center justify-center overflow-hidden rounded-[70px] bg-[#FFF8E1] shadow-[0_5px_20px_rgba(0,0,0,0.08)] max-md:mt-8 max-md:mb-12 max-md:min-h-[420px] max-md:rounded-[30px]"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

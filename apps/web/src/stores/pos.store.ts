@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { CartItem, CartAddon } from '@/types';
+import { CartItem, SelectedAddOn } from '@/types';
 
 interface POSState {
   items: CartItem[];
   searchQuery: string;
   selectedCategory: string | null;
-  addItem: (product: any, quantity: number, addons: CartAddon[]) => void;
+  addItem: (product: any, quantity: number, addons: SelectedAddOn[]) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -19,55 +19,24 @@ export const usePOSStore = create<POSState>((set, get) => ({
   searchQuery: '',
   selectedCategory: null,
 
-  addItem: (product, quantity, addons) => {
+  addItem: (product: any, quantity: number, addons: SelectedAddOn[]) => {
     set((state) => {
-      const existingItem = state.items.find(
-        (item) =>
-          item.product._id === product._id &&
-          JSON.stringify(item.addons) === JSON.stringify(addons)
-      );
-
-      if (existingItem) {
-        return {
-          items: state.items.map((item) =>
-            item.id === existingItem.id
-              ? { ...item, quantity: item.quantity + quantity }
-              : item
-          ),
-        };
+      const id = `${product._id}_${addons.map((a) => a._id).sort().join(',')}`;
+      const existing = state.items.find((i) => i.cartItemId === id);
+      if (existing) {
+        return { items: state.items.map((i) => i.cartItemId === id ? { ...i, quantity: i.quantity + quantity } : i) };
       }
-
-      return {
-        items: [
-          ...state.items,
-          {
-            id: `${product._id}-${Date.now()}`,
-            product,
-            quantity,
-            addons,
-            itemTotal: 0,
-          },
-        ],
-      };
+      return { items: [...state.items, { ...product, quantity, addOns: addons, cartItemId: id }] };
     });
   },
 
   removeItem: (itemId) => {
-    set((state) => ({
-      items: state.items.filter((item) => item.id !== itemId),
-    }));
+    set((state) => ({ items: state.items.filter((item) => item.cartItemId !== itemId) }));
   },
 
   updateQuantity: (itemId, quantity) => {
-    if (quantity <= 0) {
-      get().removeItem(itemId);
-      return;
-    }
-    set((state) => ({
-      items: state.items.map((item) =>
-        item.id === itemId ? { ...item, quantity } : item
-      ),
-    }));
+    if (quantity <= 0) { get().removeItem(itemId); return; }
+    set((state) => ({ items: state.items.map((i) => i.cartItemId === itemId ? { ...i, quantity } : i) }));
   },
 
   clearCart: () => {
@@ -80,12 +49,9 @@ export const usePOSStore = create<POSState>((set, get) => ({
 
   getSubtotal: () => {
     return get().items.reduce((sum, item) => {
-      const itemPrice = item.product.price * item.quantity;
-      const addonsPrice = item.addons.reduce(
-        (addonSum, addon) => addonSum + addon.price * addon.quantity,
-        0
-      );
-      return sum + itemPrice + addonsPrice;
+      let price = item.price;
+      for (const ao of item.addOns) price += ao.price * ao.quantity;
+      return sum + price * item.quantity;
     }, 0);
   },
 }));

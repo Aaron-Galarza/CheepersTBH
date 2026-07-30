@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, User, Menu, X } from "lucide-react";
+import { useCartStore } from "@/stores/cart.store";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const cartCount = useCartStore((s) => s.getItemCount());
 
-  // TODO: Esto vendrá de tu estado global/contexto del carrito. Dejo un mock por defecto.
-  const cartCount = 0; 
+  useEffect(() => { setMounted(true); }, []); 
 
   const navLinks = [
     { name: "Inicio", href: "/" },
@@ -69,7 +71,7 @@ export default function Header() {
           <ShoppingCart size={20} className="text-white transition-colors duration-300 group-hover:text-white" />
           
           {/* Badge del carrito */}
-          {cartCount > 0 && (
+          {mounted && cartCount > 0 && (
             <span className="absolute -right-[6px] -top-[6px] rounded-full border-2 border-[#e53e3e] bg-white px-[6px] py-[2px] text-[0.7rem] font-bold text-[#e53e3e]">
               {cartCount}
             </span>
