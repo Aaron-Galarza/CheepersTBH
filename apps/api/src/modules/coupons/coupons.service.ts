@@ -5,6 +5,10 @@ import { AppError } from '../../utils/appError';
 export const CouponsService = {
   ...makeCrud(CouponModel),
 
+  viewAll: async (): Promise<ICoupon[]> => {
+    return await CouponModel.find().sort({ createdAt: -1 });
+  },
+
   validateCoupon: async (code: string, paymentMethod?: string): Promise<ICoupon> => {
     const coupon = await CouponModel.findOne({
       code: code.toUpperCase(),
@@ -24,11 +28,11 @@ export const CouponsService = {
     }
 
     if (coupon.validPaymentMethods && coupon.validPaymentMethods.length > 0) {
-      if (!paymentMethod || !coupon.validPaymentMethods.includes(paymentMethod)) {
-        throw new AppError('Este cupón no aplica con el método de pago seleccionado', 400);
+      if (!coupon.validPaymentMethods.includes(paymentMethod || '')) {
+        throw new AppError(`Este cupón no aplica con ${paymentMethod || 'este método de pago'}`, 400);
       }
     }
 
-    return coupon as ICoupon;
+    return coupon;
   },
 };

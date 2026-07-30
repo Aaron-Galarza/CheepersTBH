@@ -6,39 +6,39 @@ import { sendSuccess, sendError } from '../../utils/response';
 export class AdditionalsController {
   static getPublic = asyncHandler(async (req: Request, res: Response) => {
     const additionals = await AdditionalsService.viewPublic();
-    sendSuccess(res, additionals);
+    sendSuccess(res, additionals, 200);
   });
 
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const additionals = await AdditionalsService.viewAll();
-    sendSuccess(res, additionals);
+    sendSuccess(res, additionals, 200);
   });
 
   static create = asyncHandler(async (req: Request, res: Response) => {
-    const adicional = await AdditionalsService.create(req.body);
-    sendSuccess(res, adicional, 201, 'Adicional creado');
+    const additional = await AdditionalsService.create(req.body);
+    sendSuccess(res, additional, 201, 'Adicional creado exitosamente');
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const adicional = await AdditionalsService.modify(id, req.body);
-    if (!adicional) {
+    const id = req.params.id as string;
+    const additional = await AdditionalsService.modify(id, req.body);
+    if (!additional) {
       return sendError(res, 'Adicional no encontrado', 404);
     }
-    sendSuccess(res, adicional, 200, 'Adicional actualizado');
+    sendSuccess(res, additional, 200, 'Adicional actualizado');
   });
 
   static toggleActive = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const adicional = await AdditionalsService.toggleActive(id);
-    if (!adicional) {
+    const id = req.params.id as string;
+    const additional = await AdditionalsService.toggleActive(id);
+    if (!additional) {
       return sendError(res, 'Adicional no encontrado', 404);
     }
-    sendSuccess(res, adicional, 200, 'Estado actualizado');
+    sendSuccess(res, additional, 200);
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const deleted = await AdditionalsService.deleteById(id);
     if (!deleted) {
       return sendError(res, 'Adicional no encontrado', 404);

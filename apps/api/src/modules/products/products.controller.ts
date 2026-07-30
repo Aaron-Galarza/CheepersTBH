@@ -6,30 +6,30 @@ import { sendSuccess, sendError } from '../../utils/response';
 export class ProductsController {
   static getPublic = asyncHandler(async (req: Request, res: Response) => {
     const products = await ProductsService.viewPublic();
-    sendSuccess(res, products);
+    sendSuccess(res, products, 200);
   });
 
   static getAll = asyncHandler(async (req: Request, res: Response) => {
-    const products = await ProductsService.viewAll();
-    sendSuccess(res, products);
+    const products = await ProductsService.viewAll(true);
+    sendSuccess(res, products, 200);
   });
 
   static getById = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const product = await ProductsService.viewById(id);
     if (!product) {
       return sendError(res, 'Producto no encontrado', 404);
     }
-    sendSuccess(res, product);
+    sendSuccess(res, product, 200);
   });
 
   static create = asyncHandler(async (req: Request, res: Response) => {
     const product = await ProductsService.create(req.body);
-    sendSuccess(res, product, 201, 'Producto creado');
+    sendSuccess(res, product, 201, 'Producto creado exitosamente');
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const product = await ProductsService.modify(id, req.body);
     if (!product) {
       return sendError(res, 'Producto no encontrado', 404);
@@ -38,16 +38,16 @@ export class ProductsController {
   });
 
   static toggleActive = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const product = await ProductsService.toggleActive(id);
     if (!product) {
       return sendError(res, 'Producto no encontrado', 404);
     }
-    sendSuccess(res, product, 200, 'Estado actualizado');
+    sendSuccess(res, product, 200);
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const deleted = await ProductsService.deleteById(id);
     if (!deleted) {
       return sendError(res, 'Producto no encontrado', 404);

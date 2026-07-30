@@ -6,12 +6,12 @@ import { sendSuccess, sendError } from '../../utils/response';
 export class BannersController {
   static getPublic = asyncHandler(async (req: Request, res: Response) => {
     const banners = await BannersService.getPublic();
-    sendSuccess(res, banners);
+    sendSuccess(res, banners, 200);
   });
 
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const banners = await BannersService.viewAll();
-    sendSuccess(res, banners);
+    sendSuccess(res, banners, 200);
   });
 
   static create = asyncHandler(async (req: Request, res: Response) => {
@@ -20,7 +20,7 @@ export class BannersController {
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const banner = await BannersService.modify(id, req.body);
     if (!banner) {
       return sendError(res, 'Banner no encontrado', 404);
@@ -29,16 +29,16 @@ export class BannersController {
   });
 
   static toggleActive = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const banner = await BannersService.toggleActive(id);
     if (!banner) {
       return sendError(res, 'Banner no encontrado', 404);
     }
-    sendSuccess(res, banner, 200, 'Estado actualizado');
+    sendSuccess(res, banner, 200);
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const deleted = await BannersService.deleteById(id);
     if (!deleted) {
       return sendError(res, 'Banner no encontrado', 404);

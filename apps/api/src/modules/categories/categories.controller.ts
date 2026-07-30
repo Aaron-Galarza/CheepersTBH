@@ -6,21 +6,21 @@ import { sendSuccess, sendError } from '../../utils/response';
 export class CategoriesController {
   static getPublic = asyncHandler(async (req: Request, res: Response) => {
     const categories = await CategoriesService.viewPublic();
-    sendSuccess(res, categories);
+    sendSuccess(res, categories, 200);
   });
 
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const categories = await CategoriesService.viewAll();
-    sendSuccess(res, categories);
+    sendSuccess(res, categories, 200);
   });
 
   static create = asyncHandler(async (req: Request, res: Response) => {
     const category = await CategoriesService.create(req.body);
-    sendSuccess(res, category, 201, 'Categoría creada');
+    sendSuccess(res, category, 201, 'Categoría creada exitosamente');
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const category = await CategoriesService.modify(id, req.body);
     if (!category) {
       return sendError(res, 'Categoría no encontrada', 404);
@@ -29,16 +29,16 @@ export class CategoriesController {
   });
 
   static toggleActive = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     const category = await CategoriesService.toggleActive(id);
     if (!category) {
       return sendError(res, 'Categoría no encontrada', 404);
     }
-    sendSuccess(res, category, 200, 'Estado actualizado');
+    sendSuccess(res, category, 200);
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = req.params.id as string;
     try {
       const deleted = await CategoriesService.deleteById(id);
       if (!deleted) {
