@@ -3,6 +3,7 @@
 import { CartItem as CartItemType, Addon, Category, SelectedAddOn } from '@/types';
 import { Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
+import { AddOnSelector } from '@/components/common/AddOnSelector';
 
 interface CartItemProps {
   item: CartItemType;
@@ -28,7 +29,8 @@ export function CartItem({
   const title = item.title || item.name;
   const img = item.image || item.imageUrl;
   const addOns = (item as any).addOns ?? (item as any).addons ?? [];
-  const subtotal = (item.price + addOns.reduce((s: number, a: any) => s + a.price * (a.quantity || 1), 0)) * item.quantity;
+  const addOnsTotal = addOns.reduce((s: number, a: any) => s + a.price * (a.quantity || 1), 0);
+  const subtotal = item.price * item.quantity + addOnsTotal;
   const catId = getProductCategoryId(item.category, allCategories);
 
   const available = allAdditionals.filter((a) => {
@@ -77,17 +79,11 @@ export function CartItem({
           {available.length > 0 && (
             <div className="mt-3">
               <p className="mb-2 text-sm text-[#757575] font-[var(--font-open-sans)]">Adicionales disponibles:</p>
-              <div className="flex flex-wrap gap-2">
-                {available.map((addon) => {
-                  const sel = isSelected(addon._id);
-                  return (
-                    <button key={addon._id} onClick={() => handleToggleAddon(addon)}
-                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${sel ? 'border-[#D9383A] bg-[#D9383A] text-white' : 'border-[#e0e0e0] bg-white text-[#757575] hover:border-[#D9383A] hover:text-[#D9383A]'}`}>
-                      {addon.name || (addon as any).title}
-                    </button>
-                  );
-                })}
-              </div>
+              <AddOnSelector
+                availableAddOns={available}
+                selectedAddOns={addOns}
+                onToggle={handleToggleAddon}
+              />
             </div>
           )}
 

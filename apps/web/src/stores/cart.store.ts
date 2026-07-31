@@ -156,9 +156,8 @@ export const useCartStore = create<CartState>()(
 
       getSubtotal: () =>
         get().items.reduce((sum, item: any) => {
-          let price = item.price;
-          for (const ao of getAddOns(item)) price += ao.price * ao.quantity;
-          return sum + price * item.quantity;
+          const addOnsTotal = getAddOns(item).reduce((s: number, a: any) => s + a.price * (a.quantity || 1), 0);
+          return sum + item.price * item.quantity + addOnsTotal;
         }, 0),
       getDiscount: () => (get().coupon ? (get().getSubtotal() * get().coupon!.discountPercent) / 100 : 0),
       getTotal: () => get().getSubtotal() - get().getDiscount() + get().deliveryCost,

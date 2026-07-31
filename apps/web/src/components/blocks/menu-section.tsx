@@ -9,33 +9,42 @@ interface MenuSectionProps {
   category: string;
   products: Product[];
   className?: string;
+  addedId?: string | null;
 }
 
-export function MenuSection({ category, products, className = '' }: MenuSectionProps) {
+function gridClass(count: number) {
+  if (count === 1) return 'grid-cols-1 justify-items-center';
+  if (count === 2) return 'grid-cols-2';
+  if (count === 3) return 'grid-cols-2 md:grid-cols-3';
+  return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+}
+
+export function MenuSection({ category, products, className = '', addedId }: MenuSectionProps) {
   const addToCart = useCartStore((s) => s.addToCart);
 
-  const handleAddToCart = (product: Product) => {
-    addToCart(product, []);
-  };
-
   if (products.length === 0) return null;
+
+  const cols = gridClass(products.length);
+  const isSingle = products.length === 1;
 
   return (
     <section
       id={category.toLowerCase().replace(/\s+/g, '-')}
-      className={cn('mb-12', className)}
+      className={cn('mb-10 md:mb-12', className)}
     >
-      <h2 className="mb-8 text-center font-['Montserrat'] text-3xl font-bold text-[#2d3748] max-md:text-2xl">
+      <h2 className="mb-6 text-center font-[var(--font-montserrat)] text-2xl font-black uppercase tracking-[0.15em] text-[#2d3748] md:mb-8 md:text-3xl">
         {category}
       </h2>
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 max-md:grid-cols-1 max-md:gap-4">
-        {products.map((product) => (
-          <ProductCard
-            key={product._id}
-            product={product}
-            onAddClick={() => handleAddToCart(product)}
-          />
+      <div className={`mx-auto grid w-full max-w-[1280px] ${cols} gap-2 md:gap-4 p-2 md:p-4`}>
+        {products.map((p) => (
+          <div key={String(p._id)} className={isSingle ? 'w-full max-w-sm sm:max-w-md' : ''}>
+            <ProductCard
+              product={p}
+              onAddClick={() => addToCart(p, [])}
+              isAdded={addedId === p._id}
+            />
+          </div>
         ))}
       </div>
     </section>

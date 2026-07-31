@@ -6,21 +6,14 @@ import { useMenu } from '@/hooks/useMenu';
 import { useCartStore } from '@/stores/cart.store';
 import { CategoryFilter } from '@/features/menu/components/CategoryFilter';
 import { SearchBar } from '@/components/common/SearchBar';
-import { ProductCard } from '@/components/ui/ProductCard';
 import { ProductCardSkeleton } from '@/features/menu/components/ProductCardSkeleton';
 import { FeaturedBanner } from '@/features/menu/components/FeaturedBanner';
+import { MenuSection } from '@/components/blocks/menu-section';
 
 function getCategoryName(cat: unknown): string {
   if (typeof cat === 'string') return cat;
   if (cat && typeof cat === 'object' && 'name' in cat) return (cat as { name: string }).name;
   return '';
-}
-
-function gridClass(count: number) {
-  if (count === 1) return 'grid-cols-1 justify-items-center';
-  if (count === 2) return 'grid-cols-2';
-  if (count === 3) return 'grid-cols-2 md:grid-cols-3';
-  return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 }
 
 export default function MenuPage() {
@@ -36,20 +29,6 @@ export default function MenuPage() {
     for (const p of products) { const n = getCategoryName(p.category); if (!g.has(n)) g.set(n, []); g.get(n)!.push(p); }
     return [...g.entries()];
   }, [products, selectedCategory]);
-
-  const renderGrid = (items: Product[]) => {
-    const cols = gridClass(items.length);
-    const isSingle = items.length === 1;
-    return (
-      <div className={`mx-auto grid w-full max-w-[1280px] ${cols} gap-2 md:gap-4 p-2 md:p-4`}>
-        {items.map((p) => (
-          <div key={String(p._id)} className={isSingle ? 'w-full max-w-sm sm:max-w-md' : ''}>
-            <ProductCard product={p} onAddClick={() => onClick(p)} isAdded={addedId === p._id} />
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <div className="cart-bg min-h-screen font-[var(--font-open-sans)]">
@@ -74,23 +53,13 @@ export default function MenuPage() {
           <p className="text-lg text-[#757575]">No encontramos productos{selectedCategory ? ' en esta categoría' : ''}</p>
         </div>
       ) : grouped ? (
-        <div className="space-y-10 p-4 md:space-y-12 md:p-6">
+        <div>
           {grouped.map(([catName, catProducts]) => (
-            <div key={catName}>
-              <h2 className="mb-6 text-center font-[var(--font-montserrat)] text-2xl font-black uppercase tracking-[0.15em] text-[#2d3748] md:mb-8 md:text-3xl">
-                {catName}
-              </h2>
-              {renderGrid(catProducts)}
-            </div>
+            <MenuSection key={catName} category={catName} products={catProducts} addedId={addedId} />
           ))}
         </div>
       ) : (
-        <div>
-          <h2 className="px-4 pt-6 pb-4 text-center font-[var(--font-montserrat)] text-2xl font-black uppercase tracking-[0.15em] text-[#2d3748] md:px-6 md:text-3xl">
-            {selectedCategory}
-          </h2>
-          {renderGrid(products)}
-        </div>
+        <MenuSection category={selectedCategory ?? ''} products={products} addedId={addedId} />
       )}
     </div>
   );

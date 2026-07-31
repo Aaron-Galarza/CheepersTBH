@@ -31,7 +31,7 @@ export function AddOnSelector({
                 : 'border-[#ccc] bg-[#f0f0f0] text-[#333] hover:bg-[#e0e0e0]'
             )}
           >
-            {addon.name}
+            {addon.name || (addon as any).title}
           </button>
         );
       })}
