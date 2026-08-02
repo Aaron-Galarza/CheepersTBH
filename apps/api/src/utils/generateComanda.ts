@@ -1,9 +1,12 @@
-import { IOrder } from '../modules/orders/orders.model';
+// ================================================================
+// ⚠️ COMANDAS (PENDIENTE — ver CHECKLIST_BLOQUE4_REVISION.txt)
+// Idea guardada: generar el texto de la comanda para impresión
+// cuando el local lo necesite. No está cableada a ninguna ruta.
+// Revisar más adelante antes de implementar.
+// ================================================================
 
-/**
- * Genera el texto de la comanda para impresión.
- * TODO: implementar cuando se necesite (Bloque 5+)
- */
-export function generateComandaText(order: IOrder): string {
-  return `Comanda pendiente de implementar - Orden #${order._id}`;
-}
+// import { IOrder } from '../modules/orders/orders.model';
+//
+// export function generateComandaText(order: IOrder): string {
+//   return `Comanda pendiente de implementar - Orden #${order._id}`;
+// }

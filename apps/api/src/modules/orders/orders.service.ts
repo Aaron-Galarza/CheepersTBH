@@ -3,6 +3,7 @@ import { CouponsService } from '../coupons/coupons.service';
 import { ConfigService } from '../config/config.service';
 import { CreateOrderInput } from './orders.schema';
 import { AppError } from '../../utils/appError';
+import { ORDER_STATUSES, OrderStatus } from '../../constants';
 
 export const OrdersService = {
   createOrder: async (orderData: CreateOrderInput): Promise<IOrder> => {
@@ -52,7 +53,6 @@ export const OrdersService = {
     let delivery = undefined;
 
     if (orderData.deliveryType === 'delivery') {
-      // deliveryCost se setea manualmente desde admin via PUT /admin/:id/delivery-cost
       delivery = {
         address: orderData.deliveryAddress || undefined,
       };
@@ -80,23 +80,39 @@ export const OrdersService = {
     return order;
   },
 
-  getOrderById: async (id: string): Promise<IOrder | null> => {
+  viewAll: async (filters: Record<string, any> = {}): Promise<IOrder[]> => {
+    return await Order.find(filters).sort({ createdAt: -1 }).lean();
+  },
+
+  viewById: async (id: string): Promise<IOrder | null> => {
     return await Order.findById(id);
   },
 
-  getOrdersByStatus: async (status: string): Promise<IOrder[]> => {
-    return await Order.find({ status: status as any }).sort({ createdAt: -1 }).lean();
-  },
+  // ================================================================
+  // ⚠️ EN REVISIÓN (PENDIENTE — no cableado a ninguna ruta)
+  // modify(): update genérico de una orden (Partial<IOrder>).
+  // Si se usa, cablear a un PUT /admin/:id con schema que limite
+  // qué campos se pueden tocar (no status/total/subtotal sueltos).
+  // Revisar más adelante. Ver CHECKLIST_BLOQUE4_REVISION.txt.
+  // ================================================================
+  // modify: async (id: string, updateData: Partial<IOrder>): Promise<IOrder | null> => {
+  //   return await Order.findByIdAndUpdate(id, updateData, { new: true });
+  // },
 
-  getAllOrders: async (): Promise<IOrder[]> => {
-    return await Order.find().sort({ createdAt: -1 }).lean();
-  },
-
-  updateOrderStatus: async (id: string, status: string): Promise<IOrder | null> => {
-    if (!['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'].includes(status)) {
+  updateStatus: async (id: string, status: string): Promise<IOrder | null> => {
+    if (!(ORDER_STATUSES as readonly string[]).includes(status)) {
       throw new AppError('Estado inválido', 400);
     }
     return await Order.findByIdAndUpdate(id, { status }, { new: true });
+  },
+
+  deleteById: async (id: string): Promise<boolean> => {
+    const result = await Order.findByIdAndDelete(id);
+    return !!result;
+  },
+
+  countByStatus: async (status: OrderStatus): Promise<number> => {
+    return await Order.countDocuments({ status });
   },
 
   updateDeliveryCost: async (id: string, deliveryCost: number): Promise<IOrder | null> => {

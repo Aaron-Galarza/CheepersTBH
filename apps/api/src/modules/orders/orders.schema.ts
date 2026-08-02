@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ORDER_STATUSES, PAYMENT_METHODS, DELIVERY_TYPES } from '../../constants';
 
 const AdditionalItemSchema = z.object({
   name: z.string().min(1, 'El nombre del adicional es requerido'),
@@ -19,10 +20,10 @@ export const CreateOrderSchema = z.object({
     phone: z.string().min(10, 'El teléfono debe tener mínimo 10 dígitos').max(20),
   }),
   items: z.array(OrderItemSchema).min(1, 'Debe haber al menos un artículo'),
-  deliveryType: z.enum(['pickup', 'delivery'], {
+  deliveryType: z.enum(DELIVERY_TYPES, {
     error: 'Tipo de entrega inválido',
   }),
-  paymentMethod: z.enum(['cash', 'transfer', 'mercadopago'], {
+  paymentMethod: z.enum(PAYMENT_METHODS, {
     error: 'Método de pago inválido',
   }),
   couponCode: z.string().optional().nullable(),
@@ -40,10 +41,14 @@ export const CreateOrderSchema = z.object({
   }
 );
 
-export const OrderUpdateSchema = z.object({
-  status: z.enum(['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled']).optional(),
-  deliveryCost: z.number().min(0).optional(),
+export const UpdateOrderStatusSchema = z.object({
+  status: z.enum(ORDER_STATUSES, { error: 'Estado inválido' }),
+});
+
+export const UpdateDeliveryCostSchema = z.object({
+  deliveryCost: z.number().min(0, 'El costo de envío no puede ser negativo'),
 });
 
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
-export type OrderUpdate = z.infer<typeof OrderUpdateSchema>;
+export type UpdateOrderStatus = z.infer<typeof UpdateOrderStatusSchema>;
+export type UpdateDeliveryCost = z.infer<typeof UpdateDeliveryCostSchema>;

@@ -1,10 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
-export const validOrderStatus: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
-
-export type PaymentMethod = 'cash' | 'transfer' | 'mercadopago';
-export const validPaymentMethods: PaymentMethod[] = ['cash', 'transfer', 'mercadopago'];
+import {
+  ORDER_STATUSES,
+  PAYMENT_METHODS,
+  DELIVERY_TYPES,
+  OrderStatus,
+  PaymentMethod,
+  DeliveryType,
+} from '../../constants';
 
 export interface IOrderItemAddon {
   name: string;
@@ -25,7 +27,7 @@ export interface IOrder extends Document {
     phone: string;
   };
   items: IOrderItem[];
-  deliveryType: 'pickup' | 'delivery';
+  deliveryType: DeliveryType;
   paymentMethod: PaymentMethod;
   couponCode?: string | null;
   discountPercent: number;
@@ -82,12 +84,12 @@ const orderSchema = new Schema<IOrder>(
     },
     deliveryType: {
       type: String,
-      enum: ['pickup', 'delivery'],
+      enum: DELIVERY_TYPES,
       required: true,
     },
     paymentMethod: {
       type: String,
-      enum: validPaymentMethods,
+      enum: PAYMENT_METHODS,
       required: true,
     },
     couponCode: {
@@ -118,7 +120,7 @@ const orderSchema = new Schema<IOrder>(
     },
     status: {
       type: String,
-      enum: validOrderStatus,
+      enum: ORDER_STATUSES,
       default: 'pending',
     },
     delivery: {
