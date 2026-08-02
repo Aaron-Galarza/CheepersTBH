@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import routes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { requestLogger } from './middlewares/logger.middleware';
+import { DEFAULT_CLIENT_URL } from './constants';
 
 const app: Express = express();
 
@@ -12,7 +13,7 @@ app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: process.env.CLIENT_URL || DEFAULT_CLIENT_URL,
   credentials: true,
 }));
 

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { DEFAULT_DAILY_SCHEDULE } from '../../constants';
 
 export interface IDaySchedule {
   day: string;
@@ -53,15 +54,7 @@ configSchema.statics.getOrCreateConfig = async function () {
       emergencyMessage: '',
       banner: '',
       isAllClose: false,
-      dailySchedule: [
-        { day: 'Lunes', openTime: '20:00', closeTime: '23:00', isStoreOpen: true },
-        { day: 'Martes', openTime: '20:00', closeTime: '23:00', isStoreOpen: true },
-        { day: 'Miércoles', openTime: '20:00', closeTime: '23:00', isStoreOpen: true },
-        { day: 'Jueves', openTime: '20:00', closeTime: '23:00', isStoreOpen: true },
-        { day: 'Viernes', openTime: '20:00', closeTime: '00:00', isStoreOpen: true },
-        { day: 'Sábado', openTime: '20:00', closeTime: '00:00', isStoreOpen: true },
-        { day: 'Domingo', openTime: '20:00', closeTime: '23:00', isStoreOpen: true },
-      ],
+      dailySchedule: DEFAULT_DAILY_SCHEDULE,
     });
   }
   return config;

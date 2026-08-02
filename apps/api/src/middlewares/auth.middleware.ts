@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { DEFAULT_JWT_SECRET } from '../constants';
 
 declare global {
   namespace Express {
@@ -20,7 +21,7 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || DEFAULT_JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {

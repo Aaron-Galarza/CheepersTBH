@@ -1,8 +1,9 @@
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from 'date-fns';
+import { DATE_RANGES, DateRange } from '../constants';
 
-export type DateRange = 'today' | 'yesterday' | 'week' | 'month';
+export type { DateRange };
 
-export const VALID_RANGES = ['today', 'yesterday', 'week', 'month'] as const;
+export const VALID_RANGES = DATE_RANGES;
 
 export const getRangeStartDate = (range: DateRange): { start: Date; end: Date } => {
   const now = new Date();
