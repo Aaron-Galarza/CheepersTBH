@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ConfigService } from './config.service';
 import { asyncHandler } from '../../utils/asyncHandler';
-import { sendSuccess, sendError } from '../../utils/response';
+import { sendSuccess } from '../../utils/response';
 
 export class ConfigController {
   static getStatus = asyncHandler(async (req: Request, res: Response) => {
@@ -10,11 +10,7 @@ export class ConfigController {
   });
 
   static updateSchedule = asyncHandler(async (req: Request, res: Response) => {
-    const { dailySchedule } = req.body;
-    if (!Array.isArray(dailySchedule)) {
-      return sendError(res, 'dailySchedule debe ser un array', 400);
-    }
-    const config = await ConfigService.updateSchedule(dailySchedule);
+    const config = await ConfigService.updateSchedule(req.body.dailySchedule);
     sendSuccess(res, config, 200, 'Horarios actualizados');
   });
 
@@ -24,20 +20,12 @@ export class ConfigController {
   });
 
   static updateEmergencyMessage = asyncHandler(async (req: Request, res: Response) => {
-    const { message } = req.body;
-    if (!message) {
-      return sendError(res, 'El mensaje es requerido', 400);
-    }
-    const config = await ConfigService.updateEmergencyMessage(message);
+    const config = await ConfigService.updateEmergencyMessage(req.body.message);
     sendSuccess(res, config, 200, 'Mensaje actualizado');
   });
 
   static updateBanner = asyncHandler(async (req: Request, res: Response) => {
-    const { banner } = req.body;
-    if (!banner) {
-      return sendError(res, 'El banner es requerido', 400);
-    }
-    const config = await ConfigService.updateBanner(banner);
+    const config = await ConfigService.updateBanner(req.body.banner);
     sendSuccess(res, config, 200, 'Banner actualizado');
   });
 }
