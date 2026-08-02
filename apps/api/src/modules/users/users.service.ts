@@ -1,6 +1,7 @@
 import { User } from './users.model';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../utils/appError';
+import { DEFAULT_JWT_SECRET } from '../../constants';
 
 export class UserService {
   static async login(email: string, password: string) {
@@ -17,7 +18,7 @@ export class UserService {
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.JWT_SECRET || 'secret',
+      process.env.JWT_SECRET || DEFAULT_JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -28,27 +29,6 @@ export class UserService {
         email: user.email,
         role: user.role,
       },
-    };
-  }
-
-  static async createUser(email: string, password: string) {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      throw new AppError('El usuario ya existe', 409);
-    }
-
-    const user = new User({
-      email,
-      passwordHash: password,
-      role: 'admin',
-    });
-
-    await user.save();
-
-    return {
-      _id: user._id,
-      email: user.email,
-      role: user.role,
     };
   }
 }
