@@ -101,8 +101,21 @@ export interface Order {
 }
 
 export interface StoreConfig {
+  _id?: string;
   isOpen: boolean;
   message?: string;
   schedule?: string;
   deliveryAvailable: boolean;
+  isEmergencyClosed?: boolean;
+  emergencyMessage?: string;
+  banner?: string;
+  dailySchedule?: DaySchedule[];
+  pricePerKm?: number;
+}
+
+export interface DaySchedule {
+  day: string;
+  openTime: string;
+  closeTime: string;
+  isStoreOpen: boolean;
 }

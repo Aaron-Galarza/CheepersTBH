@@ -1,13 +1,10 @@
 import apiClient from './api';
-import { useAuthStore } from '@/stores/auth.store';
 
 export const authService = {
-  login: async (email: string, password: string) => {
-    // Implementar en bloque 2
-    return { token: '' };
+  login: async (email: string, password: string): Promise<string> => {
+    const response = await apiClient.post('/users/login', { email, password });
+    return response.data.data.token;
   },
 
-  logout: () => {
-    useAuthStore.getState().logout();
-  },
+  logout: () => {},
 };
