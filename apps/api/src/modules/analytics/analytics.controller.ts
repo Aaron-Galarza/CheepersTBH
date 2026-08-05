@@ -9,7 +9,7 @@ export class AnalyticsController {
     const parsed = GetStatsQuerySchema.safeParse(req.query);
 
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
+      const firstError = parsed.error.issues[0];
       return sendError(res, firstError?.message || 'Parámetros inválidos', 400);
     }
 
