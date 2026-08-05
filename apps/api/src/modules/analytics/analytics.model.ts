@@ -1,0 +1,49 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IProductDailyStat {
+  title: string;
+  qty: number;
+  revenue: number;
+}
+
+export interface IOrderDailyStats extends Document {
+  date: string; // "YYYY-MM-DD"
+  ordersCount: number;
+  completedOrders: number;
+  totalSales: number;
+  products: Map<string, IProductDailyStat>;
+}
+
+const ProductDailyStatSchema = new Schema<IProductDailyStat>(
+  {
+    title: { type: String, required: true },
+    qty: { type: Number, default: 0 },
+    revenue: { type: Number, default: 0 },
+  },
+  { _id: false }
+);
+
+const orderDailyStatsSchema = new Schema<IOrderDailyStats>(
+  {
+    date: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    ordersCount: { type: Number, default: 0 },
+    completedOrders: { type: Number, default: 0 },
+    totalSales: { type: Number, default: 0 },
+    products: {
+      type: Map,
+      of: ProductDailyStatSchema,
+      default: {},
+    },
+  },
+  { timestamps: true }
+);
+
+export const OrderDailyStats = mongoose.model<IOrderDailyStats>(
+  'OrderDailyStats',
+  orderDailyStatsSchema
+);

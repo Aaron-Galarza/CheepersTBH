@@ -1,6 +1,7 @@
 import { Order, IOrder } from './orders.model';
 import { CouponsService } from '../coupons/coupons.service';
 import { ConfigService } from '../config/config.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 import { CreateOrderInput } from './orders.schema';
 import { AppError } from '../../utils/appError';
 import { ORDER_STATUSES, OrderStatus } from '../../constants';
@@ -77,6 +78,8 @@ export const OrdersService = {
       delivery,
     });
 
+    await AnalyticsService.registerOrderCreated(order);
+
     return order;
   },
 
@@ -103,7 +106,22 @@ export const OrdersService = {
     if (!(ORDER_STATUSES as readonly string[]).includes(status)) {
       throw new AppError('Estado inválido', 400);
     }
-    return await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+    const oldOrder = await Order.findById(id);
+    if (!oldOrder) return null;
+    const oldStatus = oldOrder.status;
+
+    const updated = await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+    if (updated) {
+      if (oldStatus !== 'delivered' && status === 'delivered') {
+        await AnalyticsService.registerDelivery(updated);
+      } else if (oldStatus === 'delivered' && status !== 'delivered') {
+        await AnalyticsService.revertDelivery(updated);
+      }
+    }
+
+    return updated;
   },
 
   deleteById: async (id: string): Promise<boolean> => {

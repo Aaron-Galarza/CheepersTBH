@@ -7,6 +7,7 @@ import ordersRoutes from '../modules/orders/orders.routes';
 import couponsRoutes from '../modules/coupons/coupons.routes';
 import configRoutes from '../modules/config/config.routes';
 import bannersRoutes from '../modules/banners/banners.routes';
+import analyticsRoutes from '../modules/analytics/analytics.routes';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.use('/orders', ordersRoutes);
 router.use('/coupons', couponsRoutes);
 router.use('/config', configRoutes);
 router.use('/banners', bannersRoutes);
+router.use('/analytics', analyticsRoutes);
 
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
