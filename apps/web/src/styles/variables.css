@@ -28,10 +28,3 @@
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-text-dark: #FFFFFF;
-    --color-bg-cream: #1A1A1A;
-  }
-}

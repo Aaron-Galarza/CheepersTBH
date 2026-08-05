@@ -1,28 +1,26 @@
-type EventHandler = (...args: unknown[]) => void;
+import { getSocket, initializeSocket } from '@/lib/socket-client';
 
-const listeners: Record<string, EventHandler[]> = {};
+export const socketService = {
+  initialize: initializeSocket,
 
-export function getSocket() {
-  return {
-    on(event: string, handler: EventHandler) {
-      if (!listeners[event]) listeners[event] = [];
-      listeners[event].push(handler);
-    },
-    off(event: string, handler?: EventHandler) {
-      if (!listeners[event]) return;
-      if (handler) {
-        listeners[event] = listeners[event].filter((h) => h !== handler);
-      } else {
-        delete listeners[event];
-      }
-    },
-    emit(event: string, data?: unknown) {
-      (listeners[event] || []).forEach((h) => h(data));
-    },
-    disconnect() {
-      Object.keys(listeners).forEach((key) => delete listeners[key]);
-    },
-  };
-}
+  joinKitchen: () => { initializeSocket().emit('join-kitchen'); },
+  leaveKitchen: () => { getSocket()?.emit('leave-kitchen'); },
 
-export function disconnectSocket() {}
+  onOrderUpdated: (callback: (data: any) => void) => {
+    const s = initializeSocket();
+    s.on('order-updated', callback);
+    return () => { s.off('order-updated', callback); };
+  },
+
+  onOrderCreated: (callback: (data: any) => void) => {
+    const s = initializeSocket();
+    s.on('order-created', callback);
+    return () => { s.off('order-created', callback); };
+  },
+
+  onOrderDeleted: (callback: (data: any) => void) => {
+    const s = initializeSocket();
+    s.on('order-deleted', callback);
+    return () => { s.off('order-deleted', callback); };
+  },
+};

@@ -1,24 +1,22 @@
 'use client';
 
 import { useEffect } from 'react';
-import { getSocket } from '@/services/socket.service';
+import { getSocket } from '@/lib/socket-client';
+import io from 'socket.io-client';
 
 export function useSocket(event: string, handler: (...args: unknown[]) => void) {
   useEffect(() => {
     const socket = getSocket();
-    socket.on(event, handler);
-    return () => {
-      socket.off(event, handler);
-    };
+    if (!socket) return;
+    socket.on(event, handler as any);
+    return () => { socket.off(event, handler as any); };
   }, [event, handler]);
 }
 
 export function useSocketEmit(event: string, data?: unknown) {
   useEffect(() => {
     const socket = getSocket();
-    if (data !== undefined) {
-      socket.emit(event, data);
-    }
+    if (socket && data !== undefined) socket.emit(event, data);
   }, [event, data]);
 }
 

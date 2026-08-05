@@ -27,6 +27,10 @@
     background-color: var(--color-bg-cream);
     color: var(--color-text-dark);
   }
+  input, select, textarea {
+    color: #212121;
+    background-color: #fff;
+  }
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }

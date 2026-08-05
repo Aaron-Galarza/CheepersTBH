@@ -7,9 +7,10 @@ import { ShoppingCart, User, Menu, X } from "lucide-react";
 import { useCartStore } from "@/stores/cart.store";
 
 export default function Header() {
+  const pathname = usePathname();
+  if (pathname.startsWith('/admin/cocina')) return null;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
   const cartCount = useCartStore((s) => s.getItemCount());
 
   useEffect(() => { setMounted(true); }, []); 

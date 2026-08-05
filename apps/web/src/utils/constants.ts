@@ -38,7 +38,7 @@ export const DS: Record<string, string> = {
 // ── Estados de órdenes ──────────────────────────────────────────────────────
 export const ORDER_STATUSES = [
   'pending',
-  'in-preparation',
+  'preparing',
   'ready',
   'delivered',
   'cancelled',
@@ -46,7 +46,7 @@ export const ORDER_STATUSES = [
 
 export const ORDER_STATUS_LABELS: Record<(typeof ORDER_STATUSES)[number], string> = {
   pending: 'Pendiente',
-  'in-preparation': 'En preparación',
+  'preparing': 'En preparación',
   ready: 'Listo',
   delivered: 'Entregado',
   cancelled: 'Cancelado',
