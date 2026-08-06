@@ -6,6 +6,7 @@ export interface IBanner extends Document {
   image: string;
   order: number;
   active: boolean;
+  ctaText?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +26,10 @@ const BannerSchema = new Schema<IBanner>(
     image: {
       type: String,
       required: [true, 'La imagen es obligatoria'],
+    },
+    ctaText: {
+      type: String,
+      trim: true,
     },
     order: {
       type: Number,
