@@ -2,11 +2,19 @@ import { Request, Response } from 'express';
 import { OrdersService } from './orders.service';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { sendSuccess, sendError } from '../../utils/response';
-import { ORDER_STATUSES } from '../../constants';
+import { ORDER_STATUSES, PAYMENT_METHODS, DATE_RANGES, DateRange } from '../../constants';
+import { getRangeStartDate } from '../../utils/dateRange';
+
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export class OrdersController {
   static createOrder = asyncHandler(async (req: Request, res: Response) => {
     const order = await OrdersService.createOrder(req.body);
+
+    if (globalThis.io) {
+      globalThis.io.to('kitchen').emit('order-created', order);
+    }
+
     sendSuccess(res, order, 201, 'Orden creada exitosamente');
   });
 
@@ -20,12 +28,46 @@ export class OrdersController {
   });
 
   static getAll = asyncHandler(async (req: Request, res: Response) => {
-    const { status } = req.query;
-    const filter = status ? { status } : {};
+    const { status, paymentMethod, range, from, to } = req.query;
+    const filter: Record<string, any> = {};
+
+    if (status) {
+      const statuses = String(status)
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => (ORDER_STATUSES as readonly string[]).includes(s));
+      if (statuses.length > 0) {
+        filter.status = statuses.length === 1 ? statuses[0] : { $in: statuses };
+      }
+    }
+
+    if (paymentMethod) {
+      if (!(PAYMENT_METHODS as readonly string[]).includes(paymentMethod as string)) {
+        return sendError(res, 'Método de pago inválido', 400);
+      }
+      filter.paymentMethod = paymentMethod;
+    }
+
+    if (range) {
+      if (!(DATE_RANGES as readonly string[]).includes(range as string)) {
+        return sendError(res, 'Rango inválido', 400);
+      }
+      const { start, end } = getRangeStartDate(range as DateRange);
+      filter.createdAt = { $gte: start, $lte: end };
+    } else if (from || to) {
+      if (!from || !to || !DATE_REGEX.test(from as string) || !DATE_REGEX.test(to as string)) {
+        return sendError(res, "Debe indicar 'from' y 'to' en formato YYYY-MM-DD", 400);
+      }
+      filter.createdAt = {
+        $gte: new Date(`${from}T00:00:00.000`),
+        $lte: new Date(`${to}T23:59:59.999`),
+      };
+    }
 
     const orders = await OrdersService.viewAll(filter);
+    const total = orders.reduce((sum, o) => sum + (o.total ?? 0), 0);
 
-    sendSuccess(res, { orders, total: orders.length }, 200);
+    sendSuccess(res, { orders, total, count: orders.length }, 200);
   });
 
   static getById = asyncHandler(async (req: Request, res: Response) => {

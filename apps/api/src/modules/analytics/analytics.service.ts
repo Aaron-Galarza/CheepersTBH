@@ -14,7 +14,11 @@ export interface GetStatsResult {
   ordersCount: number;
   completedOrders: number;
   totalSales: number;
+  totalCash: number;
+  totalTransfer: number;
+  avgTicket: number;
   products: IProductDailyStat[];
+  topProduct: IProductDailyStat | null;
 }
 
 const dateKey = (date: Date): string => format(date, 'yyyy-MM-dd');
@@ -48,14 +52,18 @@ export const AnalyticsService = {
       setUpdates[`${base}.title`] = item.title;
     }
 
+    const totals: Record<string, number> = {
+      completedOrders: 1,
+      totalSales: order.total,
+      ...incUpdates,
+    };
+    if (order.paymentMethod === 'cash') totals.totalCash = order.total;
+    else if (order.paymentMethod === 'transfer') totals.totalTransfer = order.total;
+
     await OrderDailyStats.findOneAndUpdate(
       { date },
       {
-        $inc: {
-          completedOrders: 1,
-          totalSales: order.total,
-          ...incUpdates,
-        },
+        $inc: totals,
         $set: setUpdates,
       },
       { upsert: true }
@@ -81,17 +89,24 @@ export const AnalyticsService = {
         (incUpdates[`${base}.revenue`] ?? 0) - Math.min(itemRevenue(item), currentRevenue);
     }
 
-    const safeTotalSales = Math.min(order.total, daily.totalSales);
-    const safeCompleted = Math.min(1, daily.completedOrders);
+    const safeTotalSales = Math.min(order.total, daily.totalSales ?? 0);
+    const safeCompleted = Math.min(1, daily.completedOrders ?? 0);
+
+    const totals: Record<string, number> = {
+      completedOrders: -safeCompleted,
+      totalSales: -safeTotalSales,
+      ...incUpdates,
+    };
+    if (order.paymentMethod === 'cash') {
+      totals.totalCash = -Math.min(order.total, daily.totalCash ?? 0);
+    } else if (order.paymentMethod === 'transfer') {
+      totals.totalTransfer = -Math.min(order.total, daily.totalTransfer ?? 0);
+    }
 
     await OrderDailyStats.findOneAndUpdate(
       { date },
       {
-        $inc: {
-          completedOrders: -safeCompleted,
-          totalSales: -safeTotalSales,
-          ...incUpdates,
-        },
+        $inc: totals,
       }
     );
   },
@@ -116,12 +131,16 @@ export const AnalyticsService = {
     let ordersCount = 0;
     let completedOrders = 0;
     let totalSales = 0;
+    let totalCash = 0;
+    let totalTransfer = 0;
     const productMap: Record<string, IProductDailyStat> = {};
 
     for (const day of dailies) {
       ordersCount += day.ordersCount ?? 0;
       completedOrders += day.completedOrders ?? 0;
       totalSales += day.totalSales ?? 0;
+      totalCash += day.totalCash ?? 0;
+      totalTransfer += day.totalTransfer ?? 0;
 
       const products = day.products;
       if (!products) continue;
@@ -139,7 +158,9 @@ export const AnalyticsService = {
     }
 
     const products = Object.values(productMap).sort((a, b) => b.revenue - a.revenue);
+    const topProduct = products.length ? [...products].sort((a, b) => b.qty - a.qty)[0] : null;
+    const avgTicket = completedOrders > 0 ? Math.round((totalSales / completedOrders) * 100) / 100 : 0;
 
-    return { ordersCount, completedOrders, totalSales, products };
+    return { ordersCount, completedOrders, totalSales, totalCash, totalTransfer, avgTicket, products, topProduct };
   },
 };

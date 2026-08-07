@@ -11,6 +11,8 @@ export interface IOrderDailyStats extends Document {
   ordersCount: number;
   completedOrders: number;
   totalSales: number;
+  totalCash: number;
+  totalTransfer: number;
   products: Map<string, IProductDailyStat>;
 }
 
@@ -34,6 +36,8 @@ const orderDailyStatsSchema = new Schema<IOrderDailyStats>(
     ordersCount: { type: Number, default: 0 },
     completedOrders: { type: Number, default: 0 },
     totalSales: { type: Number, default: 0 },
+    totalCash: { type: Number, default: 0 },
+    totalTransfer: { type: Number, default: 0 },
     products: {
       type: Map,
       of: ProductDailyStatSchema,
