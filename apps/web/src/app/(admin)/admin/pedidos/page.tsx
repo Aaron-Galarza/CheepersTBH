@@ -1,16 +1,36 @@
 'use client';
 
+import { useState } from 'react';
 import { Package } from 'lucide-react';
 import { usePedidos } from '@/features/admin/pedidos/hooks/usePedidos';
 import { OrderCard } from '@/features/admin/pedidos/components/OrderCard';
 
-const STATUSES = ['', 'pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
+const STATUSES = ['', 'pending', 'preparing', 'ready', 'delivered', 'cancelled'];
 const LABELS: Record<string, string> = {
-  '': 'Todos', pending: 'Pendientes', confirmed: 'Confirmados', preparing: 'En preparacion', ready: 'Listos', delivered: 'Entregados', cancelled: 'Cancelados',
+  '': 'Todos', pending: 'Pendientes', preparing: 'En preparacion', ready: 'Listos', delivered: 'Entregados', cancelled: 'Cancelados',
 };
 
 export default function PedidosPage() {
   const { orders, loading, status, setStatus, updatingId, updateStatus } = usePedidos();
+  const [dateFilter, setDateFilter] = useState('');
+
+  const filtered = dateFilter ? orders.filter((o) => {
+    if (!o.createdAt) return false;
+    const d = new Date(o.createdAt);
+    const now = new Date();
+    if (dateFilter === 'today') return d.toDateString() === now.toDateString();
+    if (dateFilter === 'yesterday') {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      return d.toDateString() === yesterday.toDateString();
+    }
+    if (dateFilter === 'week') {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(now.getDate() - 7);
+      return d >= weekAgo;
+    }
+    return true;
+  }) : orders;
 
   return (
     <div className="cart-bg min-h-screen p-4">
@@ -18,23 +38,34 @@ export default function PedidosPage() {
         <Package size={24} /> Pedidos
       </h1>
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {STATUSES.map((s) => (
-          <button key={s || 'all'} onClick={() => setStatus(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition ${
-              status === s ? 'bg-[#D9383A] text-white' : 'bg-white border border-gray-300 text-[#757575] hover:bg-gray-50'}`}>
-            {LABELS[s]}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div className="flex flex-wrap gap-2">
+          {STATUSES.map((s) => (
+            <button key={s || 'all'} onClick={() => setStatus(s)}
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition ${
+                status === s ? 'bg-[#D9383A] text-white' : 'bg-white border border-gray-300 text-[#757575] hover:bg-gray-50'}`}>
+              {LABELS[s]}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1">
+          {['today', 'yesterday', 'week'].map((d) => (
+            <button key={d} onClick={() => setDateFilter(dateFilter === d ? '' : d)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                dateFilter === d ? 'bg-[#D9383A] text-white' : 'bg-white border border-gray-300 text-[#757575] hover:bg-gray-50'}`}>
+              {d === 'today' ? 'Hoy' : d === 'yesterday' ? 'Ayer' : 'Semana'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
         <p className="text-[#757575]">Cargando...</p>
-      ) : orders.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <p className="text-[#757575]">No hay pedidos</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {orders.map((o) => <OrderCard key={o._id} order={o} onStatusChange={updateStatus} isUpdating={updatingId === o._id} />)}
+          {filtered.map((o) => <OrderCard key={o._id} order={o} onStatusChange={updateStatus} isUpdating={updatingId === o._id} />)}
         </div>
       )}
     </div>

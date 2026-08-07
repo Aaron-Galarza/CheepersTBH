@@ -27,8 +27,12 @@ export default function MenuPage() {
     if (selectedCategory) return null;
     const g = new Map<string, Product[]>();
     for (const p of products) { const n = getCategoryName(p.category); if (!g.has(n)) g.set(n, []); g.get(n)!.push(p); }
-    return [...g.entries()];
-  }, [products, selectedCategory]);
+    return [...g.entries()].sort(([a], [b]) => {
+      const catA = categories.find((c) => c.name === a);
+      const catB = categories.find((c) => c.name === b);
+      return (catA?.order ?? 99) - (catB?.order ?? 99);
+    });
+  }, [products, selectedCategory, categories]);
 
   return (
     <div className="cart-bg min-h-screen font-[var(--font-open-sans)]">

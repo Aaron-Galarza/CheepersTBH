@@ -1,39 +1,54 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LayoutDashboard, Package, ChefHat, DollarSign } from 'lucide-react';
+import { analyticsService } from '@/services/analytics.service';
+import { formatCurrency } from '@/utils/format';
 
-const cards = [
-  { label: 'Ordenes hoy', value: '0', color: 'text-[#D9383A]', href: null },
-  { label: 'Ventas totales', value: '$0', color: 'text-green-600', href: null },
-  { label: 'Ticket promedio', value: '$0', color: 'text-blue-600', href: null },
-  { href: '/admin/pedidos', label: 'Pedidos', value: null, Icon: Package, color: 'text-[#D9383A]' },
-  { href: '/admin/cocina', label: 'Cocina', value: null, Icon: ChefHat, color: 'text-orange-600' },
-  { href: '/admin/ventas', label: 'Ventas', value: null, Icon: DollarSign, color: 'text-green-600' },
+const shortcuts = [
+  { href: '/admin/pedidos', label: 'Pedidos', Icon: Package, color: 'text-[#D9383A]' },
+  { href: '/admin/cocina', label: 'Cocina', Icon: ChefHat, color: 'text-orange-600' },
+  { href: '/admin/ventas', label: 'Ventas', Icon: DollarSign, color: 'text-green-600' },
 ];
 
 export default function AdminDashboardPage() {
+  const [metrics, setMetrics] = useState<any>(null);
+
+  useEffect(() => {
+    analyticsService.getStats('today').then(setMetrics).catch(() => {});
+  }, []);
+
   return (
     <div className="cart-bg min-h-screen p-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-[#212121] font-[var(--font-montserrat)] flex items-center gap-2 px-2 sm:px-0">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-[#212121] font-[var(--font-montserrat)] flex items-center gap-2">
           <LayoutDashboard size={22} className="sm:size-[28px]" /> Dashboard
         </h1>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 px-2 sm:px-0">
-          {cards.map((c, i) => {
-            const inner = (
-              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md h-full flex flex-col justify-between">
-                <p className="text-[#757575] text-xs sm:text-sm mb-1 sm:mb-2">{c.label}</p>
-                {c.value !== null ? (
-                  <p className={`text-xl sm:text-3xl font-bold ${c.color}`}>{c.value}</p>
-                ) : c.Icon ? (
-                  <c.Icon size={28} className={`sm:size-[36px] ${c.color}`} />
-                ) : null}
-              </div>
-            );
-            return c.href ? <Link key={c.href} href={c.href}>{inner}</Link> : <div key={c.label}>{inner}</div>;
-          })}
+
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+          {shortcuts.map(({ href, label, Icon, color }) => (
+            <Link key={href} href={href} className="bg-white rounded-lg p-4 sm:p-6 shadow-md hover:shadow-lg transition flex flex-col items-center gap-2 text-center">
+              <Icon size={28} className={`sm:size-[36px] ${color}`} />
+              <span className="font-bold text-xs sm:text-sm text-[#212121]">{label}</span>
+            </Link>
+          ))}
         </div>
+
+        {metrics && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {[
+              { label: 'Ventas Totales', value: formatCurrency(metrics.totalSales), color: 'text-[#D9383A]' },
+              { label: 'Pedidos Entregados', value: metrics.completedOrders, color: 'text-blue-600' },
+              { label: 'Ticket Promedio', value: formatCurrency(metrics.completedOrders > 0 ? metrics.totalSales / metrics.completedOrders : 0), color: 'text-green-600' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5">
+                <p className="text-xs sm:text-sm font-medium text-[#757575] mb-1">{label}</p>
+                <p className="text-xl sm:text-2xl font-bold text-[#212121]">{value}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

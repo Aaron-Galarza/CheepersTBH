@@ -17,8 +17,10 @@ export default function CocinaPage() {
 
       {orders.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
-          <ChefHat size={48} className="mx-auto mb-4 text-[#757575]" />
-          <p className="text-xl text-[#757575]">No hay ordenes - A descansar!</p>
+          <div className="text-center">
+            <ChefHat size={48} className="mx-auto mb-3 text-[#757575]" />
+            <p className="text-lg text-[#757575]">No hay ordenes en este momento</p>
+          </div>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">

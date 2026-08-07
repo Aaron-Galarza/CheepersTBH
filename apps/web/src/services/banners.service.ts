@@ -8,8 +8,8 @@ export const bannersService = {
   },
 
   getActive: async (): Promise<Banner[]> => {
-    const response = await apiClient.get('/banners/active');
-    return response.data.data;
+    const response = await apiClient.get('/banners');
+    return response.data.data || [];
   },
 
   getAll: async (): Promise<Banner[]> => {
@@ -28,7 +28,7 @@ export const bannersService = {
   },
 
   toggleActive: async (id: string): Promise<Banner> => {
-    const response = await apiClient.put(`/banners/admin/${id}/toggleActive`);
+    const response = await apiClient.patch(`/banners/admin/${id}/toggle`);
     return response.data.data;
   },
 

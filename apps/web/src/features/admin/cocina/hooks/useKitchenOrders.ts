@@ -16,7 +16,11 @@ export function useKitchenOrders() {
     socketService.joinKitchen();
 
     ordersService.getOrders().then((data) => {
-      const active = data.filter((o: Order) => !['delivered', 'cancelled'].includes(o.status));
+      const today = new Date().toDateString();
+      const active = data.filter((o: Order) =>
+        !['delivered', 'cancelled'].includes(o.status)
+        && o.createdAt && new Date(o.createdAt).toDateString() === today
+      );
       setOrders(active);
     }).catch(() => setError('Error al cargar ordenes')).finally(() => setLoading(false));
 

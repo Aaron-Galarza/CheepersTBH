@@ -7,7 +7,7 @@ import { FacebookIcon, InstagramIcon, WhatsappIcon } from '@/components/ui/icons
 
 export default function Footer() {
   const pathname = usePathname();
-  if (pathname.startsWith('/admin/cocina')) return null;
+  if (pathname.startsWith('/admin/cocina') || pathname.startsWith('/admin/pos')) return null;
   return (
     <footer className="bg-[#1a1a1a] text-gray-200 py-6 px-6 md:px-12">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-start gap-6 md:gap-4">

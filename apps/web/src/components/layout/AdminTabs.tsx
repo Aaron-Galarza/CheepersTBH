@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
-import { LayoutDashboard, ShoppingCart, ChefHat, Package, DollarSign, Image, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, ChefHat, Package, DollarSign, Image, Settings, LogOut, Utensils } from 'lucide-react';
 
 const tabs = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard },
@@ -11,6 +11,7 @@ const tabs = [
   { href: '/admin/cocina', label: 'Cocina', Icon: ChefHat },
   { href: '/admin/pedidos', label: 'Pedidos', Icon: Package },
   { href: '/admin/ventas', label: 'Ventas', Icon: DollarSign },
+  { href: '/admin/productos', label: 'Productos', Icon: Utensils },
   { href: '/admin/galeria', label: 'Galeria', Icon: Image },
   { href: '/admin/config', label: 'Config', Icon: Settings },
 ];
@@ -23,8 +24,7 @@ export function AdminTabs() {
   const handleLogout = () => { logout(); router.push('/login'); };
 
   return (
-    <div className="bg-white border-b-2 border-gray-200 sticky top-0 z-40">
-      <div className="flex overflow-x-auto hide-scrollbar">
+    <div className="flex overflow-x-auto hide-scrollbar bg-white shadow-sm border-b border-gray-200">
         {tabs.map(({ href, label, Icon }) => (
           <Link key={href} href={href}
             className={`px-3 py-3 font-semibold whitespace-nowrap transition border-b-2 flex items-center gap-2 text-xs sm:text-sm ${
@@ -38,6 +38,5 @@ export function AdminTabs() {
           <LogOut size={16} /> Salir
         </button>
       </div>
-    </div>
   );
 }

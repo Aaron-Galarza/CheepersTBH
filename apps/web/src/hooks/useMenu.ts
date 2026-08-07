@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { productsService } from '@/services/products.service';
+import { categoriesService } from '@/services/categories.service';
 import { Product, Category } from '@/types';
 
 function getCategoryName(cat: unknown): string {
@@ -20,16 +21,15 @@ export function useMenu() {
     const fetchMenu = async () => {
       try {
         setLoading(true);
-        const data = await productsService.getAll();
+        const [data, cats] = await Promise.all([
+          productsService.getAll(),
+          categoriesService.getAll(),
+        ]);
         setProducts(data);
-
-        const catNames = data.map((p) => getCategoryName(p.category));
-        const unique = [...new Set(catNames)].filter(Boolean);
-        const cats: Category[] = unique.map((name) => ({ name, isActive: true }));
         setCategories(cats);
         setError(null);
       } catch (err) {
-        setError('No pudimos cargar el menú. Intenta más tarde.');
+        setError('No pudimos cargar el menu. Intenta mas tarde.');
         console.error(err);
       } finally {
         setLoading(false);

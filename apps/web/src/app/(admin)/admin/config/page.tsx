@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Settings } from 'lucide-react';
 import { ScheduleConfig } from '@/features/admin/config/components/ScheduleConfig';
-import { BannerConfig } from '@/features/admin/config/components/BannerConfig';
 import { BannersManager } from '@/features/admin/config/components/BannersManager';
 import { CouponForm } from '@/features/admin/config/components/CouponForm';
 import { CouponsList } from '@/features/admin/config/components/CouponsList';
@@ -14,18 +13,15 @@ export default function ConfigPage() {
 
   return (
     <div className="cart-bg min-h-screen p-4 pb-8">
-      <div className="max-w-4xl mx-auto px-2 sm:px-0">
+      <div className="max-w-6xl mx-auto px-2 sm:px-0">
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-[#212121] font-[var(--font-montserrat)] flex items-center gap-2">
           <Settings size={22} className="sm:size-[28px]" /> Configuracion
         </h1>
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <ScheduleConfig />
-          <BannerConfig />
           <BannersManager />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CouponForm onCouponAdded={(c) => setCoupons([c, ...coupons])} />
-            <CouponsList onLoaded={setCoupons} />
-          </div>
+          <CouponForm onCouponAdded={(c) => setCoupons([c, ...coupons])} />
+          <CouponsList onLoaded={setCoupons} />
         </div>
       </div>
     </div>

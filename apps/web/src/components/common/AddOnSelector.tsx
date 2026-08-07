@@ -17,7 +17,7 @@ export function AddOnSelector({
   if (availableAddOns.length === 0) return null;
 
   return (
-    <div className={cn('flex flex-wrap gap-2', className)}>
+    <div className={cn('flex flex-wrap gap-1.5', className)}>
       {availableAddOns.map((addon) => {
         const isSelected = selectedAddOns.some((s) => s._id === addon._id);
         return (
@@ -25,10 +25,10 @@ export function AddOnSelector({
             key={addon._id}
             onClick={() => onToggle(addon)}
             className={cn(
-              'rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-200',
+              'rounded-full border px-3 py-1 text-xs font-medium transition-all duration-200',
               isSelected
-                ? 'border-[#e53e3e] bg-[#e53e3e] text-white'
-                : 'border-[#ccc] bg-[#f0f0f0] text-[#333] hover:bg-[#e0e0e0]'
+                ? 'border-[#D9383A] bg-[#D9383A] text-white'
+                : 'border-[#e0e0e0] bg-white text-[#757575] hover:border-[#D9383A]'
             )}
           >
             {addon.name || (addon as any).title}

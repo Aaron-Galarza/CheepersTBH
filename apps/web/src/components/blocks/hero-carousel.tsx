@@ -3,14 +3,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import { HERO_SLIDES } from '@/utils/constants';
 
-export function HeroCarousel() {
+interface HeroSlide {
+  title: string;
+  text: string;
+  image: string;
+  cta: string;
+  ctaHref: string;
+}
+
+interface HeroCarouselProps {
+  slides: HeroSlide[];
+}
+
+export function HeroCarousel({ slides }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartX = useRef(0);
-  const totalSlides = HERO_SLIDES.length;
+  const totalSlides = slides.length;
 
   const goTo = useCallback(
     (index: number) => {
@@ -50,7 +61,7 @@ export function HeroCarousel() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {HERO_SLIDES.map((slide, index) => (
+      {slides.map((slide, index) => (
         <div
           key={index}
           className={cn(
@@ -70,10 +81,10 @@ export function HeroCarousel() {
           </div>
 
           <div className="flex max-w-[500px] flex-col items-start max-md:items-center max-md:text-center">
-            <h2 className="font-['Oswald'] text-[5em] font-semibold uppercase leading-[1] tracking-wide text-[#e53e3e] max-md:text-[3em]">
+            <h2 className="font-['Oswald'] text-4xl sm:text-5xl md:text-[4rem] font-bold uppercase leading-[1.1] tracking-wide text-[#e53e3e] max-md:text-2xl line-clamp-3">
               {slide.title}
             </h2>
-            <p className="font-['Open_Sans'] text-[1.5em] text-[#4a5568] max-md:text-[1.1em]">
+            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#4a5568] max-md:text-sm line-clamp-2">
               {slide.text}
             </p>
             <a
@@ -102,7 +113,7 @@ export function HeroCarousel() {
       </button>
 
       <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-4 max-md:gap-2">
-        {HERO_SLIDES.map((_, index) => (
+        {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goTo(index)}

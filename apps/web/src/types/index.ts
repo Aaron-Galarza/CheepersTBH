@@ -18,6 +18,8 @@ export interface Category {
   _id?: string;
   name: string;
   isActive?: boolean;
+  icon?: string;
+  order?: number;
 }
 
 export interface IAddOn {
@@ -60,12 +62,15 @@ export interface Coupon {
 export interface Banner {
   _id: string;
   title: string;
+  description?: string;
   subtitle?: string;
-  imageUrl: string;
+  image: string;
+  imageUrl?: string;
   ctaText?: string;
   ctaLink?: string;
   order: number;
-  isActive: boolean;
+  active: boolean;
+  isActive?: boolean;
 }
 
 export interface OrderAddon {
@@ -96,6 +101,17 @@ export interface Order {
   total: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
   delivery?: { address: string; coordinates: { lat: number; lng: number }; distanceKm: number };
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface GalleryImage {
+  _id?: string;
+  title: string;
+  imageUrl: string;
+  publicId: string;
+  order: number;
+  active: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

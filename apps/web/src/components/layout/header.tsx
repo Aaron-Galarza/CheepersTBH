@@ -8,7 +8,7 @@ import { useCartStore } from "@/stores/cart.store";
 
 export default function Header() {
   const pathname = usePathname();
-  if (pathname.startsWith('/admin/cocina')) return null;
+  if (pathname.startsWith('/admin/cocina') || pathname.startsWith('/admin/pos')) return null;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const cartCount = useCartStore((s) => s.getItemCount());

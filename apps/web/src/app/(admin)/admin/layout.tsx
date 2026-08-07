@@ -11,6 +11,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   const pathname = usePathname();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isCocina = pathname?.startsWith('/admin/cocina');
+  const isPOS = pathname?.startsWith('/admin/pos');
 
   useEffect(() => {
     if (!isAuthenticated) router.push('/login');
@@ -21,8 +22,10 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   }
 
   return (
-    <div className={isCocina ? '-mt-[70px] md:-mt-[100px]' : ''}>
-      <AdminTabs />
+    <div className={(isCocina || isPOS) ? '-mt-[70px] md:-mt-[100px]' : ''}>
+      <div className={`sticky z-40 ${(isCocina || isPOS) ? 'top-0' : 'top-[70px] md:top-[100px]'}`}>
+        <AdminTabs />
+      </div>
       {children}
     </div>
   );

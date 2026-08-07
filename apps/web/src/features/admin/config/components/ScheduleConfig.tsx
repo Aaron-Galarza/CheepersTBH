@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Clock, Save } from 'lucide-react';
 import { configService } from '@/services/config.service';
+import { useToast } from '@/hooks/useToast';
 
 const DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -10,9 +11,7 @@ const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satur
 export function ScheduleConfig() {
   const [schedule, setSchedule] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-
-  const [error, setError] = useState<string | null>(null);
+  const { error, msg, showError, showMsg } = useToast();
 
   useEffect(() => {
     configService.getStatus()
@@ -25,23 +24,21 @@ export function ScheduleConfig() {
           setSchedule(m);
         }
       })
-      .catch(() => setError('Error al cargar horarios'));
+      .catch(() => showError('Error al cargar horarios'));
   }, []);
 
   const save = async () => {
     try {
       setLoading(true);
-      setError(null);
-      setMsg(null);
       const ds = DAY_KEYS.map((day, i) => ({
         day, openTime: schedule[DAY_KEYS[i]]?.open || '09:00',
         closeTime: schedule[DAY_KEYS[i]]?.close || '23:00',
         isStoreOpen: !schedule[DAY_KEYS[i]]?.isClosed,
       }));
       await configService.updateSchedule(ds);
-      setMsg('Horarios actualizados');
+      showMsg('Horarios actualizados');
     } catch {
-      setError('Error al guardar horarios');
+      showError('Error al guardar');
     } finally {
       setLoading(false);
     }
