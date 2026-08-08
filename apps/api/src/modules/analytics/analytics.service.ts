@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { OrderDailyStats, IProductDailyStat } from './analytics.model';
+import { OrderDailyStats, IProductDailyStat, IProductAddonStat } from './analytics.model';
 import { IOrder } from '../orders/orders.model';
 import { getRangeStartDate } from '../../utils/dateRange';
 import { DateRange } from '../../constants';
@@ -10,6 +10,21 @@ export interface GetStatsParams {
   to?: string;
 }
 
+export interface AddonStatOutput {
+  title: string;
+  qty: number;
+  revenue: number;
+}
+
+export interface ProductStatOutput {
+  title: string;
+  qty: number;
+  revenue: number;
+  discount: number;
+  net: number;
+  addons: AddonStatOutput[];
+}
+
 export interface GetStatsResult {
   ordersCount: number;
   completedOrders: number;
@@ -17,8 +32,9 @@ export interface GetStatsResult {
   totalCash: number;
   totalTransfer: number;
   avgTicket: number;
-  products: IProductDailyStat[];
-  topProduct: IProductDailyStat | null;
+  totalDiscounts: number;
+  products: ProductStatOutput[];
+  topProduct: ProductStatOutput | null;
 }
 
 const dateKey = (date: Date): string => format(date, 'yyyy-MM-dd');
@@ -44,12 +60,23 @@ export const AnalyticsService = {
     const date = dateKey(order.createdAt);
     const incUpdates: Record<string, number> = {};
     const setUpdates: Record<string, string> = {};
+    const discountRatio = (order.discountPercent ?? 0) / 100;
 
     for (const item of order.items) {
       const base = `products.${productKey(item.title)}`;
+      const itemRev = itemRevenue(item);
       incUpdates[`${base}.qty`] = (incUpdates[`${base}.qty`] ?? 0) + item.quantity;
-      incUpdates[`${base}.revenue`] = (incUpdates[`${base}.revenue`] ?? 0) + itemRevenue(item);
+      incUpdates[`${base}.revenue`] = (incUpdates[`${base}.revenue`] ?? 0) + itemRev;
+      incUpdates[`${base}.discount`] = (incUpdates[`${base}.discount`] ?? 0) + itemRev * discountRatio;
       setUpdates[`${base}.title`] = item.title;
+
+      for (const addon of item.additionals || []) {
+        const addonBase = `${base}.addons.${productKey(addon.name)}`;
+        incUpdates[`${addonBase}.qty`] = (incUpdates[`${addonBase}.qty`] ?? 0) + addon.quantity;
+        incUpdates[`${addonBase}.revenue`] =
+          (incUpdates[`${addonBase}.revenue`] ?? 0) + addon.price * addon.quantity;
+        setUpdates[`${addonBase}.title`] = addon.name;
+      }
     }
 
     const totals: Record<string, number> = {
@@ -76,6 +103,7 @@ export const AnalyticsService = {
     if (!daily) return;
 
     const incUpdates: Record<string, number> = {};
+    const discountRatio = (order.discountPercent ?? 0) / 100;
 
     for (const item of order.items) {
       const key = productKey(item.title);
@@ -83,10 +111,31 @@ export const AnalyticsService = {
       const current = daily.products?.get(key);
       const currentQty = current?.qty ?? 0;
       const currentRevenue = current?.revenue ?? 0;
+      const currentDiscount = current?.discount ?? 0;
+      const itemRev = itemRevenue(item);
 
       incUpdates[`${base}.qty`] = (incUpdates[`${base}.qty`] ?? 0) - Math.min(item.quantity, currentQty);
       incUpdates[`${base}.revenue`] =
-        (incUpdates[`${base}.revenue`] ?? 0) - Math.min(itemRevenue(item), currentRevenue);
+        (incUpdates[`${base}.revenue`] ?? 0) - Math.min(itemRev, currentRevenue);
+      incUpdates[`${base}.discount`] =
+        (incUpdates[`${base}.discount`] ?? 0) - Math.min(itemRev * discountRatio, currentDiscount);
+
+      const currentAddons = current?.addons;
+      for (const addon of item.additionals || []) {
+        const addonKey = productKey(addon.name);
+        const addonBase = `${base}.addons.${addonKey}`;
+        const currentAddon =
+          currentAddons instanceof Map
+            ? currentAddons.get(addonKey)
+            : (currentAddons as Record<string, IProductAddonStat> | undefined)?.[addonKey];
+        const addonQty = currentAddon?.qty ?? 0;
+        const addonRevenue = currentAddon?.revenue ?? 0;
+
+        incUpdates[`${addonBase}.qty`] =
+          (incUpdates[`${addonBase}.qty`] ?? 0) - Math.min(addon.quantity, addonQty);
+        incUpdates[`${addonBase}.revenue`] =
+          (incUpdates[`${addonBase}.revenue`] ?? 0) - Math.min(addon.price * addon.quantity, addonRevenue);
+      }
     }
 
     const safeTotalSales = Math.min(order.total, daily.totalSales ?? 0);
@@ -150,17 +199,61 @@ export const AnalyticsService = {
       for (const [key, data] of entries) {
         const entry = data as IProductDailyStat;
         if (!productMap[key]) {
-          productMap[key] = { title: entry.title || 'Sin nombre', qty: 0, revenue: 0 };
+          productMap[key] = {
+            title: entry.title || 'Sin nombre',
+            qty: 0,
+            revenue: 0,
+            discount: 0,
+            addons: new Map<string, IProductAddonStat>(),
+          };
         }
-        productMap[key].qty += entry.qty ?? 0;
-        productMap[key].revenue += entry.revenue ?? 0;
+        const acc = productMap[key];
+        acc.qty += entry.qty ?? 0;
+        acc.revenue += entry.revenue ?? 0;
+        acc.discount += entry.discount ?? 0;
+
+        const addons = entry.addons;
+        if (!addons) continue;
+        const addonEntries = addons instanceof Map ? [...addons.entries()] : Object.entries(addons);
+
+        for (const [addonKey, addonData] of addonEntries) {
+          const addon = addonData as IProductAddonStat;
+          let existing = acc.addons.get(addonKey);
+          if (!existing) {
+            existing = { title: addon.title || addonKey, qty: 0, revenue: 0 };
+            acc.addons.set(addonKey, existing);
+          }
+          existing.qty += addon.qty ?? 0;
+          existing.revenue += addon.revenue ?? 0;
+        }
       }
     }
 
-    const products = Object.values(productMap).sort((a, b) => b.revenue - a.revenue);
+    const products: ProductStatOutput[] = Object.values(productMap)
+      .map((p) => ({
+        title: p.title,
+        qty: p.qty,
+        revenue: p.revenue,
+        discount: p.discount,
+        net: Math.round((p.revenue - p.discount) * 100) / 100,
+        addons: [...p.addons.values()].map((a) => ({ title: a.title, qty: a.qty, revenue: a.revenue })),
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
     const topProduct = products.length ? [...products].sort((a, b) => b.qty - a.qty)[0] : null;
     const avgTicket = completedOrders > 0 ? Math.round((totalSales / completedOrders) * 100) / 100 : 0;
+    const totalDiscounts = Math.round(products.reduce((s, p) => s + p.discount, 0) * 100) / 100;
 
-    return { ordersCount, completedOrders, totalSales, totalCash, totalTransfer, avgTicket, products, topProduct };
+    return {
+      ordersCount,
+      completedOrders,
+      totalSales,
+      totalCash,
+      totalTransfer,
+      avgTicket,
+      totalDiscounts,
+      products,
+      topProduct,
+    };
   },
 };

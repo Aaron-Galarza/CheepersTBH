@@ -1,9 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface IProductAddonStat {
+  title: string;
+  qty: number;
+  revenue: number;
+}
+
 export interface IProductDailyStat {
   title: string;
   qty: number;
   revenue: number;
+  discount: number;
+  addons: Map<string, IProductAddonStat>;
 }
 
 export interface IOrderDailyStats extends Document {
@@ -16,11 +24,26 @@ export interface IOrderDailyStats extends Document {
   products: Map<string, IProductDailyStat>;
 }
 
+const ProductAddonStatSchema = new Schema<IProductAddonStat>(
+  {
+    title: { type: String, required: true },
+    qty: { type: Number, default: 0 },
+    revenue: { type: Number, default: 0 },
+  },
+  { _id: false }
+);
+
 const ProductDailyStatSchema = new Schema<IProductDailyStat>(
   {
     title: { type: String, required: true },
     qty: { type: Number, default: 0 },
     revenue: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
+    addons: {
+      type: Map,
+      of: ProductAddonStatSchema,
+      default: {},
+    },
   },
   { _id: false }
 );
