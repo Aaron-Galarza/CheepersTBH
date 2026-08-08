@@ -9,12 +9,14 @@ import {
 } from '../../constants';
 
 export interface IOrderItemAddon {
+  addonId: string;
   name: string;
   price: number;
   quantity: number;
 }
 
 export interface IOrderItem {
+  productId: string;
   title: string;
   price: number;
   quantity: number;
@@ -48,12 +50,14 @@ export interface IOrder extends Document {
 }
 
 const OrderItemAddonSchema = new Schema<IOrderItemAddon>({
+  addonId: { type: String, required: true },
   name: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
   quantity: { type: Number, required: true, min: 1 },
 }, { _id: false });
 
 const OrderItemSchema = new Schema<IOrderItem>({
+  productId: { type: String, required: true },
   title: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
   quantity: { type: Number, required: true, min: 1 },

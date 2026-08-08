@@ -8,7 +8,7 @@ export function validateRequest(schema: ZodSchema) {
       req.body = validated;
       next();
     } catch (error: any) {
-      const firstError = error.errors?.[0];
+      const firstError = error.issues?.[0] ?? error.errors?.[0];
       const message = firstError?.message || 'Validación fallida';
       const path = firstError?.path?.[0] ? ` (${firstError.path[0]})` : '';
 

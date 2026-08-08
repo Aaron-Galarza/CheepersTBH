@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { OrdersController } from './orders.controller';
 import { protect, isAdmin } from '../../middlewares/auth.middleware';
 import { validateRequest } from '../../middlewares/validate.middleware';
+import { orderLimiter } from '../../middlewares/rateLimit.middleware';
 import { CreateOrderSchema, UpdateOrderStatusSchema, UpdateDeliveryCostSchema } from './orders.schema';
 
 const router = Router();
@@ -37,7 +38,7 @@ router.put(
 router.delete('/admin/:id', protect, isAdmin, OrdersController.delete);
 
 // Público: crear orden
-router.post('/', validateRequest(CreateOrderSchema), OrdersController.createOrder);
+router.post('/', orderLimiter, validateRequest(CreateOrderSchema), OrdersController.createOrder);
 
 // Público: obtener orden
 router.get('/:id', OrdersController.getOrder);

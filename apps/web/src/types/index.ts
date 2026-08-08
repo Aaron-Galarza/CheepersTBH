@@ -82,6 +82,7 @@ export interface OrderAddon {
 }
 
 export interface OrderItem {
+  productId: string;
   title: string;
   price: number;
   quantity: number;

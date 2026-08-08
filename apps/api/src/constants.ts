@@ -38,5 +38,4 @@ export const DEFAULT_DAILY_SCHEDULE: Array<{ day: string; openTime: string; clos
 
 // --- Defaults de entorno ---
 export const DEFAULT_PORT = 4000;
-export const DEFAULT_JWT_SECRET = 'secret';
 export const DEFAULT_CLIENT_URL = 'http://localhost:3000';

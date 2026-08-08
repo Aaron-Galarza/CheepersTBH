@@ -7,11 +7,17 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const statusCode = err instanceof AppError ? err.statusCode : 500;
-  let message = err.message || 'Error interno del servidor';
+  const isOperational = err instanceof AppError;
+  const statusCode = isOperational ? err.statusCode : 500;
+  let message = isOperational ? err.message : 'Error interno del servidor';
   let details: any = null;
 
-  console.error(`[ERROR] ${statusCode}: ${message}`);
+  // Los errores internos se loguean completos pero nunca se exponen al cliente
+  if (!isOperational) {
+    console.error(`[ERROR INTERNO] ${req.method} ${req.originalUrl}:`, err);
+  } else {
+    console.error(`[ERROR] ${statusCode}: ${message}`);
+  }
 
   if (err.name === 'MongoError' || err.name === 'MongoServerError') {
     const mongoErr = err as any;

@@ -2,14 +2,12 @@ import { z } from 'zod';
 import { ORDER_STATUSES, PAYMENT_METHODS, DELIVERY_TYPES } from '../../constants';
 
 const AdditionalItemSchema = z.object({
-  name: z.string().min(1, 'El nombre del adicional es requerido'),
-  price: z.number().nonnegative('El precio no puede ser negativo'),
+  addonId: z.string().min(1, 'El id del adicional es requerido'),
   quantity: z.number().positive('La cantidad debe ser mayor a 0'),
 });
 
 const OrderItemSchema = z.object({
-  title: z.string().min(1, 'El título es requerido'),
-  price: z.number().nonnegative('El precio no puede ser negativo'),
+  productId: z.string().min(1, 'El id del producto es requerido'),
   quantity: z.number().positive('La cantidad debe ser mayor a 0'),
   additionals: z.array(AdditionalItemSchema).optional().default([]),
 });

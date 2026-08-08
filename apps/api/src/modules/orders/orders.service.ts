@@ -2,6 +2,8 @@ import { Order, IOrder } from './orders.model';
 import { CouponsService } from '../coupons/coupons.service';
 import { ConfigService } from '../config/config.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { ProductModel } from '../products/products.model';
+import { AdicionalModel } from '../additionals/additionals.model';
 import { CreateOrderInput } from './orders.schema';
 import { AppError } from '../../utils/appError';
 import { ORDER_STATUSES, OrderStatus } from '../../constants';
@@ -17,20 +19,37 @@ export const OrdersService = {
     const validatedItems = [];
 
     for (const item of orderData.items) {
-      const itemPrice = item.price * item.quantity;
+      const product = await ProductModel.findById(item.productId);
+      if (!product || !product.active) {
+        throw new AppError('Uno de los productos no está disponible', 400);
+      }
+
+      const itemPrice = product.price * item.quantity;
       let addonsPrice = 0;
+      const additionals = [];
 
       for (const addon of item.additionals || []) {
-        addonsPrice += addon.price * addon.quantity;
+        const adicional = await AdicionalModel.findById(addon.addonId);
+        if (!adicional || !adicional.active) {
+          throw new AppError('Uno de los adicionales no está disponible', 400);
+        }
+        addonsPrice += adicional.price * addon.quantity;
+        additionals.push({
+          addonId: adicional._id.toString(),
+          name: adicional.title,
+          price: adicional.price,
+          quantity: addon.quantity,
+        });
       }
 
       subtotal += itemPrice + addonsPrice;
 
       validatedItems.push({
-        title: item.title,
-        price: item.price,
+        productId: product._id.toString(),
+        title: product.title,
+        price: product.price,
         quantity: item.quantity,
-        additionals: item.additionals || [],
+        additionals,
       });
     }
 

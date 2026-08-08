@@ -56,6 +56,7 @@ export function POSCheckout({ onClose, onSuccess }: POSCheckoutProps) {
       const order = await ordersService.createOrder({
         customer: { name, phone: phone || '00' },
         items: items.map((item: any) => ({
+          productId: item._id,
           title: item.title || item.name,
           price: item.price,
           quantity: item.quantity || 1,

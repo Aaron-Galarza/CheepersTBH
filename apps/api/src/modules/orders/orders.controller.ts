@@ -65,9 +65,13 @@ export class OrdersController {
     }
 
     const orders = await OrdersService.viewAll(filter);
-    const total = orders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+    const reportOrders = orders.map((o: any) => ({
+      ...o,
+      netTotal: (o.total ?? 0) - (o.deliveryCost ?? 0),
+    }));
+    const total = reportOrders.reduce((s: number, o: any) => s + (o.netTotal ?? 0), 0);
 
-    sendSuccess(res, { orders, total, count: orders.length }, 200);
+    sendSuccess(res, { orders: reportOrders, total, count: orders.length }, 200);
   });
 
   static getById = asyncHandler(async (req: Request, res: Response) => {

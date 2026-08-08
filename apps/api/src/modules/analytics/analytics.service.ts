@@ -61,6 +61,7 @@ export const AnalyticsService = {
     const incUpdates: Record<string, number> = {};
     const setUpdates: Record<string, string> = {};
     const discountRatio = (order.discountPercent ?? 0) / 100;
+    const salesTotal = (order.total ?? 0) - (order.deliveryCost ?? 0);
 
     for (const item of order.items) {
       const base = `products.${productKey(item.title)}`;
@@ -81,11 +82,11 @@ export const AnalyticsService = {
 
     const totals: Record<string, number> = {
       completedOrders: 1,
-      totalSales: order.total,
+      totalSales: salesTotal,
       ...incUpdates,
     };
-    if (order.paymentMethod === 'cash') totals.totalCash = order.total;
-    else if (order.paymentMethod === 'transfer') totals.totalTransfer = order.total;
+    if (order.paymentMethod === 'cash') totals.totalCash = salesTotal;
+    else if (order.paymentMethod === 'transfer') totals.totalTransfer = salesTotal;
 
     await OrderDailyStats.findOneAndUpdate(
       { date },
@@ -104,6 +105,7 @@ export const AnalyticsService = {
 
     const incUpdates: Record<string, number> = {};
     const discountRatio = (order.discountPercent ?? 0) / 100;
+    const salesTotal = (order.total ?? 0) - (order.deliveryCost ?? 0);
 
     for (const item of order.items) {
       const key = productKey(item.title);
@@ -138,7 +140,7 @@ export const AnalyticsService = {
       }
     }
 
-    const safeTotalSales = Math.min(order.total, daily.totalSales ?? 0);
+    const safeTotalSales = Math.min(salesTotal, daily.totalSales ?? 0);
     const safeCompleted = Math.min(1, daily.completedOrders ?? 0);
 
     const totals: Record<string, number> = {
@@ -147,9 +149,9 @@ export const AnalyticsService = {
       ...incUpdates,
     };
     if (order.paymentMethod === 'cash') {
-      totals.totalCash = -Math.min(order.total, daily.totalCash ?? 0);
+      totals.totalCash = -Math.min(salesTotal, daily.totalCash ?? 0);
     } else if (order.paymentMethod === 'transfer') {
-      totals.totalTransfer = -Math.min(order.total, daily.totalTransfer ?? 0);
+      totals.totalTransfer = -Math.min(salesTotal, daily.totalTransfer ?? 0);
     }
 
     await OrderDailyStats.findOneAndUpdate(

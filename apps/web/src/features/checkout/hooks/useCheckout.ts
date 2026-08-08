@@ -37,6 +37,7 @@ export function useCheckout() {
       const orderPayload = {
         customer: customerData,
         items: items.map((item) => ({
+          productId: item._id,
           title: item.title || item.name,
           price: item.price,
           quantity: item.quantity,
