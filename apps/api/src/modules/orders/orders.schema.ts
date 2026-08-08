@@ -17,7 +17,13 @@ const OrderItemSchema = z.object({
 export const CreateOrderSchema = z.object({
   customer: z.object({
     name: z.string().min(2, 'El nombre debe tener mínimo 2 caracteres').max(100),
-    phone: z.string().min(10, 'El teléfono debe tener mínimo 10 dígitos').max(20),
+    phone: z
+      .string()
+      .max(20, 'El teléfono es demasiado largo')
+      .refine(
+        (value) => value === '00' || value.replace(/\D/g, '').length >= 10,
+        'El teléfono debe tener mínimo 10 dígitos'
+      ),
   }),
   items: z.array(OrderItemSchema).min(1, 'Debe haber al menos un artículo'),
   deliveryType: z.enum(DELIVERY_TYPES, {
