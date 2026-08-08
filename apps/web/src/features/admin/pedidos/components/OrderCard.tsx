@@ -5,6 +5,7 @@ import { Order } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { Calendar, User, Phone, Package, CreditCard, Printer } from 'lucide-react';
 import { printComanda } from '@/utils/comanda';
+import { updateOrderDeliveryCost } from '@/services/admin.service';
 
 function formatWhatsApp(phone: string, order: Order): string {
   const digits = phone.replace(/\D/g, '');
@@ -44,6 +45,8 @@ interface OrderCardProps {
 
 export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps) {
   const [confirmDelivered, setConfirmDelivered] = useState(false);
+  const [showShipping, setShowShipping] = useState(false);
+  const [shippingCost, setShippingCost] = useState('');
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === 'delivered' && order.status !== 'delivered') {
@@ -59,6 +62,26 @@ export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps)
   };
 
   const isDelivered = order.status === 'delivered';
+
+  const handlePrint = () => {
+    if (order.deliveryType === 'delivery') {
+      setShowShipping(true);
+    } else {
+      printComanda(order);
+    }
+  };
+
+  const handleShippingSubmit = async () => {
+    const cost = parseFloat(shippingCost);
+    if (cost > 0) {
+      try { await updateOrderDeliveryCost(order._id!, cost); } catch {}
+      printComanda(order, cost);
+    } else {
+      printComanda(order);
+    }
+    setShowShipping(false);
+    setShippingCost('');
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -76,19 +99,21 @@ export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps)
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-[#212121] flex items-center gap-2"><Package size={16} /> Productos:</h3>
-          <button onClick={() => printComanda(order)} className="text-[#757575] hover:text-[#212121] transition"><Printer size={16} /></button>
+          <button onClick={handlePrint} className="text-[#757575] hover:text-[#212121] transition"><Printer size={16} /></button>
         </div>
 
-        <div className="space-y-1 mb-3">
+        <div className="space-y-1.5 mb-3">
           {order.items.map((item, i) => (
             <div key={i}>
-              <p className="text-sm text-[#4a5568] font-medium">
-                {item.title} {item.quantity > 1 ? `(x${item.quantity})` : ''}
+              <p className="text-sm text-[#212121] font-bold">
+                {item.quantity}x {item.title}
               </p>
               {item.additionals && item.additionals.length > 0 && (
-                <div className="ml-3 text-xs text-[#757575]">
+                <div className="ml-2 mt-0.5">
                   {item.additionals.map((a, j) => (
-                    <p key={j}>+ {a.name}{a.quantity > 1 ? ` x${a.quantity}` : ''}</p>
+                    <p key={j} className="text-sm text-[#757575] font-medium">
+                      &#8627; {a.name} <span className="text-[10px] text-[#D9383A]">- {formatCurrency(a.price)}</span>
+                    </p>
                   ))}
                 </div>
               )}
@@ -98,6 +123,11 @@ export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps)
 
         <div className="border-t border-dashed border-gray-200 pt-2 mb-2">
           <p className="text-sm font-bold text-[#212121] flex items-center gap-2"><CreditCard size={14} /> Total: {formatCurrency(order.total)}</p>
+          {order.discountPercent > 0 && (
+            <p className="text-xs text-green-600 font-medium mt-0.5">
+              Cupon aplicado: {order.couponCode} ({order.discountPercent}% desc)
+            </p>
+          )}
         </div>
 
         <div className="text-sm space-y-1.5">
@@ -144,6 +174,25 @@ export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps)
                   className="flex-1 px-4 py-2 bg-gray-300 text-[#212121] rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
                 <button onClick={confirmDelivery}
                   className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">Confirmar</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Shipping cost modal */}
+        {showShipping && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+              <p className="text-lg font-bold mb-2 text-[#212121]">Costo de envio</p>
+              <p className="text-sm text-[#757575] mb-4">Ingresa el costo de envio para {order.customer.name}</p>
+              <input type="number" value={shippingCost} onChange={(e) => setShippingCost(e.target.value)}
+                placeholder="0" min={0} step="0.01" autoFocus
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-[#D9383A] mb-4" />
+              <div className="flex gap-2">
+                <button onClick={() => { setShowShipping(false); setShippingCost(''); }}
+                  className="flex-1 px-4 py-2 bg-gray-300 text-[#212121] rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>
+                <button onClick={handleShippingSubmit}
+                  className="flex-1 px-4 py-2 bg-[#D9383A] text-white rounded-lg font-semibold hover:bg-[#b52d2f]">Imprimir</button>
               </div>
             </div>
           </div>

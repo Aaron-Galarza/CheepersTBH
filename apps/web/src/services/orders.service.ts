@@ -1,5 +1,6 @@
 import apiClient from './api';
 import { Order } from '@/types';
+import { fetchAdminOrders, updateOrderStatus, updateOrderDeliveryCost, deleteOrder, fetchOrderStats } from './admin.service';
 
 export const ordersService = {
   createOrder: async (orderData: any): Promise<Order> => {
@@ -20,23 +21,13 @@ export const ordersService = {
     return response.data.data.comanda;
   },
 
-  getOrders: async (status?: string): Promise<Order[]> => {
-    const url = status ? `/orders/admin?status=${status}` : '/orders/admin';
-    const response = await apiClient.get(url);
-    return response.data.data.orders || [];
-  },
+  getOrders: (status?: string, range?: string) => fetchAdminOrders(status, range),
 
-  updateOrderStatus: async (orderId: string, status: string): Promise<Order> => {
-    const response = await apiClient.patch(`/orders/admin/${orderId}/status`, { status });
-    return response.data.data;
-  },
+  updateOrderStatus: (orderId: string, status: string) => updateOrderStatus(orderId, status),
 
-  deleteOrder: async (orderId: string): Promise<void> => {
-    await apiClient.delete(`/orders/admin/${orderId}`);
-  },
+  deleteOrder: (orderId: string) => deleteOrder(orderId),
 
-  getStats: async (): Promise<any> => {
-    const response = await apiClient.get('/orders/admin/stats');
-    return response.data.data;
-  },
+  updateDeliveryCost: (orderId: string, deliveryCost: number) => updateOrderDeliveryCost(orderId, deliveryCost),
+
+  getStats: () => fetchOrderStats(),
 };

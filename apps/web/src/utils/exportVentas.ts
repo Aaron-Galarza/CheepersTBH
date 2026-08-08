@@ -1,9 +1,9 @@
 import { Order } from '@/types';
-import { analyticsService } from '@/services/analytics.service';
+import { fetchAnalyticsStats } from '@/services/admin.service';
 import * as XLSX from 'xlsx';
 
 export async function exportVentas(orders: Order[], range: string, customFrom?: string, customTo?: string) {
-  const stats = await analyticsService.getStats(range as any, customFrom, customTo);
+  const stats = await fetchAnalyticsStats(range as any, customFrom, customTo);
   const grouped = stats.products || [];
   const wb = XLSX.utils.book_new();
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Power, PowerOff, ImageIcon } from 'lucide-react';
-import { bannersService } from '@/services/banners.service';
+import { fetchAdminBanners, createBanner, updateBanner, toggleBannerActive, deleteBanner } from '@/services/admin.service';
 import { Banner } from '@/types';
 import { useToast } from '@/hooks/useToast';
 
@@ -21,7 +21,7 @@ export function BannersManager() {
 
   const load = async () => {
     setLoading(true);
-    try { setBanners(await bannersService.getAll()); } catch { showError('Error al cargar banners'); }
+    try { setBanners(await fetchAdminBanners()); } catch { showError('Error al cargar banners'); }
     setLoading(false);
   };
 
@@ -30,16 +30,16 @@ export function BannersManager() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editingId) { await bannersService.update(editingId, { title, description, image, order }); showMsg('Banner actualizado'); }
-      else { await bannersService.create({ title, description, image, order, active: true }); showMsg('Banner creado'); }
+      if (editingId) { await updateBanner(editingId, { title, description, image, order }); showMsg('Banner actualizado'); }
+      else { await createBanner({ title, description, image, order, active: true }); showMsg('Banner creado'); }
       reset(); load();
     } catch (err: any) { showError(err.message || 'Error'); }
   };
 
   const edit = (b: any) => { setTitle(b.title); setDescription(b.description || ''); setImage(b.image); setOrder(b.order || 0); setEditingId(b._id); };
 
-  const toggle = async (id: string | undefined) => { if (!id) return; try { await bannersService.toggleActive(id); load(); } catch { showError('Error'); } };
-  const del = async (id: string | undefined) => { if (!id || !confirm('Eliminar banner?')) return; try { await bannersService.delete(id); load(); showMsg('Banner eliminado'); } catch { showError('Error'); } };
+  const toggle = async (id: string | undefined) => { if (!id) return; try { await toggleBannerActive(id); load(); } catch { showError('Error'); } };
+  const del = async (id: string | undefined) => { if (!id || !confirm('Eliminar banner?')) return; try { await deleteBanner(id); load(); showMsg('Banner eliminado'); } catch { showError('Error'); } };
 
   if (loading) return <div className="bg-white rounded-lg p-4 shadow-md"><p className="text-[#757575] text-sm">Cargando banners...</p></div>;
 

@@ -51,9 +51,11 @@ export const deleteAddon = (id: string) =>
   apiClient.delete(`/additionals/admin/${id}`).then((r) => r.data.data);
 
 // ── Orders ───────────────────────────────────────────────────────────────────
-export const fetchAdminOrders = (status?: string) => {
-  const url = status ? `/orders/admin?status=${status}` : '/orders/admin';
-  return apiClient.get(url).then((r) => r.data.data.orders || []);
+export const fetchAdminOrders = (status?: string, range?: string) => {
+  const params: any = {};
+  if (status) params.status = status;
+  if (range) params.range = range;
+  return apiClient.get('/orders/admin', { params }).then((r) => r.data.data.orders || []);
 };
 
 export const updateOrderStatus = (id: string, status: string) =>
@@ -95,7 +97,7 @@ export const updateBanner = (id: string, payload: Record<string, any>) =>
   apiClient.put(`/banners/admin/${id}`, payload).then((r) => r.data.data);
 
 export const toggleBannerActive = (id: string) =>
-  apiClient.put(`/banners/admin/${id}/toggleActive`).then((r) => r.data.data);
+  apiClient.patch(`/banners/admin/${id}/toggle`).then((r) => r.data.data);
 
 export const deleteBanner = (id: string) =>
   apiClient.delete(`/banners/admin/${id}`).then((r) => r.data.data);
@@ -112,3 +114,37 @@ export const saveSchedule = (dailySchedule: any[]) =>
 
 export const saveBanner = (banner: string) =>
   apiClient.put('/config/banner', { banner }).then((r) => r.data.data);
+
+// ── Analytics ─────────────────────────────────────────────────────────────────
+export const fetchAnalyticsStats = (range: AdminRange | 'yesterday' | 'custom' = 'today', customFrom?: string, customTo?: string) => {
+  const params: any = {};
+  if (range === 'custom' && customFrom && customTo) {
+    params.from = customFrom;
+    params.to = customTo;
+  } else {
+    params.range = range;
+  }
+  return apiClient.get('/analytics/admin', { params }).then((r) => r.data.data);
+};
+
+export const fetchAnalyticsOrders = (range: AdminRange | 'yesterday' | 'custom' = 'today', paymentFilter = '', customFrom?: string, customTo?: string) => {
+  const params: any = { status: 'delivered' };
+  if (paymentFilter) params.paymentMethod = paymentFilter;
+  if (range === 'custom' && customFrom && customTo) {
+    params.from = customFrom;
+    params.to = customTo;
+  } else {
+    params.range = range;
+  }
+  return apiClient.get('/orders/admin', { params }).then((r) => ({ orders: r.data.data.orders || [], total: r.data.data.total ?? 0 }));
+};
+
+// ── Gallery ───────────────────────────────────────────────────────────────────
+export const fetchGalleryImages = () =>
+  apiClient.get('/gallery').then((r) => r.data.data);
+
+export const uploadGalleryImage = (formData: FormData) =>
+  apiClient.post('/gallery', formData, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data.data);
+
+export const deleteGalleryImage = (imageId: string) =>
+  apiClient.delete(`/gallery/${imageId}`).then((r) => r.data.data);

@@ -44,7 +44,7 @@ export default function MenuPage() {
       {!selectedCategory && !loading && <FeaturedBanner products={products} onProductClick={onClick} />}
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-2 p-2 md:grid-cols-3 md:gap-4 md:p-4 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-2 p-2 md:grid-cols-3 md:gap-4 md:p-4 lg:grid-cols-4">
           {Array(8).fill(null).map((_, i) => <ProductCardSkeleton key={i} />)}
         </div>
       ) : error ? (
@@ -57,13 +57,15 @@ export default function MenuPage() {
           <p className="text-lg text-[#757575]">No encontramos productos{selectedCategory ? ' en esta categoría' : ''}</p>
         </div>
       ) : grouped ? (
-        <div>
+        <div className="pt-2 md:pt-4">
           {grouped.map(([catName, catProducts]) => (
             <MenuSection key={catName} category={catName} products={catProducts} addedId={addedId} />
           ))}
         </div>
       ) : (
-        <MenuSection category={selectedCategory ?? ''} products={products} addedId={addedId} />
+        <div className="pt-2 md:pt-4">
+          <MenuSection category={selectedCategory ?? ''} products={products} addedId={addedId} />
+        </div>
       )}
     </div>
   );

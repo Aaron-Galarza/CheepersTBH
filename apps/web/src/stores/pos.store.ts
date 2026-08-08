@@ -8,6 +8,7 @@ interface POSState {
   addItem: (product: any, quantity: number, addons: SelectedAddOn[]) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
+  updateAddOns: (itemId: string, addOns: SelectedAddOn[]) => void;
   clearCart: () => void;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (categoryId: string | null) => void;
@@ -20,14 +21,9 @@ export const usePOSStore = create<POSState>((set, get) => ({
   selectedCategory: null,
 
   addItem: (product: any, quantity: number, addons: SelectedAddOn[]) => {
-    set((state) => {
-      const id = `${product._id}_${addons.map((a) => a._id).sort().join(',')}`;
-      const existing = state.items.find((i) => i.cartItemId === id);
-      if (existing) {
-        return { items: state.items.map((i) => i.cartItemId === id ? { ...i, quantity: i.quantity + quantity } : i) };
-      }
-      return { items: [...state.items, { ...product, quantity, addOns: addons, cartItemId: id }] };
-    });
+    set((state) => ({
+      items: [...state.items, { ...product, quantity, addOns: addons, cartItemId: `${product._id}-${Date.now()}` }],
+    }));
   },
 
   removeItem: (itemId) => {
@@ -37,6 +33,10 @@ export const usePOSStore = create<POSState>((set, get) => ({
   updateQuantity: (itemId, quantity) => {
     if (quantity <= 0) { get().removeItem(itemId); return; }
     set((state) => ({ items: state.items.map((i) => i.cartItemId === itemId ? { ...i, quantity } : i) }));
+  },
+
+  updateAddOns: (itemId: string, addOns: SelectedAddOn[]) => {
+    set((state) => ({ items: state.items.map((i) => i.cartItemId === itemId ? { ...i, addOns } : i) }));
   },
 
   clearCart: () => {

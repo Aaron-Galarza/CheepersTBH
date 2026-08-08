@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ordersService } from '@/services/orders.service';
+import { fetchAdminOrders, updateOrderStatus } from '@/services/admin.service';
 import { socketService } from '@/services/socket.service';
 import { Order } from '@/types';
 
@@ -15,14 +15,10 @@ export function useKitchenOrders() {
     socketService.initialize();
     socketService.joinKitchen();
 
-    ordersService.getOrders().then((data) => {
-      const today = new Date().toDateString();
-      const active = data.filter((o: Order) =>
-        !['delivered', 'cancelled'].includes(o.status)
-        && o.createdAt && new Date(o.createdAt).toDateString() === today
-      );
-      setOrders(active);
-    }).catch(() => setError('Error al cargar ordenes')).finally(() => setLoading(false));
+    fetchAdminOrders('pending,confirmed,preparing,ready', 'today')
+      .then(setOrders)
+      .catch(() => setError('Error al cargar ordenes'))
+      .finally(() => setLoading(false));
 
     const unsub1 = socketService.onOrderUpdated((data) => {
       if (data.orderId === updatingId) return;
@@ -41,7 +37,7 @@ export function useKitchenOrders() {
   const updateStatus = async (orderId: string, status: string) => {
     setUpdatingId(orderId);
     try {
-      await ordersService.updateOrderStatus(orderId, status);
+      await updateOrderStatus(orderId, status);
       setOrders((prev) => prev.map((o) => o._id === orderId ? { ...o, status: status as Order['status'] } : o));
     } catch { setError('Error al actualizar'); }
     finally { setUpdatingId(null); }

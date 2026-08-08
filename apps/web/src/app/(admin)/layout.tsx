@@ -8,15 +8,11 @@ import { ReactNode } from 'react';
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
-    if (!isAuthenticated && pathname !== '/login') router.push('/login');
-  }, [isAuthenticated, pathname, router]);
-
-  if (!isAuthenticated && pathname !== '/login') {
-    return <div className="cart-bg min-h-screen flex items-center justify-center"><p className="text-[#757575]">Cargando...</p></div>;
-  }
+    if (!token && pathname !== '/login') router.push('/login');
+  }, [token, pathname, router]);
 
   return <>{children}</>;
 }

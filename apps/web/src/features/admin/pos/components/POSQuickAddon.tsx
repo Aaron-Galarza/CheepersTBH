@@ -19,11 +19,13 @@ export function POSQuickAddon({ product, onAdd, onClose }: POSQuickAddonProps) {
   useEffect(() => {
     menuService.getAdditionals()
       .then((all) => {
-        const catName = typeof product.category === 'object' ? (product.category as any).name || (product.category as any)._id : product.category;
+        const catId = typeof product.category === 'object' && product.category !== null
+          ? (product.category as any)._id || (product.category as any).name
+          : product.category;
         const filtered = all.filter((a) => {
           const cats = (a as any).categories ?? a.associatedProductCategories;
           if (!cats || cats.length === 0) return true;
-          return cats.some((c: string) => c === catName || c === String(catName));
+          return catId ? cats.some((c: string) => String(c) === String(catId)) : true;
         });
         setAdditionals(filtered);
       })

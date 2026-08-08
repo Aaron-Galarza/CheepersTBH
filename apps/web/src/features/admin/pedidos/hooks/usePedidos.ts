@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ordersService } from '@/services/orders.service';
+import { fetchAdminOrders, updateOrderStatus } from '@/services/admin.service';
 import { socketService } from '@/services/socket.service';
 import { Order } from '@/types';
 
@@ -14,7 +14,7 @@ export function usePedidos() {
 
   const fetchOrders = useCallback(() => {
     setLoading(true);
-    ordersService.getOrders(status || undefined)
+    fetchAdminOrders(status || undefined)
       .then((data) => setOrders(data))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -44,7 +44,7 @@ export function usePedidos() {
   const updateStatus = async (id: string, newStatus: string) => {
     setUpdatingId(id);
     try {
-      await ordersService.updateOrderStatus(id, newStatus);
+      await updateOrderStatus(id, newStatus);
       setOrders((prev) => {
         const updated = prev.map((o) => o._id === id ? { ...o, status: newStatus as Order['status'] } : o);
         if (status) return updated.filter((o) => o.status === status);

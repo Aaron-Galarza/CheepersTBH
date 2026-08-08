@@ -57,7 +57,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
   return (
     <section
-      className="relative mx-auto mt-4 mb-20 flex min-h-[500px] w-full max-w-[1200px] items-center justify-center overflow-hidden rounded-[70px] bg-[#FFF8E1] shadow-[0_5px_20px_rgba(0,0,0,0.08)] max-md:mt-8 max-md:mb-12 max-md:min-h-[420px] max-md:rounded-[30px]"
+      className="relative mx-auto mt-4 mb-20 flex min-h-[500px] w-full max-w-[1200px] items-center justify-center overflow-hidden rounded-[70px] bg-[#FFF8E1] shadow-[0_5px_20px_rgba(0,0,0,0.08)] max-md:mt-8 max-md:mb-12 max-md:min-h-[480px] max-md:rounded-[30px] max-md:pb-24"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -112,7 +112,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
         <ChevronRight size={24} />
       </button>
 
-      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-4 max-md:gap-2">
+      <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-4 md:bottom-6 max-md:gap-2">
         {slides.map((_, index) => (
           <button
             key={index}

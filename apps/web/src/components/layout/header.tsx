@@ -8,12 +8,13 @@ import { useCartStore } from "@/stores/cart.store";
 
 export default function Header() {
   const pathname = usePathname();
-  if (pathname.startsWith('/admin/cocina') || pathname.startsWith('/admin/pos')) return null;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const cartCount = useCartStore((s) => s.getItemCount());
 
-  useEffect(() => { setMounted(true); }, []); 
+  useEffect(() => { setMounted(true); }, []);
+
+  if (pathname.startsWith('/admin/cocina') || pathname.startsWith('/admin/pos')) return null;
 
   const navLinks = [
     { name: "Inicio", href: "/" },

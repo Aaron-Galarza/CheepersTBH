@@ -14,9 +14,9 @@ interface MenuSectionProps {
 
 function gridClass(count: number) {
   if (count === 1) return 'grid-cols-1 justify-items-center';
-  if (count === 2) return 'grid-cols-2';
-  if (count === 3) return 'grid-cols-2 md:grid-cols-3';
-  return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+  if (count === 2) return 'grid-cols-1 md:grid-cols-2';
+  if (count === 3) return 'grid-cols-1 md:grid-cols-3';
+  return 'grid-cols-1 md:grid-cols-3 lg:grid-cols-4';
 }
 
 export function MenuSection({ category, products, className = '', addedId }: MenuSectionProps) {

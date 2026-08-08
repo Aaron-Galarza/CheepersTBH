@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { categoriesService } from '@/services/categories.service';
+import { fetchAdminCategories, createCategory, updateCategory, toggleCategoryActive, deleteCategory } from '@/services/admin.service';
 import { Category } from '@/types';
 import { IconPicker, getCategoryIcon } from './IconPicker';
 import { Plus, Pencil, Trash2, Power, PowerOff } from 'lucide-react';
@@ -21,7 +21,7 @@ export function CategoriesManager() {
 
   const load = async () => {
     setLoading(true);
-    try { setCategories(await categoriesService.getAllAdmin()); } catch { showError('Error al cargar'); }
+    try { setCategories(await fetchAdminCategories()); } catch { showError('Error al cargar'); }
     setLoading(false);
   };
 
@@ -31,10 +31,10 @@ export function CategoriesManager() {
     e.preventDefault();
     try {
       if (editingId) {
-        await categoriesService.update(editingId, { name, icon, order });
+        await updateCategory(editingId, { name, icon, order });
         showMsg('Categoria actualizada');
       } else {
-        await categoriesService.create({ name, icon, order });
+        await createCategory({ name, icon, order });
         showMsg('Categoria creada');
       }
       reset(); load();
@@ -42,10 +42,10 @@ export function CategoriesManager() {
   };
 
   const edit = (c: Category) => { setName(c.name); setIcon(c.icon || ''); setOrder(c.order || 0); setEditingId(c._id || null); };
-  const toggle = async (id: string | undefined) => { if (!id) return; try { await categoriesService.toggleActive(id); load(); } catch { showError('Error'); } };
+  const toggle = async (id: string | undefined) => { if (!id) return; try { await toggleCategoryActive(id); load(); } catch { showError('Error'); } };
   const del = async (id: string | undefined) => {
     if (!id || !confirm('Eliminar categoria?')) return;
-    try { await categoriesService.delete(id); load(); showMsg('Categoria eliminada'); }
+    try { await deleteCategory(id); load(); showMsg('Categoria eliminada'); }
     catch (err: any) { showError(err.response?.data?.error || 'No se puede eliminar (tiene productos)'); }
   };
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Ticket, Plus } from 'lucide-react';
-import { couponsService } from '@/services/coupons.service';
+import { createCoupon } from '@/services/admin.service';
 import { Coupon } from '@/types';
 
 const DAYS = [
@@ -37,7 +37,7 @@ export function CouponForm({ onCouponAdded }: CouponFormProps) {
     try {
       setLoading(true);
       setError(null);
-      const c = await couponsService.create({
+      const c = await createCoupon({
         code: code.toUpperCase(),
         discountPercent: discount,
         active: true,

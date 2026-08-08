@@ -1,11 +1,10 @@
 import { Order } from '@/types';
 
-export function printComanda(order: Order) {
+export function printComanda(order: Order, shippingCost?: number, discount?: number) {
   const date = new Date(order.createdAt || '').toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
   const time = new Date(order.createdAt || '').toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
 
   const type = order.deliveryType === 'delivery' ? 'Envio' : 'Retiro';
-
   const payment = order.paymentMethod === 'cash' ? 'Efectivo' : 'Transferencia';
 
   const products = order.items.map((item) => {
@@ -15,6 +14,10 @@ export function printComanda(order: Order) {
 
   const address = order.deliveryType === 'delivery' && order.delivery?.address
     ? `<p style="margin:5px 0"><strong>Direccion:</strong> ${order.delivery.address}</p>` : '';
+
+  const discountHtml = discount ? `<p style="font-size:1.1em;font-weight:bold">Descuento: <strong>-$${discount.toLocaleString('es-AR')}</strong></p>` : '';
+  const envioHtml = shippingCost ? `<p style="font-size:1.1em;font-weight:bold">Envio: <strong>$${shippingCost.toLocaleString('es-AR')}</strong></p>` : '';
+  const totalFinal = (order.total ?? 0) - (discount ?? 0) + (shippingCost ?? 0);
 
   const html = `<!DOCTYPE html><html><head><title>Comanda</title><style>
     body{font-family:'Courier New',monospace;font-size:14px;line-height:1.2;margin:0;padding:10px}
@@ -37,7 +40,10 @@ export function printComanda(order: Order) {
     <div class="sep"></div>
     <div style="text-align:right">
       <p style="font-size:1.1em;font-weight:bold"><strong>Pago:</strong> ${payment}</p>
-      <p style="font-size:1.2em"><strong>TOTAL: $${order.total?.toLocaleString('es-AR')}</strong></p>
+      <p style="font-size:1.1em;font-weight:bold">Subtotal: <strong>$${order.total?.toLocaleString('es-AR') ?? '0'}</strong></p>
+      ${discountHtml}
+      ${envioHtml}
+      <p style="font-size:1.2em"><strong>TOTAL: $${totalFinal.toLocaleString('es-AR')}</strong></p>
     </div>
   </div></body></html>`;
 

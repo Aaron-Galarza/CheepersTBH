@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { productsService } from '@/services/products.service';
-import { categoriesService } from '@/services/categories.service';
+import { fetchAdminCategories, fetchAdminProducts, createProduct, updateProduct, toggleProductActive, deleteProduct } from '@/services/admin.service';
 import { Product, Category } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { Plus, Pencil, Trash2, Power, PowerOff, Package } from 'lucide-react';
@@ -29,7 +28,7 @@ export function ProductsManager() {
   const load = async () => {
     setLoading(true);
     try {
-      const [p, c] = await Promise.all([productsService.getAllAdmin(), categoriesService.getAllAdmin()]);
+      const [p, c] = await Promise.all([fetchAdminProducts(), fetchAdminCategories()]);
       setProducts(p);
       setCategories(c);
     } catch { showError('Error al cargar'); }
@@ -46,10 +45,10 @@ export function ProductsManager() {
     try {
       const payload = { title, price: parseFloat(price), description, image, category: categoryId, active: true, controlStock, stock };
       if (editingId) {
-        await productsService.update(editingId, payload);
+        await updateProduct(editingId, payload);
         showMsg('Producto actualizado');
       } else {
-        await productsService.create(payload);
+        await createProduct(payload);
         showMsg('Producto creado');
       }
       reset(); load();
@@ -67,10 +66,10 @@ export function ProductsManager() {
     setEditingId(p._id);
   };
 
-  const toggle = async (id: string) => { try { await productsService.toggleActive(id); load(); } catch { showError('Error'); } };
+  const toggle = async (id: string) => { try { await toggleProductActive(id); load(); } catch { showError('Error'); } };
   const del = async (id: string) => {
     if (!confirm('Eliminar producto?')) return;
-    try { await productsService.delete(id); load(); showMsg('Producto eliminado'); } catch { showError('Error'); }
+    try { await deleteProduct(id); load(); showMsg('Producto eliminado'); } catch { showError('Error'); }
   };
 
   const filtered = filterCat ? products.filter((p) => {

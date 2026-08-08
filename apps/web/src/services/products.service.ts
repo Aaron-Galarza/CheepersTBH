@@ -1,5 +1,6 @@
 import apiClient from './api';
 import { Product } from '@/types';
+import { fetchAdminProducts, createProduct, updateProduct, toggleProductActive, deleteProduct } from './admin.service';
 
 export const productsService = {
   getAll: async (): Promise<Product[]> => {
@@ -17,27 +18,13 @@ export const productsService = {
     return response.data.data || [];
   },
 
-  getAllAdmin: async (): Promise<Product[]> => {
-    const res = await apiClient.get('/products/admin/all');
-    return res.data.data || [];
-  },
+  getAllAdmin: () => fetchAdminProducts(),
 
-  create: async (data: any): Promise<Product> => {
-    const res = await apiClient.post('/products/admin', data);
-    return res.data.data;
-  },
+  create: (data: any) => createProduct(data),
 
-  update: async (id: string, data: any): Promise<Product> => {
-    const res = await apiClient.put(`/products/admin/${id}`, data);
-    return res.data.data;
-  },
+  update: (id: string, data: any) => updateProduct(id, data),
 
-  toggleActive: async (id: string): Promise<Product> => {
-    const res = await apiClient.patch(`/products/admin/${id}/toggle`);
-    return res.data.data;
-  },
+  toggleActive: (id: string) => toggleProductActive(id),
 
-  delete: async (id: string): Promise<void> => {
-    await apiClient.delete(`/products/admin/${id}`);
-  },
+  delete: (id: string) => deleteProduct(id),
 };

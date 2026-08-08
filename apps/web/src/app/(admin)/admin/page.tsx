@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LayoutDashboard, Package, ChefHat, DollarSign } from 'lucide-react';
-import { analyticsService } from '@/services/analytics.service';
+import { fetchAnalyticsStats } from '@/services/admin.service';
 import { formatCurrency } from '@/utils/format';
 
 const shortcuts = [
@@ -16,7 +16,10 @@ export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<any>(null);
 
   useEffect(() => {
-    analyticsService.getStats('today').then(setMetrics).catch(() => {});
+    const load = () => fetchAnalyticsStats('today').then(setMetrics).catch(() => {});
+    load();
+    window.addEventListener('focus', load);
+    return () => window.removeEventListener('focus', load);
   }, []);
 
   return (
@@ -40,7 +43,7 @@ export default function AdminDashboardPage() {
             {[
               { label: 'Ventas Totales', value: formatCurrency(metrics.totalSales), color: 'text-[#D9383A]' },
               { label: 'Pedidos Entregados', value: metrics.completedOrders, color: 'text-blue-600' },
-              { label: 'Ticket Promedio', value: formatCurrency(metrics.completedOrders > 0 ? metrics.totalSales / metrics.completedOrders : 0), color: 'text-green-600' },
+              { label: 'Ticket Promedio', value: formatCurrency(metrics.avgTicket ?? 0), color: 'text-green-600' },
             ].map(({ label, value, color }) => (
               <div key={label} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5">
                 <p className="text-xs sm:text-sm font-medium text-[#757575] mb-1">{label}</p>

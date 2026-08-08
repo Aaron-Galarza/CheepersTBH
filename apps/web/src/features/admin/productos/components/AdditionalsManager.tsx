@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { menuService } from '@/services/menu.service';
-import { categoriesService } from '@/services/categories.service';
-import { fetchAdminAddons, createAddon, updateAddon, toggleAddonActive, deleteAddon } from '@/services/admin.service';
+import { fetchAdminAddons, createAddon, updateAddon, toggleAddonActive, deleteAddon, fetchAdminCategories } from '@/services/admin.service';
 import { Addon, Category } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { Plus, Pencil, Trash2, Power, PowerOff, Package } from 'lucide-react';
@@ -27,7 +26,7 @@ export function AdditionalsManager() {
     try {
       const [a, c] = await Promise.all([
         fetchAdminAddons(),
-        categoriesService.getAllAdmin(),
+        fetchAdminCategories(),
       ]);
       setAdditionals(a as Addon[]);
       setCategories(c);

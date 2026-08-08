@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Clock, Save } from 'lucide-react';
-import { configService } from '@/services/config.service';
+import { fetchConfigStatus, saveSchedule } from '@/services/admin.service';
 import { useToast } from '@/hooks/useToast';
 
 const DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
@@ -14,7 +14,7 @@ export function ScheduleConfig() {
   const { error, msg, showError, showMsg } = useToast();
 
   useEffect(() => {
-    configService.getStatus()
+    fetchConfigStatus()
       .then((c) => {
         if (c.dailySchedule) {
           const m: Record<string, any> = {};
@@ -35,7 +35,7 @@ export function ScheduleConfig() {
         closeTime: schedule[DAY_KEYS[i]]?.close || '23:00',
         isStoreOpen: !schedule[DAY_KEYS[i]]?.isClosed,
       }));
-      await configService.updateSchedule(ds);
+      await saveSchedule(ds);
       showMsg('Horarios actualizados');
     } catch {
       showError('Error al guardar');

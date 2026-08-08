@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Ticket, Trash2, Power, PowerOff } from 'lucide-react';
-import { couponsService } from '@/services/coupons.service';
+import { fetchAdminCoupons, toggleCouponActive, deleteCoupon } from '@/services/admin.service';
 import { Coupon } from '@/types';
 
 interface CouponsListProps {
@@ -17,7 +17,7 @@ export function CouponsList({ onLoaded }: CouponsListProps) {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await couponsService.getAll();
+      const data = await fetchAdminCoupons();
       setCoupons(data);
       onLoaded?.(data);
     } catch { setError('Error al cargar cupones'); }
@@ -28,12 +28,12 @@ export function CouponsList({ onLoaded }: CouponsListProps) {
 
   const toggle = async (id: string | undefined) => {
     if (!id) return;
-    try { const u = await couponsService.toggle(id); setCoupons((c) => c.map((x) => (x._id === id ? u : x))); } catch { setError('Error'); }
+    try { const u = await toggleCouponActive(id); setCoupons((c) => c.map((x) => (x._id === id ? u : x))); } catch { setError('Error'); }
   };
 
   const del = async (id: string | undefined) => {
     if (!id || !confirm('Eliminar cupon?')) return;
-    try { await couponsService.delete(id); setCoupons((c) => c.filter((x) => x._id !== id)); } catch { setError('Error'); }
+    try { await deleteCoupon(id); setCoupons((c) => c.filter((x) => x._id !== id)); } catch { setError('Error'); }
   };
 
   if (loading) return <p className="text-[#757575] text-sm">Cargando cupones...</p>;

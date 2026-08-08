@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { analyticsService } from '@/services/analytics.service';
+import { fetchAnalyticsStats, fetchAnalyticsOrders } from '@/services/admin.service';
 import { formatCurrency } from '@/utils/format';
 import { exportVentas } from '@/utils/exportVentas';
 import { CreditCard, Calendar, Download, Package } from 'lucide-react';
@@ -21,12 +21,14 @@ export function OrdersTable() {
   const [customTo, setCustomTo] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [viewGrouped, setViewGrouped] = useState(false);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     setLoading(true); setShowAll(false);
     const f = viewGrouped
-      ? analyticsService.getStats(range as any, customFrom || undefined, customTo || undefined).then((s) => setGrouped(s.products || []))
-      : analyticsService.getOrders(range as any, paymentFilter, customFrom || undefined, customTo || undefined).then(setOrders);
+      ? fetchAnalyticsStats(range as any, customFrom || undefined, customTo || undefined).then((s) => setGrouped(s.products || []))
+      : fetchAnalyticsOrders(range as any, paymentFilter, customFrom || undefined, customTo || undefined)
+        .then(({ orders, total: t }) => { setOrders(orders); setTotal(t); });
     f.catch(() => {}).finally(() => setLoading(false));
   }, [range, paymentFilter, customFrom, customTo, viewGrouped]);
 
@@ -36,7 +38,6 @@ export function OrdersTable() {
   };
 
   const displayed = showAll ? orders : orders.slice(0, PAGE_SIZE);
-  const total = orders.reduce((s, o) => s + (o.total || 0), 0);
 
   if (loading) return <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><p className="text-[#757575] text-sm">Cargando...</p></div>;
 
@@ -87,7 +88,12 @@ export function OrdersTable() {
                 <tr key={o._id} className="border-b border-gray-50">
                   <td className="py-2 text-xs whitespace-nowrap text-[#757575]">{fmtDate(o.createdAt)}</td>
                   <td className="py-2">{o.items.map((item, i) => (<div key={i}><span className="font-medium text-[#212121]">{item.quantity}x {item.title}</span>{item.additionals?.map((a, j) => (<span key={j} className="text-xs text-[#757575] ml-2">+{a.name}</span>))}</div>))}</td>
-                  <td className="py-2"><span className="text-xs font-medium text-[#757575]">{o.paymentMethod === 'cash' ? 'Efectivo' : 'Transferencia'}</span></td>
+                  <td className="py-2">
+                    <span className="text-xs font-medium text-[#757575]">{o.paymentMethod === 'cash' ? 'Efectivo' : 'Transferencia'}</span>
+                    {o.discountPercent > 0 && (
+                      <span className="text-[10px] text-green-600 font-medium ml-1">-{o.discountPercent}%</span>
+                    )}
+                  </td>
                   <td className="py-2 text-right font-semibold text-[#212121]">{formatCurrency(o.total)}</td>
                 </tr>
               ))}

@@ -15,12 +15,12 @@ export function CategoryFilter({ categories, selectedCategory, onSelectCategory 
 
   return (
     <div className="border-b border-[#e0e0e0] bg-[#FFFDF7]">
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-3 py-2.5 md:gap-x-5 md:py-3">
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 px-3 py-2 md:gap-x-5 md:py-3">
         <button
           onClick={() => onSelectCategory(null)}
-          className={`flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold transition md:text-sm ${!selectedCategory ? 'text-[#D9383A]' : 'text-[#757575] hover:text-[#D9383A]'}`}
+          className={`flex items-center gap-1 whitespace-nowrap text-[11px] font-semibold transition md:gap-1.5 md:text-sm ${!selectedCategory ? 'text-[#D9383A]' : 'text-[#757575] hover:text-[#D9383A]'}`}
         >
-          <LayoutGrid size={16} className="md:size-[18px]" />
+          <LayoutGrid size={16} className="size-3.5 md:size-[18px]" />
           Todos
         </button>
         {active.map((c) => {
@@ -29,9 +29,9 @@ export function CategoryFilter({ categories, selectedCategory, onSelectCategory 
             <button
               key={c.name}
               onClick={() => onSelectCategory(c.name)}
-              className={`flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold transition md:text-sm ${selectedCategory === c.name ? 'text-[#D9383A]' : 'text-[#757575] hover:text-[#D9383A]'}`}
+              className={`flex items-center gap-1 whitespace-nowrap text-[11px] font-semibold transition md:gap-1.5 md:text-sm ${selectedCategory === c.name ? 'text-[#D9383A]' : 'text-[#757575] hover:text-[#D9383A]'}`}
             >
-              <Icon size={20} />
+              <Icon size={20} className="size-4 md:size-5" />
               {c.name}
             </button>
           );
