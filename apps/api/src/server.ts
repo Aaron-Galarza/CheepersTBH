@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import app from './app';
 import { connectDB } from './config/db';
-import { DEFAULT_PORT, DEFAULT_CLIENT_URL } from './constants';
+import { DEFAULT_PORT, ALLOWED_ORIGINS } from './constants';
 
 declare global {
   var io: Server | undefined;
@@ -18,7 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || DEFAULT_CLIENT_URL,
+    origin: ALLOWED_ORIGINS,
     credentials: true,
   },
 });

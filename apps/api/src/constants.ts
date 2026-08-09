@@ -39,3 +39,15 @@ export const DEFAULT_DAILY_SCHEDULE: Array<{ day: string; openTime: string; clos
 // --- Defaults de entorno ---
 export const DEFAULT_PORT = 4000;
 export const DEFAULT_CLIENT_URL = 'http://localhost:3000';
+
+export const ALLOWED_ORIGINS = (() => {
+  const envOrigins = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  return [
+    DEFAULT_CLIENT_URL,
+    'https://cheepers-tbh.vercel.app',
+    ...envOrigins,
+  ];
+})();

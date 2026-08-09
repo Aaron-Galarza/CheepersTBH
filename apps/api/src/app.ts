@@ -5,7 +5,7 @@ import routes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { requestLogger } from './middlewares/logger.middleware';
 import { apiLimiter } from './middlewares/rateLimit.middleware';
-import { DEFAULT_CLIENT_URL } from './constants';
+import { ALLOWED_ORIGINS } from './constants';
 
 const app: Express = express();
 
@@ -17,7 +17,7 @@ app.use('/api', apiLimiter);
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || DEFAULT_CLIENT_URL,
+  origin: ALLOWED_ORIGINS,
   credentials: true,
 }));
 
