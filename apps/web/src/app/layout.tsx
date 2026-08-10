@@ -28,7 +28,12 @@ const oswald = Oswald({
   display: 'swap',
 });
 
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Cheepers - Pide tu comida',
   description: 'Hamburguesas, pizzas, lomitos y más. Entrega rápida en tu domicilio.',
 };
