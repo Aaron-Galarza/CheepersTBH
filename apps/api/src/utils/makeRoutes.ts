@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { protect, isAdmin } from '../middlewares/auth.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
+import { cachePublic } from '../middlewares/cache.middleware';
 
 interface MakeCrudRoutesOptions {
   controller: Record<string, any>;
@@ -26,7 +27,7 @@ export const makeCrudRoutes = (options: MakeCrudRoutesOptions) => {
   const router = Router();
 
   if (withPublicList) {
-    router.get('/', controller.getPublic);
+    router.get('/', cachePublic(), controller.getPublic);
   }
 
   router.get(listPath, protect, isAdmin, controller.getAll);

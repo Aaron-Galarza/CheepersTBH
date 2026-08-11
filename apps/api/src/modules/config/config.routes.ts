@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { ConfigController } from './config.controller';
 import { protect, isAdmin } from '../../middlewares/auth.middleware';
 import { validateRequest } from '../../middlewares/validate.middleware';
+import { cachePublic } from '../../middlewares/cache.middleware';
 import { UpdateScheduleSchema, UpdateEmergencyMessageSchema, UpdateBannerSchema } from './config.schema';
 
 const router = Router();
 
-// Público
-router.get('/status', ConfigController.getStatus);
+// Público (TTB bajo: 60s, el estado cambia con emergencias)
+router.get('/status', cachePublic(60), ConfigController.getStatus);
 
 // Admin
 router.put('/schedule', protect, isAdmin, validateRequest(UpdateScheduleSchema), ConfigController.updateSchedule);
