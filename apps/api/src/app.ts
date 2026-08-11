@@ -9,6 +9,11 @@ import { ALLOWED_ORIGINS } from './constants';
 
 const app: Express = express();
 
+// En producción la API suele estar detrás de un proxy (Render, Railway, nginx).
+// Sin esto, todas las peticiones se ven como una sola IP y el rate limit se dispara.
+const trustProxyValue = process.env.TRUST_PROXY ?? (process.env.NODE_ENV === 'production' ? '1' : 'false');
+app.set('trust proxy', trustProxyValue === 'false' ? false : Number(trustProxyValue));
+
 // Middlewares de seguridad
 app.use(helmet());
 
