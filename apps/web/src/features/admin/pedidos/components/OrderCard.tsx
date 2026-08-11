@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Order } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { Calendar, User, Phone, Package, CreditCard, Printer } from 'lucide-react';
@@ -43,7 +43,7 @@ interface OrderCardProps {
   isUpdating?: boolean;
 }
 
-export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps) {
+export const OrderCard = memo(function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps) {
   const [confirmDelivered, setConfirmDelivered] = useState(false);
   const [showShipping, setShowShipping] = useState(false);
   const [shippingCost, setShippingCost] = useState('');
@@ -200,4 +200,4 @@ export function OrderCard({ order, onStatusChange, isUpdating }: OrderCardProps)
       </div>
     </div>
   );
-}
+});

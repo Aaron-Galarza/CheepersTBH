@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { bannersService } from '@/services/banners.service';
+import { menuService } from '@/services/menu.service';
 import { Banner } from '@/types';
 
 interface HeroSlide {
@@ -17,7 +17,7 @@ export function useBanners() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    bannersService.getActive()
+    menuService.getBanners()
       .then((banners: Banner[]) => {
         if (banners.length > 0) {
           const newSlides = banners.map((b) => ({

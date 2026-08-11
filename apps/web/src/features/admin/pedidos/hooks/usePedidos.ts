@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchAdminOrders, updateOrderStatus } from '@/services/admin.service';
 import { socketService } from '@/services/socket.service';
 import { Order } from '@/types';
@@ -10,6 +10,12 @@ export function usePedidos() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const updatingIdRef = useRef<string | null>(null);
+  const getCurrentUpdatingId = () => updatingIdRef.current;
+  const setCurrentUpdatingId = (id: string | null) => {
+    updatingIdRef.current = id;
+    setUpdatingId(id);
+  };
   const [error, setError] = useState<string | null>(null);
 
   const fetchOrders = useCallback(() => {
@@ -22,11 +28,12 @@ export function usePedidos() {
 
   useEffect(() => {
     socketService.initialize();
+    socketService.joinKitchen();
     fetchOrders();
 
     const u1 = socketService.onOrderUpdated((d) => {
       setOrders((prev) => {
-        if (d.orderId === updatingId) return prev;
+        if (d.orderId === getCurrentUpdatingId()) return prev;
         const updated = prev.map((o) => o._id === d.orderId ? { ...o, status: d.status } : o);
         if (status) return updated.filter((o) => o.status === status);
         return updated;
@@ -38,11 +45,11 @@ export function usePedidos() {
     const u3 = socketService.onOrderCreated((order) => {
       setOrders((prev) => [order, ...prev]);
     });
-    return () => { u1(); u2(); u3(); };
+    return () => { u1(); u2(); u3(); socketService.leaveKitchen(); };
   }, [status, fetchOrders]);
 
   const updateStatus = async (id: string, newStatus: string) => {
-    setUpdatingId(id);
+    setUpdatingId(id); setCurrentUpdatingId(id);
     try {
       await updateOrderStatus(id, newStatus);
       setOrders((prev) => {
@@ -53,7 +60,7 @@ export function usePedidos() {
     } catch {
       setError('Error al actualizar estado');
     } finally {
-      setUpdatingId(null);
+      setUpdatingId(null); setCurrentUpdatingId(null);
     }
   };
 

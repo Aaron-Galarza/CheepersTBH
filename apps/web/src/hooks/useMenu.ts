@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { productsService } from '@/services/products.service';
-import { categoriesService } from '@/services/categories.service';
+import { menuService } from '@/services/menu.service';
 import { Product, Category } from '@/types';
 
 function getCategoryName(cat: unknown): string {
@@ -22,8 +21,8 @@ export function useMenu() {
       try {
         setLoading(true);
         const [data, cats] = await Promise.all([
-          productsService.getAll(),
-          categoriesService.getAll(),
+          menuService.getProducts(),
+          menuService.getCategories(),
         ]);
         setProducts(data);
         setCategories(cats);

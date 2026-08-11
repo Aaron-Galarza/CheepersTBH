@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { fetchAnalyticsOrders } from '@/services/admin.service';
 import { formatCurrency } from '@/utils/format';
-import { exportVentas } from '@/utils/exportVentas';
 import { CreditCard, Calendar, Download, Package } from 'lucide-react';
 import { Order } from '@/types';
 
@@ -102,6 +101,11 @@ export function OrdersTable() {
     return dt.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) + ' ' + dt.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
   };
 
+  const handleExport = async () => {
+    const { exportVentas } = await import('@/utils/exportVentas');
+    exportVentas(orders);
+  };
+
   const displayed = showAll ? orders : orders.slice(0, PAGE_SIZE);
 
   if (loading) return <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><p className="text-[#757575] text-sm">Cargando...</p></div>;
@@ -116,7 +120,7 @@ export function OrdersTable() {
             <span className="text-xs font-medium text-[#757575] flex items-center gap-1"><Package size={14} /> Agrupado</span>
           </label>
           {orders.length > 0 && (
-            <button onClick={() => exportVentas(orders)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700"><Download size={14} /> Exportar</button>
+            <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700"><Download size={14} /> Exportar</button>
           )}
         </div>
       </div>

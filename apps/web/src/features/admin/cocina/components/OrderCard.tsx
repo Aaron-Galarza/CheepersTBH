@@ -1,8 +1,9 @@
 'use client';
 
+import { memo } from 'react';
 import { Order } from '@/types';
 import { formatCurrency } from '@/utils/format';
-import { ChefHat, Check, X, Truck, ArrowLeft, Clock, Printer, User, Phone, Package, DollarSign } from 'lucide-react';
+import { ChefHat, Check, Truck, ArrowLeft, Clock, Printer, User, Phone, Package, DollarSign } from 'lucide-react';
 import { printComanda } from '@/utils/comanda';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -31,7 +32,7 @@ interface OrderCardProps {
   onStatusChange?: (id: string, status: string) => void;
 }
 
-export function OrderCard({ order, onStatusChange }: OrderCardProps) {
+export const OrderCard = memo(function OrderCard({ order, onStatusChange }: OrderCardProps) {
   const next = NEXT[order.status] || [];
   const color = STATUS_COLORS[order.status] || 'bg-white border-gray-200';
 
@@ -113,4 +114,4 @@ export function OrderCard({ order, onStatusChange }: OrderCardProps) {
       )}
     </div>
   );
-}
+});

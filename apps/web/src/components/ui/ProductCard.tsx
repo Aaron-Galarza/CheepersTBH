@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+import Image from 'next/image';
 import { Product } from '@/types';
 import { ShoppingCart, Check } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
@@ -19,7 +20,7 @@ export const ProductCard = memo(function ProductCard({ product, onAddClick, isAd
     <div className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative h-40 w-full overflow-hidden bg-gradient-to-b from-[#3a2a1a] to-[#1a1008] sm:h-48 md:h-52 lg:h-56">
         {img ? (
-          <img src={img} alt={title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+          <Image src={img} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[#757575]">
             <ShoppingCart size={32} className="sm:size-[40px] md:size-[48px]" />

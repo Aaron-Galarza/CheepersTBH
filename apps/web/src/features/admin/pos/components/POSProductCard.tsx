@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Product } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import { ShoppingCart } from 'lucide-react';
@@ -9,7 +10,7 @@ interface POSProductCardProps {
   onSelect: () => void;
 }
 
-export function POSProductCard({ product, onSelect }: POSProductCardProps) {
+export const POSProductCard = memo(function POSProductCard({ product, onSelect }: POSProductCardProps) {
   const title = product.title || product.name;
   const img = product.image || product.imageUrl;
 
@@ -28,4 +29,4 @@ export function POSProductCard({ product, onSelect }: POSProductCardProps) {
       </div>
     </button>
   );
-}
+});

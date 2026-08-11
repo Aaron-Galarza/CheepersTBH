@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { fetchAdminOrders, updateOrderStatus } from '@/services/admin.service';
 import { socketService } from '@/services/socket.service';
 import { Order } from '@/types';
@@ -9,7 +9,7 @@ export function useKitchenOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const updatingIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     socketService.initialize();
@@ -21,7 +21,7 @@ export function useKitchenOrders() {
       .finally(() => setLoading(false));
 
     const unsub1 = socketService.onOrderUpdated((data) => {
-      if (data.orderId === updatingId) return;
+      if (data.orderId === updatingIdRef.current) return;
       setOrders((prev) => prev.map((o) => o._id === data.orderId ? { ...o, status: data.status } : o));
     });
     const unsub2 = socketService.onOrderDeleted((data) => {
@@ -35,12 +35,12 @@ export function useKitchenOrders() {
   }, []);
 
   const updateStatus = async (orderId: string, status: string) => {
-    setUpdatingId(orderId);
+    updatingIdRef.current = orderId;
     try {
       await updateOrderStatus(orderId, status);
       setOrders((prev) => prev.map((o) => o._id === orderId ? { ...o, status: status as Order['status'] } : o));
     } catch { setError('Error al actualizar'); }
-    finally { setUpdatingId(null); }
+    finally { updatingIdRef.current = null; }
   };
 
   return { orders, loading, error, updateStatus };
