@@ -1,6 +1,7 @@
 'use client';
 
 import { Category } from '@/types';
+import { useMemo, memo } from 'react';
 import { LayoutGrid } from 'lucide-react';
 import { getCategoryIcon } from '@/features/admin/productos/components/IconPicker';
 
@@ -10,8 +11,11 @@ interface CategoryFilterProps {
   onSelectCategory: (name: string | null) => void;
 }
 
-export function CategoryFilter({ categories, selectedCategory, onSelectCategory }: CategoryFilterProps) {
-  const active = categories.filter((c) => c.isActive !== false && (c as any).active !== false);
+export const CategoryFilter = memo(function CategoryFilter({ categories, selectedCategory, onSelectCategory }: CategoryFilterProps) {
+  const active = useMemo(
+    () => categories.filter((c) => c.isActive !== false && (c as any).active !== false),
+    [categories]
+  );
 
   return (
     <div className="border-b border-[#e0e0e0] bg-[#FFFDF7]">
@@ -39,4 +43,4 @@ export function CategoryFilter({ categories, selectedCategory, onSelectCategory 
       </div>
     </div>
   );
-}
+});

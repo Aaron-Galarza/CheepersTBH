@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useCallback } from 'react';
 import { cn } from '@/utils/cn';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { Product } from '@/types';
@@ -19,8 +20,9 @@ function gridClass(count: number) {
   return 'grid-cols-1 md:grid-cols-3 lg:grid-cols-4';
 }
 
-export function MenuSection({ category, products, className = '', addedId }: MenuSectionProps) {
+export const MenuSection = memo(function MenuSection({ category, products, className = '', addedId }: MenuSectionProps) {
   const addToCart = useCartStore((s) => s.addToCart);
+  const handleAdd = useCallback((p: Product) => addToCart(p, []), [addToCart]);
 
   if (products.length === 0) return null;
 
@@ -41,7 +43,7 @@ export function MenuSection({ category, products, className = '', addedId }: Men
           <div key={String(p._id)} className={isSingle ? 'w-full max-w-sm sm:max-w-md' : ''}>
             <ProductCard
               product={p}
-              onAddClick={() => addToCart(p, [])}
+              onAddClick={() => handleAdd(p)}
               isAdded={addedId === p._id}
             />
           </div>
@@ -49,4 +51,4 @@ export function MenuSection({ category, products, className = '', addedId }: Men
       </div>
     </section>
   );
-}
+});

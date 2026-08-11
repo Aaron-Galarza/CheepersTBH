@@ -59,7 +59,7 @@ export function BannersManager() {
           className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#D9383A]" />
         <input type="number" value={order} onChange={(e) => setOrder(parseInt(e.target.value) || 0)} placeholder="Orden"
           className="w-24 px-4 py-2 border-2 border-gray-300 rounded-lg" />
-        {image && <div className="h-32 bg-gray-100 rounded-lg overflow-hidden"><img src={image} alt="Preview" className="h-full w-full object-cover" /></div>}
+        {image && <div className="h-32 bg-gray-100 rounded-lg overflow-hidden"><img src={image} alt="Preview" className="h-full w-full object-cover" loading="lazy" /></div>}
         <div className="flex gap-2">
           <button type="submit" className="px-6 py-2 bg-[#D9383A] text-white rounded-lg font-semibold hover:bg-[#b52d2f]">{editingId ? 'Actualizar' : 'Crear'}</button>
           {editingId && <button type="button" onClick={reset} className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400">Cancelar</button>}
@@ -70,7 +70,7 @@ export function BannersManager() {
         <div className="space-y-2">
           {banners.map((b) => (
             <div key={b._id} className={`flex items-center gap-4 p-3 border-2 rounded-lg ${b.active ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
-              <div className="w-24 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">{b.image && <img src={b.image} alt={b.title} className="h-full w-full object-cover" />}</div>
+              <div className="w-24 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">{b.image && <img src={b.image} alt={b.title} className="h-full w-full object-cover" loading="lazy" />}</div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-[#212121] truncate">{b.title}</p>
                 <p className="text-sm text-[#757575] truncate">{b.description}</p>

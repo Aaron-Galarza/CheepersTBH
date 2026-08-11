@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Product } from '@/types';
 import { ShoppingCart, Check } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
@@ -10,7 +11,7 @@ interface ProductCardProps {
   isAdded?: boolean;
 }
 
-export function ProductCard({ product, onAddClick, isAdded }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({ product, onAddClick, isAdded }: ProductCardProps) {
   const title = product.title || product.name;
   const img = product.image || product.imageUrl;
 
@@ -57,4 +58,4 @@ export function ProductCard({ product, onAddClick, isAdded }: ProductCardProps) 
       </div>
     </div>
   );
-}
+});

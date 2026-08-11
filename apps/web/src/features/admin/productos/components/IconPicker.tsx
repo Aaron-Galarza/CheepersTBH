@@ -1,37 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import { Utensils, Beef, Flame, Soup, Pizza, IceCreamCone, Sandwich, LayoutGrid, Tag, CupSoda, Cookie, Star, Grid3x3 } from 'lucide-react';
-import { GiHamburger, GiFrenchFries, GiPizzaSlice, GiSteak, GiDumpling, GiSandwich, GiIceCreamCone, GiFruitBowl } from 'react-icons/gi';
+import { Utensils, Beef, Flame, Soup, Pizza, IceCreamCone, Sandwich, LayoutGrid, Tag, CupSoda, Cookie, Star, Grid3x3, Croissant, Apple } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { IconType } from 'react-icons';
 
-type IconEntry = { name: string; Icon: LucideIcon | IconType; };
+type IconEntry = { name: string; Icon: LucideIcon };
 
 export const CATEGORY_ICON_OPTIONS: IconEntry[] = [
-  { name: 'GiHamburger', Icon: GiHamburger },
   { name: 'Beef', Icon: Beef },
-  { name: 'GiFrenchFries', Icon: GiFrenchFries },
-  { name: 'GiPizzaSlice', Icon: GiPizzaSlice },
+  { name: 'Croissant', Icon: Croissant },
   { name: 'Pizza', Icon: Pizza },
-  { name: 'GiSandwich', Icon: GiSandwich },
   { name: 'Sandwich', Icon: Sandwich },
-  { name: 'GiSteak', Icon: GiSteak },
   { name: 'Flame', Icon: Flame },
-  { name: 'GiDumpling', Icon: GiDumpling },
   { name: 'Soup', Icon: Soup },
   { name: 'Utensils', Icon: Utensils },
   { name: 'CupSoda', Icon: CupSoda },
-  { name: 'GiIceCreamCone', Icon: GiIceCreamCone },
   { name: 'IceCreamCone', Icon: IceCreamCone },
   { name: 'Cookie', Icon: Cookie },
-  { name: 'GiFruitBowl', Icon: GiFruitBowl },
+  { name: 'Apple', Icon: Apple },
   { name: 'Star', Icon: Star },
   { name: 'Tag', Icon: Tag },
   { name: 'Grid3x3', Icon: Grid3x3 },
 ];
 
-export function getCategoryIcon(iconKey?: string): any {
+export function getCategoryIcon(iconKey?: string): LucideIcon {
   if (iconKey) {
     const found = CATEGORY_ICON_OPTIONS.find((o) => o.name === iconKey);
     if (found) return found.Icon;

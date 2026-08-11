@@ -133,7 +133,7 @@ export function ProductsManager() {
             {filtered.length === 0 && <p className="text-[#757575] text-sm">No hay productos</p>}
             {filtered.map((p) => (
               <div key={p._id} className={`flex items-center gap-3 p-3 border-2 rounded-lg ${(p as any).active !== false && p.isActive !== false ? 'border-gray-200' : 'border-gray-200 opacity-50'}`}>
-                {p.image && <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0"><img src={p.image} alt="" className="h-full w-full object-cover" /></div>}
+                {p.image && <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0"><img src={p.image} alt="" className="h-full w-full object-cover" loading="lazy" /></div>}
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-xs text-[#212121] truncate">{p.title || p.name}</p>
                   <p className="text-[10px] text-[#757575]">{getCatName(p)} · {formatCurrency(p.price)}</p>

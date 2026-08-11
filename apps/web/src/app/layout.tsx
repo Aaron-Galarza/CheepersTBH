@@ -49,7 +49,7 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="es" className={`${montserrat.variable} ${openSans.variable} ${oswald.variable}`}>
+    <html lang="es" data-scroll-behavior="smooth" className={`${montserrat.variable} ${openSans.variable} ${oswald.variable}`}>
       <body className="font-sans flex flex-col min-h-screen">
         <Header />
         <main className="pt-[70px] md:pt-[100px] flex-grow">

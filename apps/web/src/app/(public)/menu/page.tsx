@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Product } from '@/types';
 import { useMenu } from '@/hooks/useMenu';
 import { useCartStore } from '@/stores/cart.store';
@@ -21,7 +21,7 @@ export default function MenuPage() {
   const addToCart = useCartStore((s) => s.addToCart);
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  const onClick = (p: Product) => { addToCart(p, []); setAddedId(p._id); setTimeout(() => setAddedId(null), 800); };
+  const onClick = useCallback((p: Product) => { addToCart(p, []); setAddedId(p._id); setTimeout(() => setAddedId(null), 800); }, [addToCart]);
 
   const grouped = useMemo(() => {
     if (selectedCategory) return null;
@@ -35,7 +35,9 @@ export default function MenuPage() {
   }, [products, selectedCategory, categories]);
 
   return (
-    <div className="cart-bg min-h-screen font-[var(--font-open-sans)]">
+    <div className="relative min-h-screen font-[var(--font-open-sans)]" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="absolute inset-0 bg-white/70" />
+      <div className="relative z-10">
       <div className="sticky top-[70px] z-30 md:top-[100px]">
         <SearchBar value={searchQuery} onChange={setSearch} />
         <CategoryFilter categories={categories} selectedCategory={selectedCategory} onSelectCategory={selectCategory} />
@@ -67,6 +69,7 @@ export default function MenuPage() {
           <MenuSection category={selectedCategory ?? ''} products={products} addedId={addedId} />
         </div>
       )}
+      </div>
     </div>
   );
 }

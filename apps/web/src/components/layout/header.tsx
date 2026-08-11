@@ -31,7 +31,7 @@ export default function Header() {
             <img
               src="https://res.cloudinary.com/dwqxdensk/image/upload/v1784748985/logocheepers_u8y9am.webp"
               alt="Cheepers Logo"
-              className="h-[40px] w-[40px] md:h-[70px] md:w-[70px] object-contain"
+              className="h-[40px] w-[40px] md:h-[70px] md:w-[70px] object-contain" loading="lazy"
             />
           </div>
           <span className="text-[1.8rem] font-bold text-[#2d3748] md:text-[2.2rem]">

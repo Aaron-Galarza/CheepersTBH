@@ -70,7 +70,7 @@ export function GalleryManager() {
         <h3 className="font-semibold text-[#212121] flex items-center gap-2"><Upload size={14} /> Subir nueva imagen</h3>
         <input type="file" ref={fileRef} onChange={handleFile} accept="image/jpeg,image/png,image/webp,image/gif" required disabled={uploading}
           className="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-[#D9383A]" />
-        {previewUrl && <div className="h-24 bg-gray-100 rounded-lg overflow-hidden"><img src={previewUrl} alt="Preview" className="h-full w-full object-cover" /></div>}
+        {previewUrl && <div className="h-24 bg-gray-100 rounded-lg overflow-hidden"><img src={previewUrl} alt="Preview" className="h-full w-full object-cover" loading="lazy" /></div>}
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titulo" required disabled={uploading}
           className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#D9383A]" />
         <button type="submit" disabled={uploading || !selectedFile}
@@ -91,7 +91,7 @@ export function GalleryManager() {
           {paged.map((img) => (
             <div key={(img as any).id || (img as any)._id} className="relative group rounded-lg overflow-hidden">
               <div className="h-24 bg-gray-100">
-                <img src={(img as any).url || img.imageUrl} alt="" className="h-full w-full object-cover" />
+                <img src={(img as any).url || img.imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
               </div>
               <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
                 <button onClick={() => copyUrl((img as any).url || img.imageUrl)} className="p-1.5 bg-blue-600/80 text-white rounded" title="Copiar URL">

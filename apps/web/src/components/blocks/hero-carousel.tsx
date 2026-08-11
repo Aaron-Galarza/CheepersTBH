@@ -76,7 +76,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             <img
               src={slide.image}
               alt={slide.title}
-              className="h-[350px] w-full rounded-2xl object-cover shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)] max-md:h-[220px]"
+              className="h-[350px] w-full rounded-2xl object-cover shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)] max-md:h-[220px]" loading="lazy"
             />
           </div>
 

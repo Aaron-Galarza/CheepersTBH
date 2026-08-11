@@ -8,8 +8,8 @@ export function HeroSection() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
-        <p className="text-[#757575]">Cargando...</p>
+      <div className="mx-auto mt-4 mb-20 max-w-[1200px] animate-pulse">
+        <div className="h-[420px] w-full rounded-[30px] bg-gray-200 md:h-[500px] md:rounded-[70px]" />
       </div>
     );
   }

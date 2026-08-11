@@ -1,7 +1,7 @@
 import { Order } from '@/types';
-import * as XLSX from 'xlsx';
 
 export async function exportVentas(orders: Order[]) {
+  const XLSX = await import('xlsx');
   const wb = XLSX.utils.book_new();
 
   const orderData = orders.flatMap((o) => {
