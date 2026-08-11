@@ -30,8 +30,8 @@ export function StoreStatus() {
 
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  const today = dayKeys[now.getDay()];
+  const spanishDays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const today = spanishDays[now.getDay()];
   const todaySchedule = config.dailySchedule?.find((d) => d.day === today);
 
   let isClosedBySchedule = true;

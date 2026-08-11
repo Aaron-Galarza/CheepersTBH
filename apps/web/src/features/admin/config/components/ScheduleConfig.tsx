@@ -5,7 +5,7 @@ import { Clock, Save } from 'lucide-react';
 import { fetchConfigStatus, saveSchedule } from '@/services/admin.service';
 import { useToast } from '@/hooks/useToast';
 
-const DAYS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 export function ScheduleConfig() {
@@ -18,7 +18,9 @@ export function ScheduleConfig() {
       .then((c) => {
         if (c.dailySchedule) {
           const m: Record<string, any> = {};
-          c.dailySchedule.forEach((d: any, i: number) => {
+          c.dailySchedule.forEach((d: any) => {
+            const i = DAYS.indexOf(d.day);
+            if (i === -1) return;
             m[DAY_KEYS[i]] = { open: d.openTime, close: d.closeTime, isClosed: !d.isStoreOpen };
           });
           setSchedule(m);
@@ -30,7 +32,7 @@ export function ScheduleConfig() {
   const save = async () => {
     try {
       setLoading(true);
-      const ds = DAY_KEYS.map((day, i) => ({
+      const ds = DAYS.map((day, i) => ({
         day, openTime: schedule[DAY_KEYS[i]]?.open || '09:00',
         closeTime: schedule[DAY_KEYS[i]]?.close || '23:00',
         isStoreOpen: !schedule[DAY_KEYS[i]]?.isClosed,
