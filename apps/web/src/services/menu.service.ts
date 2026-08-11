@@ -1,54 +1,44 @@
 import apiClient from './api';
 import { Product, Category, Addon, StoreConfig, Banner } from '@/types';
 
+const cache = new Map<string, { data: any; ts: number }>();
+const TTL_SHORT = 30_000;
+const TTL_LONG = 120_000;
+
+function cached<T>(key: string, ttl: number, fn: () => Promise<T>): Promise<T> {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.ts < ttl) {
+    return Promise.resolve(entry.data as T);
+  }
+  return fn().then((data) => {
+    cache.set(key, { data, ts: Date.now() });
+    return data;
+  });
+}
+
 export const menuService = {
-  getProducts: async (): Promise<Product[]> => {
-    try {
-      const response = await apiClient.get('/products');
-      return response.data.data || [];
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw error;
-    }
-  },
+  getProducts: (): Promise<Product[]> =>
+    cached('products', TTL_SHORT, () =>
+      apiClient.get('/products').then((r) => r.data.data || [])
+    ),
 
-  getCategories: async (): Promise<Category[]> => {
-    try {
-      const response = await apiClient.get('/categories');
-      return response.data.data || [];
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      throw error;
-    }
-  },
+  getCategories: (): Promise<Category[]> =>
+    cached('categories', TTL_SHORT, () =>
+      apiClient.get('/categories').then((r) => r.data.data || [])
+    ),
 
-  getAdditionals: async (): Promise<Addon[]> => {
-    try {
-      const response = await apiClient.get('/additionals');
-      return response.data.data || [];
-    } catch (error) {
-      console.error('Error fetching additionals:', error);
-      throw error;
-    }
-  },
+  getAdditionals: (): Promise<Addon[]> =>
+    cached('additionals', TTL_LONG, () =>
+      apiClient.get('/additionals').then((r) => r.data.data || [])
+    ),
 
-  getStoreStatus: async (): Promise<StoreConfig> => {
-    try {
-      const response = await apiClient.get('/config/status');
-      return response.data.data;
-    } catch (error) {
-      console.error('Error fetching store status:', error);
-      throw error;
-    }
-  },
+  getStoreStatus: (): Promise<StoreConfig> =>
+    cached('store-status', TTL_LONG, () =>
+      apiClient.get('/config/status').then((r) => r.data.data)
+    ),
 
-  getBanners: async (): Promise<Banner[]> => {
-    try {
-      const response = await apiClient.get('/banners');
-      return response.data.data || [];
-    } catch (error) {
-      console.error('Error fetching banners:', error);
-      return [];
-    }
-  },
+  getBanners: (): Promise<Banner[]> =>
+    cached('banners', TTL_SHORT, () =>
+      apiClient.get('/banners').then((r) => r.data.data || []).catch(() => [] as Banner[])
+    ),
 };
