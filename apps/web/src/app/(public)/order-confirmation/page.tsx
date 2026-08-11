@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ordersService } from '@/services/orders.service';
+import { useOrderConfirmStore } from '@/stores/order-confirm.store';
 import { Order } from '@/types';
 import { OrderTicket } from '@/components/common/OrderTicket';
 import { CheckCircle } from 'lucide-react';
@@ -17,6 +18,15 @@ function ConfirmationContent() {
 
   useEffect(() => {
     if (!orderId) { setError('Pedido no encontrado'); setLoading(false); return; }
+
+    const stored = useOrderConfirmStore.getState().lastOrder;
+    if (stored && stored._id === orderId) {
+      setOrder(stored);
+      useOrderConfirmStore.getState().clearLastOrder();
+      setLoading(false);
+      return;
+    }
+
     ordersService.getOrder(orderId)
       .then(setOrder)
       .catch(() => setError('No pudimos cargar tu pedido'))

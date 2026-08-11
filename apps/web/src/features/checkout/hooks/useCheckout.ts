@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ordersService } from '@/services/orders.service';
 import { useCartStore } from '@/stores/cart.store';
+import { useOrderConfirmStore } from '@/stores/order-confirm.store';
 
 export function useCheckout() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export function useCheckout() {
       };
 
       const order = await ordersService.createOrder(orderPayload);
+      useOrderConfirmStore.getState().setLastOrder(order);
       clearCart();
       router.push(`/order-confirmation?orderId=${order._id}`);
     } catch (err: any) {
