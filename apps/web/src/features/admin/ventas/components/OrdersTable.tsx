@@ -210,7 +210,7 @@ export function OrdersTable() {
                       <span className="text-[10px] text-green-600 font-medium ml-1">-{o.discountPercent}%</span>
                     )}
                   </td>
-                  <td className="py-2 text-right font-semibold text-[#212121]">{formatCurrency(o.total)}</td>
+                  <td className="py-2 text-right font-semibold text-[#212121]">{formatCurrency(o.netTotal ?? (o.total - o.deliveryCost))}</td>
                 </tr>
               ))}
             </tbody>

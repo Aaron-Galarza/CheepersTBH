@@ -17,7 +17,7 @@ export async function exportVentas(orders: Order[]) {
         Cantidad: item.quantity,
         Pago: o.paymentMethod === 'cash' ? 'Efectivo' : 'Transferencia',
         Cupon: discountLabel,
-        Total: o.total,
+        Total: o.netTotal ?? (o.total - o.deliveryCost),
       };
       const rows = [baseData];
       return rows;

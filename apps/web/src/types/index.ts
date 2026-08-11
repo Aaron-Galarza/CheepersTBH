@@ -100,6 +100,7 @@ export interface Order {
   subtotal: number;
   deliveryCost: number;
   total: number;
+  netTotal?: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
   delivery?: { address: string; coordinates: { lat: number; lng: number }; distanceKm: number };
   createdAt?: Date;
