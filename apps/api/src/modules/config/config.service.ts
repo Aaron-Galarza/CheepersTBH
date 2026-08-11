@@ -1,8 +1,31 @@
 import { ConfigModel, IConfig } from './config.model';
 
+const SPANISH_DAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
 export const ConfigService = {
   getStatus: async (): Promise<IConfig> => {
     return await ConfigService.getOrCreateConfig();
+  },
+
+  // Misma lógica que StoreStatus.tsx en el frontend: combina el flag manual,
+  // el cierre de emergencia y el horario del día actual.
+  isOpenNow: (config: IConfig): boolean => {
+    if (!config.isOpen || config.isEmergencyClosed) return false;
+
+    const now = new Date();
+    const today = SPANISH_DAYS[now.getDay()];
+    const todaySchedule = config.dailySchedule?.find((d) => d.day === today);
+
+    if (!todaySchedule?.isStoreOpen) return false;
+
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const [oh, om] = todaySchedule.openTime.split(':').map(Number);
+    const [ch, cm] = todaySchedule.closeTime.split(':').map(Number);
+    const openMin = oh * 60 + om;
+    let closeMin = ch * 60 + cm;
+    if (closeMin <= openMin) closeMin += 24 * 60;
+
+    return currentMinutes >= openMin && currentMinutes <= closeMin;
   },
 
   getOrCreateConfig: async (): Promise<IConfig> => {

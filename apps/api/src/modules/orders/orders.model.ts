@@ -39,11 +39,6 @@ export interface IOrder extends Document {
   status: OrderStatus;
   delivery?: {
     address?: string;
-    coordinates?: {
-      lat: number;
-      lng: number;
-    };
-    distanceKm?: number;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -129,14 +124,6 @@ const orderSchema = new Schema<IOrder>(
     },
     delivery: {
       address: { type: String },
-      coordinates: {
-        lat: { type: Number },
-        lng: { type: Number },
-      },
-      distanceKm: {
-        type: Number,
-        default: 0,
-      },
     },
   },
   { timestamps: true }

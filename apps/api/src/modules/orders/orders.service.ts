@@ -11,7 +11,7 @@ import { ORDER_STATUSES, OrderStatus } from '../../constants';
 export const OrdersService = {
   createOrder: async (orderData: CreateOrderInput): Promise<IOrder> => {
     const storeStatus = await ConfigService.getStatus();
-    if (!storeStatus.isOpen || storeStatus.isEmergencyClosed) {
+    if (!ConfigService.isOpenNow(storeStatus)) {
       throw new AppError('El local está cerrado en este momento', 400);
     }
 
