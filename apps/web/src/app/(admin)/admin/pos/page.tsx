@@ -12,7 +12,7 @@ export default function POSPage() {
   const addItem = usePOSStore((s) => s.addItem);
 
   return (
-    <div className="cart-bg h-[calc(100dvh-70px)] md:h-[calc(100dvh-100px)] flex flex-col p-2 md:p-4">
+    <div className="cart-bg h-[calc(100dvh-48px)] md:h-[calc(100dvh-56px)] flex flex-col p-2 md:p-4">
       <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] mb-3 md:mb-4 flex items-center gap-2 flex-shrink-0">
         <ShoppingCart size={22} /> POS
       </h1>
@@ -20,7 +20,7 @@ export default function POSPage() {
         <div className="flex-1 min-h-0 lg:col-span-3 flex flex-col">
           <POSProductGrid onProductSelect={(p) => addItem(p, 1, [])} />
         </div>
-        <div className="flex-shrink-0 max-h-[45%] min-h-[120px] lg:max-h-none lg:min-h-0 overflow-hidden rounded-lg mt-0 lg:mt-0">
+        <div className="flex-shrink-0 max-h-[35%] min-h-[100px] lg:max-h-none lg:min-h-0 overflow-hidden rounded-lg">
           <div className="lg:sticky lg:top-4 h-full">
             <POSCart onCheckout={() => setShowCheckout(true)} />
           </div>

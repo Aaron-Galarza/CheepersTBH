@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { fetchAnalyticsStats, fetchAnalyticsOrders } from '@/services/admin.service';
+import { useEffect, useState, useMemo } from 'react';
+import { fetchAnalyticsOrders } from '@/services/admin.service';
 import { formatCurrency } from '@/utils/format';
 import { exportVentas } from '@/utils/exportVentas';
 import { CreditCard, Calendar, Download, Package } from 'lucide-react';
@@ -11,9 +11,17 @@ const PAGE_SIZE = 10;
 const RANGES = ['today', 'yesterday', 'week', 'month', 'custom'] as const;
 const RANGE_LABELS: Record<string, string> = { today: 'Hoy', yesterday: 'Ayer', week: 'Semana', month: 'Mes', custom: 'Personalizado' };
 
+interface GroupedRow {
+  type: 'product' | 'addon';
+  title: string;
+  productTitle: string;
+  qty: number;
+  revenue: number;
+  discount: number;
+}
+
 export function OrdersTable() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [grouped, setGrouped] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('today');
   const [paymentFilter, setPaymentFilter] = useState('');
@@ -25,12 +33,69 @@ export function OrdersTable() {
 
   useEffect(() => {
     setLoading(true); setShowAll(false);
-    const f = viewGrouped
-      ? fetchAnalyticsStats(range as any, customFrom || undefined, customTo || undefined).then((s) => setGrouped(s.products || []))
-      : fetchAnalyticsOrders(range as any, paymentFilter, customFrom || undefined, customTo || undefined)
-        .then(({ orders, total: t }) => { setOrders(orders); setTotal(t); });
-    f.catch(() => {}).finally(() => setLoading(false));
-  }, [range, paymentFilter, customFrom, customTo, viewGrouped]);
+    fetchAnalyticsOrders(range as any, paymentFilter, customFrom || undefined, customTo || undefined)
+      .then(({ orders, total: t }) => { setOrders(orders); setTotal(t); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [range, paymentFilter, customFrom, customTo]);
+
+  const grouped = useMemo(() => {
+    if (!viewGrouped) return [];
+    const pMap = new Map<string, { qty: number; revenue: number; discount: number }>();
+    const aMap = new Map<string, { productTitle: string; qty: number; revenue: number; discount: number }>();
+
+    for (const o of orders) {
+      const factor = o.discountPercent / 100;
+      for (const item of o.items) {
+        const baseRev = item.price * item.quantity;
+        let addonsRev = 0;
+        if (item.additionals) for (const a of item.additionals) addonsRev += a.price * a.quantity;
+
+        const baseDisc = baseRev * factor;
+        const baseNet = baseRev - baseDisc;
+
+        const prod = pMap.get(item.title);
+        if (prod) {
+          prod.qty += item.quantity;
+          prod.revenue += baseNet;
+          prod.discount += baseDisc;
+        } else {
+          pMap.set(item.title, { qty: item.quantity, revenue: baseNet, discount: baseDisc });
+        }
+
+        if (item.additionals) {
+          for (const a of item.additionals) {
+            const aRev = a.price * a.quantity;
+            const aDisc = aRev * factor;
+            const aNet = aRev - aDisc;
+            const key = `${item.title}|||${a.name}`;
+            const add = aMap.get(key);
+            if (add) {
+              add.qty += a.quantity;
+              add.revenue += aNet;
+              add.discount += aDisc;
+            } else {
+              aMap.set(key, { productTitle: item.title, qty: a.quantity, revenue: aNet, discount: aDisc });
+            }
+          }
+        }
+      }
+    }
+
+    const result: GroupedRow[] = [];
+    for (const [title, data] of [...pMap.entries()].sort((a, b) => (b[1].revenue + b[1].discount) - (a[1].revenue + a[1].discount))) {
+      result.push({ type: 'product', title, productTitle: title, qty: data.qty, revenue: data.revenue, discount: data.discount });
+      for (const [key, adata] of aMap) {
+        if (key.startsWith(title + '|||')) {
+          const addonName = key.slice(title.length + 3);
+          result.push({ type: 'addon', title: addonName, productTitle: title, qty: adata.qty, revenue: adata.revenue, discount: adata.discount });
+        }
+      }
+    }
+    return result;
+  }, [orders, viewGrouped]);
+
+  const anyDiscount = grouped.some((g) => g.discount > 0);
 
   const fmtDate = (d: any) => {
     const dt = new Date(d);
@@ -51,7 +116,7 @@ export function OrdersTable() {
             <span className="text-xs font-medium text-[#757575] flex items-center gap-1"><Package size={14} /> Agrupado</span>
           </label>
           {orders.length > 0 && (
-            <button onClick={() => exportVentas(orders, range, customFrom || undefined, customTo || undefined)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700"><Download size={14} /> Exportar</button>
+            <button onClick={() => exportVentas(orders)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700"><Download size={14} /> Exportar</button>
           )}
         </div>
       </div>
@@ -74,20 +139,71 @@ export function OrdersTable() {
 
       {viewGrouped ? (
         grouped.length === 0 ? <p className="text-[#757575] text-sm">Sin datos</p> : (
-          <table className="w-full text-sm"><thead><tr className="border-b text-left text-[#757575] text-xs uppercase tracking-wider"><th className="py-2 font-medium">Producto</th><th className="py-2 text-right font-medium">Cantidad</th><th className="py-2 text-right font-medium">Total</th></tr></thead>
-            <tbody>{grouped.map((p, i) => (<tr key={i} className="border-b border-gray-50"><td className="py-2 font-medium text-[#212121]">{p.title}</td><td className="py-2 text-right text-[#757575]">{p.qty}</td><td className="py-2 text-right font-bold text-[#D9383A]">{formatCurrency(p.revenue)}</td></tr>))}</tbody>
-            <tfoot><tr className="border-t-2 border-gray-200"><td className="py-3 font-bold text-sm text-[#212121]">Total</td><td className="py-3 text-right font-bold text-[#212121]">{grouped.reduce((s, p) => s + p.qty, 0)}</td><td className="py-3 text-right font-bold text-base text-[#D9383A]">{formatCurrency(grouped.reduce((s, p) => s + p.revenue, 0))}</td></tr></tfoot>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-[#757575] text-xs uppercase tracking-wider">
+                <th className="py-2 font-medium">Producto</th>
+                <th className="py-2 text-right font-medium">Cantidad</th>
+                {anyDiscount && <th className="py-2 text-right font-medium">Desc.</th>}
+                <th className="py-2 text-right font-medium">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {grouped.map((g, i) => (
+                <tr key={i} className={`border-b ${g.type === 'product' ? 'border-gray-50 bg-white' : 'border-gray-50/50 bg-gray-50/30'}`}>
+                  <td className={`py-2 ${g.type === 'product' ? 'font-semibold text-[#212121]' : 'text-[#757575] pl-4 text-xs'}`}>
+                    {g.type === 'addon' ? `+ ${g.title}` : g.title}
+                  </td>
+                  <td className={`py-2 text-right ${g.type === 'product' ? 'font-semibold text-[#212121]' : 'text-[#757575] text-xs'}`}>
+                    {g.qty}
+                  </td>
+                  {anyDiscount && (
+                    <td className={`py-2 text-right ${g.type === 'product' ? 'text-[10px] text-green-600 font-medium' : 'text-[10px] text-green-600/70'}`}>
+                      {g.discount > 0 ? `-${formatCurrency(g.discount)}` : '-'}
+                    </td>
+                  )}
+                  <td className={`py-2 text-right ${g.type === 'product' ? 'font-bold text-[#D9383A]' : 'text-xs text-[#212121]'}`}>
+                    {formatCurrency(g.revenue)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-gray-200">
+                <td className="py-3 font-bold text-sm text-[#212121]">Total</td>
+                <td className="py-3 text-right font-bold text-[#212121]">
+                  {grouped.reduce((s, g) => s + g.qty, 0)}
+                </td>
+                {anyDiscount && (
+                  <td className="py-3 text-right font-bold text-xs text-green-600">
+                    -{formatCurrency(grouped.reduce((s, g) => s + g.discount, 0))}
+                  </td>
+                )}
+                <td className="py-3 text-right font-bold text-base text-[#D9383A]">
+                  {formatCurrency(grouped.reduce((s, g) => s + g.revenue, 0))}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         )
       ) : orders.length === 0 ? <p className="text-[#757575] text-sm">Sin pedidos entregados</p> : (
         <>
           <table className="w-full text-sm">
-            <thead><tr className="border-b text-left text-[#757575] text-xs uppercase tracking-wider"><th className="py-2 font-medium">Fecha/Hora</th><th className="py-2 font-medium">Pedido</th><th className="py-2 font-medium">Pago</th><th className="py-2 text-right font-medium">Subtotal</th></tr></thead>
+            <thead><tr className="border-b text-left text-[#757575] text-xs uppercase tracking-wider"><th className="py-2 font-medium">Fecha/Hora</th><th className="py-2 font-medium">Pedido</th><th className="py-2 font-medium">Pago</th><th className="py-2 text-right font-medium">Total</th></tr></thead>
             <tbody>
               {displayed.map((o) => (
                 <tr key={o._id} className="border-b border-gray-50">
                   <td className="py-2 text-xs whitespace-nowrap text-[#757575]">{fmtDate(o.createdAt)}</td>
-                  <td className="py-2">{o.items.map((item, i) => (<div key={i}><span className="font-medium text-[#212121]">{item.quantity}x {item.title}</span>{item.additionals?.map((a, j) => (<span key={j} className="text-xs text-[#757575] ml-2">+{a.name}</span>))}</div>))}</td>
+                  <td className="py-2">
+                    {o.items.map((item, i) => (
+                      <div key={i}>
+                        <span className="font-medium text-[#212121]">{item.quantity}x {item.title}</span>
+                        {item.additionals?.map((a, j) => (
+                          <span key={j} className="text-xs text-[#757575] ml-2">+{a.name}{a.quantity > 1 ? ` x${a.quantity}` : ''}</span>
+                        ))}
+                      </div>
+                    ))}
+                  </td>
                   <td className="py-2">
                     <span className="text-xs font-medium text-[#757575]">{o.paymentMethod === 'cash' ? 'Efectivo' : 'Transferencia'}</span>
                     {o.discountPercent > 0 && (
