@@ -12,9 +12,10 @@ export default function VentasPage() {
 
   return (
     <div className="cart-bg min-h-screen p-4">
-      <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] mb-4 flex items-center gap-2">
-        <DollarSign size={22} /> Ventas
+      <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] mb-1 flex items-center gap-2">
+        <DollarSign size={22} /> Estadisticas
       </h1>
+      <p className="text-xs sm:text-sm text-[#757575] mb-4">Metricas y detalle de los pedidos entregados.</p>
 
       {/* Filtros de rango */}
       <div className="flex flex-wrap gap-2 mb-4">

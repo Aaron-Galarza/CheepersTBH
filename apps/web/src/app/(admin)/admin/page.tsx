@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Package, ChefHat, DollarSign } from 'lucide-react';
+import { LayoutDashboard, ChefHat, ShoppingCart, Utensils } from 'lucide-react';
 import { fetchAnalyticsStats } from '@/services/admin.service';
 import { formatCurrency } from '@/utils/format';
 
 const shortcuts = [
-  { href: '/admin/pedidos', label: 'Pedidos', Icon: Package, color: 'text-[#D9383A]' },
   { href: '/admin/cocina', label: 'Cocina', Icon: ChefHat, color: 'text-orange-600' },
-  { href: '/admin/ventas', label: 'Ventas', Icon: DollarSign, color: 'text-green-600' },
+  { href: '/admin/pos', label: 'POS', Icon: ShoppingCart, color: 'text-[#D9383A]' },
+  { href: '/admin/productos', label: 'Menu', Icon: Utensils, color: 'text-green-600' },
 ];
 
 export default function AdminDashboardPage() {
@@ -25,9 +25,10 @@ export default function AdminDashboardPage() {
   return (
     <div className="cart-bg min-h-screen p-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-[#212121] font-[var(--font-montserrat)] flex items-center gap-2">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-1 text-[#212121] font-[var(--font-montserrat)] flex items-center gap-2">
           <LayoutDashboard size={22} className="sm:size-[28px]" /> Dashboard
         </h1>
+        <p className="text-xs sm:text-sm text-[#757575] mb-4 sm:mb-6">Resumen del dia y acceso rapido.</p>
 
         <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
           {shortcuts.map(({ href, label, Icon, color }) => (

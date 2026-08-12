@@ -19,9 +19,10 @@ export default function PedidosPage() {
 
   return (
     <div className="cart-bg min-h-screen p-4">
-      <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] mb-4 flex items-center gap-2">
+      <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] mb-1 flex items-center gap-2">
         <Package size={24} /> Pedidos
       </h1>
+      <p className="text-xs sm:text-sm text-[#757575] mb-4">Gestiona los pedidos de la tienda y su estado. Por defecto se muestran los de hoy.</p>
 
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div className="flex flex-wrap gap-2">

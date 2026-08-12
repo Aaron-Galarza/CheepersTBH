@@ -15,6 +15,18 @@ export default function CocinaPage() {
     <div className="cart-bg min-h-screen flex flex-col">
       {error && <p className="text-red-600 text-sm p-2 bg-red-50">{error}</p>}
 
+      <header className="px-4 pt-3 pb-1 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] flex items-center gap-2">
+            <ChefHat size={22} /> Cocina
+          </h1>
+          <p className="text-xs sm:text-sm text-[#757575]">Prepara los pedidos del dia, actualizados en tiempo real.</p>
+        </div>
+        <span className="text-xs sm:text-sm font-medium text-[#757575] capitalize">
+          {new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })}
+        </span>
+      </header>
+
       {orders.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">

@@ -7,13 +7,13 @@ import { LayoutDashboard, ShoppingCart, ChefHat, Package, DollarSign, Image, Set
 
 const tabs = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard },
-  { href: '/admin/pos', label: 'POS', Icon: ShoppingCart },
-  { href: '/admin/cocina', label: 'Cocina', Icon: ChefHat },
+  { href: '/admin/ventas', label: 'Estadisticas', Icon: DollarSign },
   { href: '/admin/pedidos', label: 'Pedidos', Icon: Package },
-  { href: '/admin/ventas', label: 'Ventas', Icon: DollarSign },
-  { href: '/admin/productos', label: 'Productos', Icon: Utensils },
+  { href: '/admin/cocina', label: 'Cocina', Icon: ChefHat },
+  { href: '/admin/pos', label: 'POS', Icon: ShoppingCart },
+  { href: '/admin/productos', label: 'Menu', Icon: Utensils },
   { href: '/admin/galeria', label: 'Galeria', Icon: Image },
-  { href: '/admin/config', label: 'Config', Icon: Settings },
+  { href: '/admin/config', label: 'Configuracion', Icon: Settings },
 ];
 
 export function AdminTabs() {
