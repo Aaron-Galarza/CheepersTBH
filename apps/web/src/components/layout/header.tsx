@@ -29,7 +29,7 @@ export default function Header() {
         <Link href="/" className="flex items-center no-underline">
           <div className="mr-2 md:mr-[12px]">
             <img
-              src="https://res.cloudinary.com/dwqxdensk/image/upload/v1784748985/logocheepers_u8y9am.webp"
+              src="https://res.cloudinary.com/dwqxdensk/image/upload/q_auto,f_auto,w_140/v1784748985/logocheepers_u8y9am.webp"
               alt="Cheepers Logo"
               className="h-[40px] w-[40px] md:h-[70px] md:w-[70px] object-contain" loading="lazy"
             />

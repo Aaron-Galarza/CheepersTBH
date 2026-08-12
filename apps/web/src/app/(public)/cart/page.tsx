@@ -33,7 +33,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="relative flex min-h-[60vh] flex-col items-center justify-center p-4" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="relative flex min-h-[60vh] flex-col items-center justify-center p-4" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/q_auto,f_auto,w_1600/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="absolute inset-0 bg-white/70" />
         <div className="relative z-10 text-center">
           <h1 className="mb-2 font-[var(--font-montserrat)] text-3xl font-extrabold text-[#D9383A]">
@@ -47,7 +47,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="relative min-h-screen pb-40" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="relative min-h-screen pb-40" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/q_auto,f_auto,w_1600/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div className="absolute inset-0 bg-white/70" />
       <div className="relative z-10 mx-auto mb-10 mt-10 max-w-[700px] rounded-2xl bg-white/80 p-6 shadow-sm max-md:mt-[120px] max-md:mx-4"
         style={{ opacity: fadeIn ? 1 : 0, transform: fadeIn ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease-out, transform 0.5s ease-out' }}>

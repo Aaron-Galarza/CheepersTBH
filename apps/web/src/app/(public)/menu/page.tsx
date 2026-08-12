@@ -35,7 +35,7 @@ export default function MenuPage() {
   }, [products, selectedCategory, categories]);
 
   return (
-    <div className="relative min-h-screen font-[var(--font-open-sans)]" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="relative min-h-screen font-[var(--font-open-sans)]" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/q_auto,f_auto,w_1600/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div className="absolute inset-0 bg-white/70" />
       <div className="relative z-10">
       <div className="sticky top-[70px] z-30 md:top-[100px]">

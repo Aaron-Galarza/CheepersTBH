@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import type { ReactElement } from 'react';
 import { Utensils, Beef, Flame, Soup, Pizza, IceCreamCone, Sandwich, LayoutGrid, Tag, CupSoda, Cookie, Star, Grid3x3, Croissant, Apple } from 'lucide-react';
-import { GiHamburger, GiFrenchFries, GiPizzaSlice, GiSteak, GiDumpling, GiSandwich, GiIceCreamCone, GiFruitBowl } from 'react-icons/gi';
+import { GiHamburger, GiFrenchFries, GiPizzaSlice, GiSteak, GiDumpling, GiSandwich, GiIceCreamCone, GiFruitBowl, CategoryIconProps } from './categoryIcons';
 import type { LucideIcon } from 'lucide-react';
-import type { IconType } from 'react-icons';
 
-type IconEntry = { name: string; Icon: LucideIcon | IconType };
+type IconEntry = { name: string; Icon: LucideIcon | ((props: CategoryIconProps) => ReactElement) };
 
 export const CATEGORY_ICON_OPTIONS: IconEntry[] = [
   { name: 'GiHamburger', Icon: GiHamburger },
@@ -33,7 +33,7 @@ export const CATEGORY_ICON_OPTIONS: IconEntry[] = [
   { name: 'Grid3x3', Icon: Grid3x3 },
 ];
 
-export function getCategoryIcon(iconKey?: string): LucideIcon | IconType {
+export function getCategoryIcon(iconKey?: string): LucideIcon | ((props: CategoryIconProps) => ReactElement) {
   if (iconKey) {
     const found = CATEGORY_ICON_OPTIONS.find((o) => o.name === iconKey);
     if (found) return found.Icon;
