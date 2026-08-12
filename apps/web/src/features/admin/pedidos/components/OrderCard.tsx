@@ -62,6 +62,7 @@ export const OrderCard = memo(function OrderCard({ order, onStatusChange, isUpda
   };
 
   const isDelivered = order.status === 'delivered';
+  const isToday = order.createdAt ? new Date(order.createdAt).toDateString() === new Date().toDateString() : false;
 
   const handlePrint = () => {
     if (order.deliveryType === 'delivery') {
@@ -87,7 +88,12 @@ export const OrderCard = memo(function OrderCard({ order, onStatusChange, isUpda
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       {/* Header */}
       <div className="bg-[#f5f5f5] px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-[#757575]">
-        <span className="flex items-center gap-1"><Calendar size={14} /> {order.createdAt ? new Date(order.createdAt).toLocaleDateString('es-AR') + ' ' + new Date(order.createdAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+        <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1"><Calendar size={14} /> {order.createdAt ? new Date(order.createdAt).toLocaleDateString('es-AR') + ' ' + new Date(order.createdAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+          {isToday && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#D9383A] text-white">HOY</span>
+          )}
+        </span>
         <span className="flex items-center gap-1"><User size={14} /> {order.customer.name}</span>
         <a href={formatWhatsApp(order.customer.phone, order)} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-1 text-[#757575] hover:text-green-600 transition font-semibold">

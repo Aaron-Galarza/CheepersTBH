@@ -21,7 +21,8 @@ export const ordersService = {
     return response.data.data.comanda;
   },
 
-  getOrders: (status?: string, range?: string) => fetchAdminOrders(status, range),
+  getOrders: (status?: string, range?: string, customFrom?: string, customTo?: string) =>
+    fetchAdminOrders(status, range, customFrom, customTo),
 
   updateOrderStatus: (orderId: string, status: string) => updateOrderStatus(orderId, status),
 

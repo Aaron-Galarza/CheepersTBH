@@ -1,6 +1,6 @@
 import apiClient from './api';
 
-export type AdminRange = 'today' | 'week' | 'month';
+export type AdminRange = 'today' | 'yesterday' | 'week' | 'month' | 'custom' | 'all';
 
 // Deduplicación de requests en vuelo: evita llamadas HTTP duplicadas cuando
 // varios componentes montan a la vez y piden los mismos datos.
@@ -75,10 +75,15 @@ export const deleteAddon = (id: string) =>
   apiClient.delete(`/additionals/admin/${id}`).then((r) => r.data.data);
 
 // ── Orders ───────────────────────────────────────────────────────────────────
-export const fetchAdminOrders = (status?: string, range?: string) => {
+export const fetchAdminOrders = (status?: string, range?: string, customFrom?: string, customTo?: string) => {
   const params: any = {};
   if (status) params.status = status;
-  if (range) params.range = range;
+  if (range === 'custom') {
+    if (customFrom) params.from = customFrom;
+    if (customTo) params.to = customTo;
+  } else if (range && range !== 'all') {
+    params.range = range;
+  }
   return apiClient.get('/orders/admin', { params }).then((r) => r.data.data.orders || []);
 };
 
@@ -140,7 +145,7 @@ export const saveBanner = (banner: string) =>
   apiClient.put('/config/banner', { banner }).then((r) => r.data.data);
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
-export const fetchAnalyticsStats = (range: AdminRange | 'yesterday' | 'custom' = 'today', customFrom?: string, customTo?: string) => {
+export const fetchAnalyticsStats = (range: AdminRange = 'today', customFrom?: string, customTo?: string) => {
   const params: any = {};
   if (range === 'custom' && customFrom && customTo) {
     params.from = customFrom;
@@ -151,13 +156,13 @@ export const fetchAnalyticsStats = (range: AdminRange | 'yesterday' | 'custom' =
   return apiClient.get('/analytics/admin', { params }).then((r) => r.data.data);
 };
 
-export const fetchAnalyticsOrders = (range: AdminRange | 'yesterday' | 'custom' = 'today', paymentFilter = '', customFrom?: string, customTo?: string) => {
+export const fetchAnalyticsOrders = (range: AdminRange = 'today', paymentFilter = '', customFrom?: string, customTo?: string) => {
   const params: any = { status: 'delivered' };
   if (paymentFilter) params.paymentMethod = paymentFilter;
-  if (range === 'custom' && customFrom && customTo) {
-    params.from = customFrom;
-    params.to = customTo;
-  } else {
+  if (range === 'custom') {
+    if (customFrom) params.from = customFrom;
+    if (customTo) params.to = customTo;
+  } else if (range !== 'all') {
     params.range = range;
   }
   return apiClient.get('/orders/admin', { params }).then((r) => ({ orders: r.data.data.orders || [], total: r.data.data.total ?? 0 }));

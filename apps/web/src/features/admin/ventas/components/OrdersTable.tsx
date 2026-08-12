@@ -1,26 +1,27 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { fetchAnalyticsOrders } from '@/services/admin.service';
+import { fetchAnalyticsOrders, fetchAnalyticsStats } from '@/services/admin.service';
 import { formatCurrency } from '@/utils/format';
 import { CreditCard, Calendar, Download, Package } from 'lucide-react';
 import { Order } from '@/types';
 
 const PAGE_SIZE = 10;
-const RANGES = ['today', 'yesterday', 'week', 'month', 'custom'] as const;
-const RANGE_LABELS: Record<string, string> = { today: 'Hoy', yesterday: 'Ayer', week: 'Semana', month: 'Mes', custom: 'Personalizado' };
+const RANGES = ['today', 'yesterday', 'week', 'month', 'custom', 'all'] as const;
+const RANGE_LABELS: Record<string, string> = { today: 'Hoy', yesterday: 'Ayer', week: 'Semana', month: 'Mes', custom: 'Personalizado', all: 'Todas' };
 
-interface GroupedRow {
+type GroupedRow = {
   type: 'product' | 'addon';
   title: string;
   productTitle: string;
   qty: number;
   revenue: number;
   discount: number;
-}
+};
 
 export function OrdersTable() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('today');
   const [paymentFilter, setPaymentFilter] = useState('');
@@ -32,69 +33,45 @@ export function OrdersTable() {
 
   useEffect(() => {
     setLoading(true); setShowAll(false);
-    fetchAnalyticsOrders(range as any, paymentFilter, customFrom || undefined, customTo || undefined)
-      .then(({ orders, total: t }) => { setOrders(orders); setTotal(t); })
+    Promise.all([
+      fetchAnalyticsOrders(range as any, paymentFilter, customFrom || undefined, customTo || undefined),
+      fetchAnalyticsStats(range as any, customFrom || undefined, customTo || undefined),
+    ])
+      .then(([ordRes, statsRes]) => {
+        setOrders(ordRes.orders);
+        setTotal(ordRes.total);
+        setStats(statsRes);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [range, paymentFilter, customFrom, customTo]);
 
-  const grouped = useMemo(() => {
-    if (!viewGrouped) return [];
-    const pMap = new Map<string, { qty: number; revenue: number; discount: number }>();
-    const aMap = new Map<string, { productTitle: string; qty: number; revenue: number; discount: number }>();
-
-    for (const o of orders) {
-      const factor = o.discountPercent / 100;
-      for (const item of o.items) {
-        const baseRev = item.price * item.quantity;
-        let addonsRev = 0;
-        if (item.additionals) for (const a of item.additionals) addonsRev += a.price * a.quantity;
-
-        const baseDisc = baseRev * factor;
-        const baseNet = baseRev - baseDisc;
-
-        const prod = pMap.get(item.title);
-        if (prod) {
-          prod.qty += item.quantity;
-          prod.revenue += baseNet;
-          prod.discount += baseDisc;
-        } else {
-          pMap.set(item.title, { qty: item.quantity, revenue: baseNet, discount: baseDisc });
-        }
-
-        if (item.additionals) {
-          for (const a of item.additionals) {
-            const aRev = a.price * a.quantity;
-            const aDisc = aRev * factor;
-            const aNet = aRev - aDisc;
-            const key = `${item.title}|||${a.name}`;
-            const add = aMap.get(key);
-            if (add) {
-              add.qty += a.quantity;
-              add.revenue += aNet;
-              add.discount += aDisc;
-            } else {
-              aMap.set(key, { productTitle: item.title, qty: a.quantity, revenue: aNet, discount: aDisc });
-            }
-          }
-        }
-      }
-    }
-
-    const result: GroupedRow[] = [];
-    for (const [title, data] of [...pMap.entries()].sort((a, b) => (b[1].revenue + b[1].discount) - (a[1].revenue + a[1].discount))) {
-      result.push({ type: 'product', title, productTitle: title, qty: data.qty, revenue: data.revenue, discount: data.discount });
-      for (const [key, adata] of aMap) {
-        if (key.startsWith(title + '|||')) {
-          const addonName = key.slice(title.length + 3);
-          result.push({ type: 'addon', title: addonName, productTitle: title, qty: adata.qty, revenue: adata.revenue, discount: adata.discount });
-        }
-      }
-    }
-    return result;
-  }, [orders, viewGrouped]);
+  const grouped = useMemo<GroupedRow[]>(() => {
+    if (!viewGrouped || !stats?.products) return [];
+    return stats.products
+      .map((p: any) => [
+        {
+          type: 'product' as const,
+          title: p.title,
+          productTitle: p.title,
+          qty: p.qty ?? 0,
+          revenue: p.net ?? 0,
+          discount: p.discount ?? 0,
+        },
+        ...(p.addons || []).map((a: any) => ({
+          type: 'addon' as const,
+          title: a.title,
+          productTitle: p.title,
+          qty: a.qty ?? 0,
+          revenue: a.revenue ?? 0,
+          discount: 0,
+        })),
+      ])
+      .flat();
+  }, [stats, viewGrouped]);
 
   const anyDiscount = grouped.some((g) => g.discount > 0);
+  const productRows = grouped.filter((g) => g.type === 'product');
 
   const fmtDate = (d: any) => {
     const dt = new Date(d);
@@ -129,10 +106,10 @@ export function OrdersTable() {
         {RANGES.map((r) => (
           <button key={r} onClick={() => setRange(r)} className={`px-3 py-1 rounded-lg text-xs font-medium transition ${range === r ? 'bg-[#D9383A] text-white' : 'bg-gray-100 text-[#757575] hover:bg-gray-200'}`}>{RANGE_LABELS[r]}</button>
         ))}
-        <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)} className="px-3 py-1 rounded-lg text-xs font-medium border border-gray-200 bg-white text-[#757575] focus:outline-none focus:border-[#D9383A]">
+        <select value={paymentFilter} disabled={viewGrouped} onChange={(e) => setPaymentFilter(e.target.value)} className="px-3 py-1 rounded-lg text-xs font-medium border border-gray-200 bg-white text-[#757575] focus:outline-none focus:border-[#D9383A] disabled:opacity-50 disabled:cursor-not-allowed">
           <option value="">Todos los pagos</option><option value="cash">Efectivo</option><option value="transfer">Transferencia</option>
         </select>
-        {viewGrouped && <span className="self-center text-xs text-[#757575]">Vista agrupada</span>}
+        {viewGrouped && <span className="self-center text-xs text-[#757575]">Vista agrupada (todos los pagos)</span>}
       </div>
 
       {range === 'custom' && (
@@ -176,15 +153,15 @@ export function OrdersTable() {
               <tr className="border-t-2 border-gray-200">
                 <td className="py-3 font-bold text-sm text-[#212121]">Total</td>
                 <td className="py-3 text-right font-bold text-[#212121]">
-                  {grouped.reduce((s, g) => s + g.qty, 0)}
+                  {productRows.reduce((s, g) => s + g.qty, 0)}
                 </td>
                 {anyDiscount && (
                   <td className="py-3 text-right font-bold text-xs text-green-600">
-                    -{formatCurrency(grouped.reduce((s, g) => s + g.discount, 0))}
+                    -{formatCurrency(productRows.reduce((s, g) => s + g.discount, 0))}
                   </td>
                 )}
                 <td className="py-3 text-right font-bold text-base text-[#D9383A]">
-                  {formatCurrency(grouped.reduce((s, g) => s + g.revenue, 0))}
+                  {formatCurrency(productRows.reduce((s, g) => s + g.revenue, 0))}
                 </td>
               </tr>
             </tfoot>
