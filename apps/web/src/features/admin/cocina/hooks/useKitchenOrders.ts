@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchAdminOrders, updateOrderStatus } from '@/services/admin.service';
 import { socketService } from '@/services/socket.service';
 import { Order } from '@/types';
@@ -34,14 +34,14 @@ export function useKitchenOrders() {
     return () => { unsub1(); unsub2(); unsub3(); socketService.leaveKitchen(); };
   }, []);
 
-  const updateStatus = async (orderId: string, status: string) => {
+  const updateStatus = useCallback(async (orderId: string, status: string) => {
     updatingIdRef.current = orderId;
     try {
       await updateOrderStatus(orderId, status);
       setOrders((prev) => prev.map((o) => o._id === orderId ? { ...o, status: status as Order['status'] } : o));
     } catch { setError('Error al actualizar'); }
     finally { updatingIdRef.current = null; }
-  };
+  }, []);
 
   return { orders, loading, error, updateStatus };
 }

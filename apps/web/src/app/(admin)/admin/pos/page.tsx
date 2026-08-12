@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { POSProductGrid } from '@/features/admin/pos/components/POSProductGrid';
 import { POSCart } from '@/features/admin/pos/components/POSCart';
-import { POSCheckout } from '@/features/admin/pos/components/POSCheckout';
 import { usePOSStore } from '@/stores/pos.store';
 import { ShoppingCart } from 'lucide-react';
+
+const POSCheckout = dynamic(() => import('@/features/admin/pos/components/POSCheckout').then((m) => ({ default: m.POSCheckout })), { ssr: false });
 
 export default function POSPage() {
   const [showCheckout, setShowCheckout] = useState(false);

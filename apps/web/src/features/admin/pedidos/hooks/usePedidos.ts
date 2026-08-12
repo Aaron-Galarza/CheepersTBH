@@ -48,7 +48,7 @@ export function usePedidos() {
     return () => { u1(); u2(); u3(); socketService.leaveKitchen(); };
   }, [status, fetchOrders]);
 
-  const updateStatus = async (id: string, newStatus: string) => {
+  const updateStatus = useCallback(async (id: string, newStatus: string) => {
     setUpdatingId(id); setCurrentUpdatingId(id);
     try {
       await updateOrderStatus(id, newStatus);
@@ -62,7 +62,7 @@ export function usePedidos() {
     } finally {
       setUpdatingId(null); setCurrentUpdatingId(null);
     }
-  };
+  }, [status]);
 
   return { orders, loading, status, setStatus, updatingId, error, updateStatus };
 }

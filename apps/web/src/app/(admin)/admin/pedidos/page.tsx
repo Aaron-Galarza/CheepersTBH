@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Package } from 'lucide-react';
 import { usePedidos } from '@/features/admin/pedidos/hooks/usePedidos';
 import { OrderCard } from '@/features/admin/pedidos/components/OrderCard';
@@ -14,23 +14,22 @@ export default function PedidosPage() {
   const { orders, loading, status, setStatus, updatingId, updateStatus } = usePedidos();
   const [dateFilter, setDateFilter] = useState('');
 
-  const filtered = dateFilter ? orders.filter((o) => {
-    if (!o.createdAt) return false;
-    const d = new Date(o.createdAt);
+  const filtered = useMemo(() => {
+    if (!dateFilter) return orders;
     const now = new Date();
-    if (dateFilter === 'today') return d.toDateString() === now.toDateString();
-    if (dateFilter === 'yesterday') {
-      const yesterday = new Date(now);
-      yesterday.setDate(now.getDate() - 1);
-      return d.toDateString() === yesterday.toDateString();
-    }
-    if (dateFilter === 'week') {
-      const weekAgo = new Date(now);
-      weekAgo.setDate(now.getDate() - 7);
-      return d >= weekAgo;
-    }
-    return true;
-  }) : orders;
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const weekAgo = new Date(now);
+    weekAgo.setDate(now.getDate() - 7);
+    return orders.filter((o) => {
+      if (!o.createdAt) return false;
+      const d = new Date(o.createdAt);
+      if (dateFilter === 'today') return d.toDateString() === now.toDateString();
+      if (dateFilter === 'yesterday') return d.toDateString() === yesterday.toDateString();
+      if (dateFilter === 'week') return d >= weekAgo;
+      return true;
+    });
+  }, [orders, dateFilter]);
 
   return (
     <div className="cart-bg min-h-screen p-4">

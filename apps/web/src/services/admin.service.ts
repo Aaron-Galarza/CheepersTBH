@@ -2,9 +2,21 @@ import apiClient from './api';
 
 export type AdminRange = 'today' | 'week' | 'month';
 
+// Deduplicación de requests en vuelo: evita llamadas HTTP duplicadas cuando
+// varios componentes montan a la vez y piden los mismos datos.
+let productsPromise: Promise<any> | null = null;
+let categoriesPromise: Promise<any> | null = null;
+let addonsPromise: Promise<any> | null = null;
+
 // ── Products ──────────────────────────────────────────────────────────────────
-export const fetchAdminProducts = () =>
-  apiClient.get('/products/admin/all').then((r) => r.data.data);
+export const fetchAdminProducts = () => {
+  if (!productsPromise) {
+    productsPromise = apiClient.get('/products/admin/all')
+      .then((r) => r.data.data)
+      .finally(() => { productsPromise = null; });
+  }
+  return productsPromise;
+};
 
 export const createProduct = (payload: Record<string, any>) =>
   apiClient.post('/products/admin', payload).then((r) => r.data.data);
@@ -19,8 +31,14 @@ export const deleteProduct = (id: string) =>
   apiClient.delete(`/products/admin/${id}`).then((r) => r.data.data);
 
 // ── Categories ───────────────────────────────────────────────────────────────
-export const fetchAdminCategories = () =>
-  apiClient.get('/categories/admin/all').then((r) => r.data.data);
+export const fetchAdminCategories = () => {
+  if (!categoriesPromise) {
+    categoriesPromise = apiClient.get('/categories/admin/all')
+      .then((r) => r.data.data)
+      .finally(() => { categoriesPromise = null; });
+  }
+  return categoriesPromise;
+};
 
 export const createCategory = (payload: Record<string, any>) =>
   apiClient.post('/categories/admin', payload).then((r) => r.data.data);
@@ -35,8 +53,14 @@ export const deleteCategory = (id: string) =>
   apiClient.delete(`/categories/admin/${id}`).then((r) => r.data.data);
 
 // ── Additionals ──────────────────────────────────────────────────────────────
-export const fetchAdminAddons = () =>
-  apiClient.get('/additionals/admin/all').then((r) => r.data.data);
+export const fetchAdminAddons = () => {
+  if (!addonsPromise) {
+    addonsPromise = apiClient.get('/additionals/admin/all')
+      .then((r) => r.data.data)
+      .finally(() => { addonsPromise = null; });
+  }
+  return addonsPromise;
+};
 
 export const createAddon = (payload: Record<string, any>) =>
   apiClient.post('/additionals/admin', payload).then((r) => r.data.data);

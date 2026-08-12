@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Order } from '@/types';
 import { OrderCard } from './OrderCard';
 
@@ -14,10 +15,10 @@ interface OrderListProps {
 }
 
 export function OrderList({ orders, onStatusChange }: OrderListProps) {
-  const grouped = orders.reduce((acc: Record<string, Order[]>, o) => {
+  const grouped = useMemo(() => orders.reduce((acc: Record<string, Order[]>, o) => {
     (acc[o.status] = acc[o.status] || []).push(o);
     return acc;
-  }, {});
+  }, {}), [orders]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
