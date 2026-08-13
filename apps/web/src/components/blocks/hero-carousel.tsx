@@ -59,7 +59,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
   return (
     <section
-      className="relative mx-auto mt-4 mb-20 flex min-h-[500px] w-full max-w-[1200px] items-center justify-center overflow-hidden rounded-[70px] bg-[#FFF8E1] shadow-[0_5px_20px_rgba(0,0,0,0.08)] max-md:mt-8 max-md:mb-12 max-md:min-h-[480px] max-md:rounded-[30px] max-md:pb-24"
+      className="relative mx-auto mt-4 mb-20 flex min-h-[500px] w-full max-w-[1200px] items-center justify-center overflow-hidden rounded-[70px] bg-[#FFF8E1] shadow-[0_5px_20px_rgba(0,0,0,0.08)] max-md:mt-8 max-md:mb-12 max-md:min-h-[480px] max-md:rounded-[30px] max-md:pb-24 touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -67,7 +67,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
         <div
           key={index}
           className={cn(
-            'absolute inset-0 flex items-center justify-around px-[43px] max-md:flex-col max-md:px-4',
+            'absolute inset-0 flex items-center justify-around px-[43px] max-md:flex-col max-md:justify-center max-md:gap-3 max-md:px-4',
             index === current
               ? 'pointer-events-auto z-[1] opacity-100'
               : 'pointer-events-none invisible opacity-0',
@@ -87,10 +87,10 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           </div>
 
           <div className="flex max-w-[500px] flex-col items-start max-md:items-center max-md:text-center">
-            <h2 className="font-['Oswald'] text-4xl sm:text-5xl md:text-[4rem] font-bold uppercase leading-[1.1] tracking-wide text-[#e53e3e] max-md:text-2xl line-clamp-3">
+            <h2 className="font-['Oswald'] text-4xl sm:text-5xl md:text-[4rem] font-bold uppercase leading-[1.1] tracking-wide text-[#e53e3e] max-md:text-3xl line-clamp-3">
               {slide.title}
             </h2>
-            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#2d3748] max-md:text-sm line-clamp-2">
+            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#2d3748] max-md:text-base line-clamp-2">
               {slide.text}
             </p>
             <a
@@ -105,33 +105,33 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
       <button
         onClick={goPrev}
-        className="absolute left-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#c53030] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white max-md:left-2"
+        className="absolute left-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#c53030] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white max-md:hidden"
         aria-label="Slide anterior"
       >
         <ChevronLeft size={24} />
       </button>
       <button
         onClick={goNext}
-        className="absolute right-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#c53030] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white max-md:right-2"
+        className="absolute right-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#c53030] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white max-md:hidden"
         aria-label="Slide siguiente"
       >
         <ChevronRight size={24} />
       </button>
 
-      <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 md:bottom-6">
+      <div className="absolute bottom-1 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 md:bottom-6">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goTo(index)}
-            className="flex h-12 w-12 items-center justify-center"
+            className="flex h-8 w-8 items-center justify-center md:h-12 md:w-12"
             aria-label={`Ir al slide ${index + 1}`}
           >
             <span
               className={cn(
                 'block rounded-full transition-all duration-300',
                 index === current
-                  ? 'h-3 w-3 scale-125 bg-[#e53e3e] shadow-[0_0_0_4px_rgba(229,62,62,0.2)]'
-                  : 'h-3 w-3 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)]'
+                  ? 'h-2 w-2 scale-125 bg-[#e53e3e] shadow-[0_0_0_4px_rgba(229,62,62,0.2)] md:h-3 md:w-3'
+                  : 'h-2 w-2 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] md:h-3 md:w-3'
               )}
             />
           </button>
