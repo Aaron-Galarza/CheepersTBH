@@ -55,12 +55,15 @@ export const useCartStore = create<CartState>()(
           const id = generateCartItemId(product._id, addOns);
           const exists = prev.items.find((item) => item.cartItemId === id);
           if (exists) {
+            const maxStock = product.controlStock === true ? (product.stock ?? 0) : Infinity;
+            if (exists.quantity + 1 > maxStock) return prev;
             return {
               items: prev.items.map((item) =>
                 item.cartItemId === id ? { ...item, quantity: item.quantity + 1 } : item
               ),
             };
           }
+          if (product.controlStock === true && (product.stock ?? 0) <= 0) return prev;
           return {
             items: [
               ...prev.items,

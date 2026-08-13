@@ -61,8 +61,8 @@ export function ProductsManager() {
     setDescription(p.description || '');
     setImage(p.image || p.imageUrl || '');
     setCategoryId(typeof p.category === 'object' ? (p.category as any)._id : String(p.category));
-    setStock(0);
-    setControlStock(false);
+    setStock(p.controlStock === true ? (p.stock ?? 0) : 0);
+    setControlStock(p.controlStock === true);
     setEditingId(p._id);
   };
 
@@ -110,6 +110,13 @@ export function ProductsManager() {
             <option value="">Seleccionar categoria</option>
             {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
+          <label className="flex items-center gap-2 text-sm text-[#212121]">
+            <input type="checkbox" checked={controlStock} onChange={(e) => setControlStock(e.target.checked)} className="accent-[#D9383A]" /> Controlar stock
+          </label>
+          {controlStock && (
+            <input type="number" value={stock} onChange={(e) => setStock(Number(e.target.value))} placeholder="Stock disponible" min={0}
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:border-[#D9383A] focus:outline-none" />
+          )}
           <div className="flex gap-2">
             <button type="submit" className="px-6 py-2 bg-[#D9383A] text-white rounded-lg font-bold hover:bg-[#b52d2f] text-sm">
               {editingId ? 'Actualizar' : 'Crear producto'}
@@ -135,7 +142,14 @@ export function ProductsManager() {
               <div key={p._id} className={`flex items-center gap-3 p-3 border-2 rounded-lg ${(p as any).active !== false && p.isActive !== false ? 'border-gray-200' : 'border-gray-200 opacity-50'}`}>
                 {p.image && <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0"><img src={p.image} alt="" className="h-full w-full object-cover" loading="lazy" /></div>}
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-xs text-[#212121] truncate">{p.title || p.name}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-bold text-xs text-[#212121] truncate">{p.title || p.name}</p>
+                    {(p as any).controlStock === true && (
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${((p as any).stock ?? 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                        Stock: {(p as any).stock ?? 0}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] text-[#757575]">{getCatName(p)} · {formatCurrency(p.price)}</p>
                 </div>
                 <div className="flex gap-1">

@@ -51,6 +51,8 @@ export function POSCart({ onCheckout }: POSCartProps) {
             const id = item.cartItemId;
             const available = getProductAddons(item);
             const isExpanded = expandedId === id;
+            const maxStock = item.controlStock === true ? (item.stock ?? 0) : Infinity;
+            const atMaxStock = item.quantity >= maxStock;
             return (
               <div key={id} className="bg-gray-50 rounded-lg overflow-hidden">
                 <div className="p-1.5 md:p-2 flex justify-between items-start">
@@ -60,7 +62,7 @@ export function POSCart({ onCheckout }: POSCartProps) {
                       <div className="flex items-center gap-0.5">
                         <button onClick={() => updateQuantity(id, (item.quantity || 1) - 1)} className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center bg-gray-200 rounded text-[10px] md:text-xs hover:bg-gray-300"><Minus size={10} /></button>
                         <span className="text-[10px] md:text-xs font-bold w-4 md:w-5 text-center">{item.quantity || 1}</span>
-                        <button onClick={() => updateQuantity(id, (item.quantity || 1) + 1)} className="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center bg-gray-200 rounded text-[10px] md:text-xs hover:bg-gray-300"><Plus size={10} /></button>
+                        <button onClick={() => updateQuantity(id, (item.quantity || 1) + 1)} disabled={atMaxStock} className={`w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded text-[10px] md:text-xs hover:bg-gray-300 ${atMaxStock ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-gray-200 text-gray-700'}`}><Plus size={10} /></button>
                       </div>
                       <span className="text-[10px] md:text-xs font-bold text-[#D9383A]">{formatCurrency(item.price * (item.quantity || 1))}</span>
                     </div>

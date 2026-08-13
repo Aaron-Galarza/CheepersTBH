@@ -3,6 +3,7 @@ import { CouponsService } from '../coupons/coupons.service';
 import { ConfigService } from '../config/config.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { ProductModel } from '../products/products.model';
+import { CategoriaModel } from '../categories/categories.model';
 import { AdicionalModel } from '../additionals/additionals.model';
 import { CreateOrderInput } from './orders.schema';
 import { AppError } from '../../utils/appError';
@@ -17,11 +18,30 @@ export const OrdersService = {
 
     let subtotal = 0;
     const validatedItems = [];
+    const stockDecrements: { productId: string; quantity: number }[] = [];
 
     for (const item of orderData.items) {
       const product = await ProductModel.findById(item.productId);
       if (!product || !product.active) {
         throw new AppError('Uno de los productos no está disponible', 400);
+      }
+
+      const category = await CategoriaModel.findById(product.category);
+      if (!category || !category.active) {
+        throw new AppError('Uno de los productos no está disponible', 400);
+      }
+
+      if (product.controlStock) {
+        if (product.stock <= 0) {
+          throw new AppError(`El producto "${product.title}" se encuentra agotado`, 400);
+        }
+        if (item.quantity > product.stock) {
+          throw new AppError(
+            `Stock insuficiente para "${product.title}". Disponibles: ${product.stock}, solicitados: ${item.quantity}`,
+            400
+          );
+        }
+        stockDecrements.push({ productId: product._id.toString(), quantity: item.quantity });
       }
 
       const itemPrice = product.price * item.quantity;
@@ -79,6 +99,27 @@ export const OrdersService = {
     }
 
     const total = subtotal - discountAmount + deliveryCost;
+
+    if (stockDecrements.length > 0) {
+      for (const dec of stockDecrements) {
+        const product = await ProductModel.findById(dec.productId);
+        if (!product || !product.controlStock) continue;
+
+        const result = await ProductModel.updateOne(
+          { _id: product._id, stock: { $gte: dec.quantity } },
+          { $inc: { stock: -dec.quantity } }
+        );
+
+        if (result.modifiedCount === 0) {
+          const fresh = await ProductModel.findById(dec.productId);
+          const available = fresh?.stock ?? 0;
+          throw new AppError(
+            `Stock insuficiente para "${product.title}". Disponibles: ${available}, solicitados: ${dec.quantity}`,
+            400
+          );
+        }
+      }
+    }
 
     const order = await Order.create({
       customer: {
@@ -138,12 +179,32 @@ export const OrdersService = {
       } else if (oldStatus === 'delivered' && status !== 'delivered') {
         await AnalyticsService.revertDelivery(updated);
       }
+
+      if (oldStatus !== 'cancelled' && status === 'cancelled') {
+        for (const item of oldOrder.items) {
+          const product = await ProductModel.findById(item.productId);
+          if (product && product.controlStock) {
+            product.stock += item.quantity;
+            await product.save();
+          }
+        }
+      }
     }
 
     return updated;
   },
 
   deleteById: async (id: string): Promise<boolean> => {
+    const order = await Order.findById(id);
+    if (order && order.status !== 'cancelled') {
+      for (const item of order.items) {
+        const product = await ProductModel.findById(item.productId);
+        if (product && product.controlStock) {
+          product.stock += item.quantity;
+          await product.save();
+        }
+      }
+    }
     const result = await Order.findByIdAndDelete(id);
     return !!result;
   },

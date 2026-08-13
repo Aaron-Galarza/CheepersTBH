@@ -12,6 +12,8 @@ export interface Product {
   isActive: boolean;
   active?: boolean;
   tags?: string[];
+  controlStock?: boolean;
+  stock?: number;
 }
 
 export interface Category {

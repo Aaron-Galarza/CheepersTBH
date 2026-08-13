@@ -21,6 +21,11 @@ export const usePOSStore = create<POSState>((set, get) => ({
   selectedCategory: null,
 
   addItem: (product: any, quantity: number, addons: SelectedAddOn[]) => {
+    if (product.controlStock === true) {
+      const stock = product.stock ?? 0;
+      if (stock <= 0) return;
+      quantity = Math.min(quantity, stock);
+    }
     set((state) => ({
       items: [...state.items, { ...product, quantity, addOns: addons, cartItemId: `${product._id}-${Date.now()}` }],
     }));
@@ -32,7 +37,15 @@ export const usePOSStore = create<POSState>((set, get) => ({
 
   updateQuantity: (itemId, quantity) => {
     if (quantity <= 0) { get().removeItem(itemId); return; }
-    set((state) => ({ items: state.items.map((i) => i.cartItemId === itemId ? { ...i, quantity } : i) }));
+    set((state) => ({
+      items: state.items.map((i) => {
+        if (i.cartItemId !== itemId) return i;
+        if (i.controlStock === true) {
+          quantity = Math.min(quantity, i.stock ?? 0);
+        }
+        return { ...i, quantity };
+      }),
+    }));
   },
 
   updateAddOns: (itemId: string, addOns: SelectedAddOn[]) => {

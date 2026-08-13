@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import Image from 'next/image';
 import { Product } from '@/types';
-import { ShoppingCart, Check } from 'lucide-react';
+import { ShoppingCart, Check, PackageX } from 'lucide-react';
 import { formatCurrency } from '@/utils/format';
 
 interface ProductCardProps {
@@ -16,12 +16,13 @@ interface ProductCardProps {
 export const ProductCard = memo(function ProductCard({ product, onAddClick, isAdded, priority }: ProductCardProps) {
   const title = product.title || product.name;
   const img = product.image || product.imageUrl;
+  const isOutOfStock = product.controlStock === true && (product.stock ?? 0) <= 0;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative h-40 w-full overflow-hidden bg-gradient-to-b from-[#3a2a1a] to-[#1a1008] sm:h-48 md:h-52 lg:h-56">
         {img ? (
-          <Image src={img} alt={title} fill priority={priority} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw" className="object-cover transition-transform duration-300 group-hover:scale-105" />
+          <Image src={img} alt={title} fill priority={priority} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw" className={`object-cover transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-50' : ''}`} />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[#757575]">
             <ShoppingCart size={32} className="sm:size-[40px] md:size-[48px]" />
@@ -51,10 +52,18 @@ export const ProductCard = memo(function ProductCard({ product, onAddClick, isAd
           </span>
           <button
             onClick={onAddClick}
-            className={`flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg font-bold text-white transition-all duration-300 px-3 py-1.5 text-xs sm:text-sm ${isAdded ? 'bg-green-500 scale-95' : 'bg-[#D9383A] hover:bg-[#b52d2f] active:scale-95'}`}
+            disabled={isOutOfStock}
+            aria-label={isOutOfStock ? 'Sin stock' : undefined}
+            className={`flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg font-bold text-white transition-all duration-300 px-3 py-1.5 text-xs sm:text-sm ${
+              isOutOfStock
+                ? 'bg-gray-400 cursor-not-allowed'
+                : isAdded
+                  ? 'bg-green-500 scale-95'
+                  : 'bg-[#D9383A] hover:bg-[#b52d2f] active:scale-95'
+            }`}
           >
-            {isAdded ? <Check size={14} /> : null}
-            {isAdded ? 'Agregado' : 'Agregar'}
+            {isOutOfStock ? <PackageX size={14} /> : isAdded ? <Check size={14} /> : null}
+            {isOutOfStock ? 'Sin stock' : isAdded ? 'Agregado' : 'Agregar'}
           </button>
         </div>
       </div>

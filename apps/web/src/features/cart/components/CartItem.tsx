@@ -32,6 +32,8 @@ export function CartItem({
   const addOnsTotal = addOns.reduce((s: number, a: any) => s + a.price * (a.quantity || 1), 0);
   const subtotal = item.price * item.quantity + addOnsTotal;
   const catId = getProductCategoryId(item.category, allCategories);
+  const maxStock = item.controlStock === true ? (item.stock ?? 0) : Infinity;
+  const atMaxStock = item.quantity >= maxStock;
 
   const available = allAdditionals.filter((a) => {
     const cats = (a as any).categories ?? a.associatedProductCategories;
@@ -72,7 +74,13 @@ export function CartItem({
             <div className="flex items-center gap-0.5">
               <button onClick={() => onDecrement(item.cartItemId)} className="flex h-6 w-6 items-center justify-center rounded-full border border-[#e0e0e0] text-xs font-bold text-[#757575] transition hover:border-[#D9383A] hover:text-[#D9383A]">-</button>
               <span className="w-5 text-center text-xs font-bold text-[#212121]">{item.quantity}</span>
-              <button onClick={() => onIncrement(item.addOns)} className="flex h-6 w-6 items-center justify-center rounded-full border border-[#e0e0e0] text-xs font-bold text-[#757575] transition hover:border-[#D9383A] hover:text-[#D9383A]">+</button>
+              <button
+                onClick={() => onIncrement(item.addOns)}
+                disabled={atMaxStock}
+                aria-label={atMaxStock ? 'Stock máximo alcanzado' : 'Incrementar cantidad'}
+                className={`flex h-6 w-6 items-center justify-center rounded-full border border-[#e0e0e0] text-xs font-bold transition ${
+                  atMaxStock ? 'cursor-not-allowed text-gray-300' : 'text-[#757575] hover:border-[#D9383A] hover:text-[#D9383A]'
+                }`}>+</button>
             </div>
           </div>
 
