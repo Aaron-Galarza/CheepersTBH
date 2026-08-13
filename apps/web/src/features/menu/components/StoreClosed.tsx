@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Clock, CheckCircle, XCircle } from 'lucide-react';
-import { menuService } from '@/services/menu.service';
 import type { StoreConfig, DaySchedule } from '@/types';
 
 function formatHour(time?: string): string | null {
@@ -19,14 +18,12 @@ function scheduleHours(todaySchedule?: DaySchedule): string | null {
   return `de ${open} a ${close} hs`;
 }
 
-export function StoreStatus() {
-  const [config, setConfig] = useState<StoreConfig | null>(null);
+export function StoreStatus({ config }: { config: StoreConfig | null }) {
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    menuService.getStoreStatus().then(setConfig).catch(() => {});
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  if (!config) return null;
+  if (!config || !mounted) return null;
 
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();

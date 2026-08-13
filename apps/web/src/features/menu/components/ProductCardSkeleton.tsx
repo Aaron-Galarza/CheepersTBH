@@ -1,7 +1,7 @@
 export function ProductCardSkeleton() {
   return (
     <div className="animate-pulse overflow-hidden rounded-xl bg-white shadow-md">
-      <div className="h-36 w-full bg-gray-200 sm:h-48 md:h-56"></div>
+      <div className="h-40 w-full bg-gray-200 sm:h-48 md:h-52 lg:h-56"></div>
       <div className="p-3 md:p-4">
         <div className="mb-1 h-4 w-3/4 rounded bg-gray-200 sm:h-5 md:mb-2"></div>
         <div className="mb-2 h-3 w-full rounded bg-gray-200 sm:h-4 sm:mb-3 md:mb-4"></div>

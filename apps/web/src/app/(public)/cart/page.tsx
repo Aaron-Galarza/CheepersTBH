@@ -2,12 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '@/stores/cart.store';
 import { menuService } from '@/services/menu.service';
 import { Addon, Category } from '@/types';
 import { CartItem } from '@/features/cart/components/CartItem';
 import { formatCurrency } from '@/utils/format';
+import { cloudinaryUrl } from '@/utils/imageUrl';
+
+const FONDO_URL = cloudinaryUrl(
+  'https://res.cloudinary.com/dwqxdensk/image/upload/v1785372509/fondo_r3yhjq.webp',
+  1600
+);
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
@@ -33,13 +40,16 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="relative flex min-h-[60vh] flex-col items-center justify-center p-4" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/q_auto,f_auto,w_1600/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="relative flex min-h-[60vh] flex-col items-center justify-center p-4">
+        <div className="fixed inset-0 -z-10">
+          <Image src={FONDO_URL} alt="" fill sizes="100vw" aria-hidden className="object-cover object-center" />
+        </div>
         <div className="absolute inset-0 bg-white/70" />
         <div className="relative z-10 text-center">
           <h1 className="mb-2 font-[var(--font-montserrat)] text-3xl font-extrabold text-[#D9383A]">
             <ShoppingCart className="mr-2 inline-block h-8 w-8" />Tu carrito esta vacio
           </h1>
-          <p className="mb-6 text-[#757575] font-[var(--font-open-sans)]">Agrega productos para comenzar</p>
+          <p className="mb-6 text-[#4a5568] font-[var(--font-open-sans)]">Agrega productos para comenzar</p>
           <Link href="/menu" className="inline-block rounded-xl bg-[#D9383A] px-8 py-3 font-bold text-white shadow-[0_5px_15px_rgba(217,56,58,0.3)] transition-all duration-200 hover:-translate-y-[3px] hover:bg-[#b52d2f]">Ver menu</Link>
         </div>
       </div>
@@ -47,7 +57,10 @@ export default function CartPage() {
   }
 
   return (
-    <div className="relative min-h-screen pb-40" style={{ backgroundImage: "url('https://res.cloudinary.com/dwqxdensk/image/upload/q_auto,f_auto,w_1600/v1785372509/fondo_r3yhjq.webp')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="relative min-h-screen pb-40">
+      <div className="fixed inset-0 -z-10">
+        <Image src={FONDO_URL} alt="" fill sizes="100vw" aria-hidden className="object-cover object-center" />
+      </div>
       <div className="absolute inset-0 bg-white/70" />
       <div className="relative z-10 mx-auto mb-10 mt-10 max-w-[700px] rounded-2xl bg-white/80 p-6 shadow-sm max-md:mt-[120px] max-md:mx-4"
         style={{ opacity: fadeIn ? 1 : 0, transform: fadeIn ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease-out, transform 0.5s ease-out' }}>

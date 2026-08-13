@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { cloudinaryUrl } from '@/utils/imageUrl';
 
 interface HeroSlide {
   title: string;
@@ -72,13 +74,15 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             'transition-[opacity] duration-[900ms] ease-[ease-in-out]'
           )}
         >
-          <div className="max-w-[550px] max-md:w-[95%] max-md:max-w-none">
-            <img
-              src={slide.image}
+          <div className="relative h-[350px] w-full max-w-[550px] max-md:h-[220px] max-md:w-[95%] max-md:max-w-none">
+            <Image
+              src={cloudinaryUrl(slide.image, 1000)}
               alt={slide.title}
-              className="h-[350px] w-full rounded-2xl object-cover shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)] max-md:h-[220px]"
-              loading={index === 0 ? undefined : "lazy"}
-              fetchPriority={index === 0 ? "high" : "auto"}
+              fill
+              priority={index === 0}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              sizes="(max-width: 640px) 90vw, 550px"
+              className="rounded-2xl object-cover shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)]"
             />
           </div>
 
@@ -86,12 +90,12 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             <h2 className="font-['Oswald'] text-4xl sm:text-5xl md:text-[4rem] font-bold uppercase leading-[1.1] tracking-wide text-[#e53e3e] max-md:text-2xl line-clamp-3">
               {slide.title}
             </h2>
-            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#4a5568] max-md:text-sm line-clamp-2">
+            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#2d3748] max-md:text-sm line-clamp-2">
               {slide.text}
             </p>
             <a
               href={slide.ctaHref}
-              className="mt-6 inline-block rounded-full border-2 border-[#e53e3e] bg-transparent px-8 py-3 font-['Oswald'] text-[1.3em] font-semibold uppercase tracking-wider text-[#e53e3e] transition-all duration-300 ease-in-out hover:-translate-y-[2px] hover:bg-[#e53e3e] hover:text-white max-md:px-6 max-md:py-2 max-md:text-base"
+              className="mt-6 inline-block rounded-full border-2 border-[#c53030] bg-transparent px-8 py-3 font-['Oswald'] text-[1.3em] font-semibold uppercase tracking-wider text-[#c53030] transition-all duration-300 ease-in-out hover:-translate-y-[2px] hover:bg-[#c53030] hover:text-white max-md:px-6 max-md:py-2 max-md:text-base"
             >
               {slide.cta}
             </a>
@@ -101,32 +105,36 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
       <button
         onClick={goPrev}
-        className="absolute left-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-[#e53e3e] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white"
-        aria-label="Anterior"
+        className="absolute left-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#c53030] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white max-md:left-2"
+        aria-label="Slide anterior"
       >
         <ChevronLeft size={24} />
       </button>
       <button
         onClick={goNext}
-        className="absolute right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-[#e53e3e] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white"
-        aria-label="Siguiente"
+        className="absolute right-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#c53030] shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-colors hover:bg-white max-md:right-2"
+        aria-label="Slide siguiente"
       >
         <ChevronRight size={24} />
       </button>
 
-      <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-4 md:bottom-6 max-md:gap-2">
+      <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 md:bottom-6">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goTo(index)}
-            className={cn(
-              'rounded-full transition-all duration-300',
-              index === current
-                ? 'h-3 w-3 scale-125 bg-[#e53e3e] shadow-[0_0_0_4px_rgba(229,62,62,0.2)] max-md:h-2.5 max-md:w-2.5'
-                : 'h-3 w-3 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] max-md:h-2.5 max-md:w-2.5'
-            )}
-            aria-label={`Slide ${index + 1}`}
-          />
+            className="flex h-12 w-12 items-center justify-center"
+            aria-label={`Ir al slide ${index + 1}`}
+          >
+            <span
+              className={cn(
+                'block rounded-full transition-all duration-300',
+                index === current
+                  ? 'h-3 w-3 scale-125 bg-[#e53e3e] shadow-[0_0_0_4px_rgba(229,62,62,0.2)]'
+                  : 'h-3 w-3 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)]'
+              )}
+            />
+          </button>
         ))}
       </div>
     </section>

@@ -8,15 +8,16 @@ function getCategoryName(cat: unknown): string {
   return '';
 }
 
-export function useMenu() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+export function useMenu(initial?: { products: Product[]; categories: Category[] }) {
+  const [products, setProducts] = useState<Product[]>(initial?.products ?? []);
+  const [categories, setCategories] = useState<Category[]>(initial?.categories ?? []);
+  const [loading, setLoading] = useState(!initial);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    if (initial) return;
     const fetchMenu = async () => {
       try {
         setLoading(true);
@@ -36,7 +37,7 @@ export function useMenu() {
     };
 
     fetchMenu();
-  }, []);
+  }, [initial]);
 
   const filteredProducts = products.filter((product) => {
     const categoryName = getCategoryName(product.category);

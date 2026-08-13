@@ -68,6 +68,7 @@ export default function Header() {
         {/* Botón Carrito */}
         <Link
           href="/cart"
+          aria-label="Ver carrito"
           className="group relative flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#e53e3e] text-white shadow-[0_1px_3px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#e41212] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.06)]"
         >
           <ShoppingCart size={20} className="text-white transition-colors duration-300 group-hover:text-white" />
@@ -83,6 +84,7 @@ export default function Header() {
         {/* Botón Usuario (Oculto en móvil según tu clase .user-button-desktop) */}
         <Link
           href="/login"
+          aria-label="Ingresar"
           className="group hidden h-[40px] w-[40px] items-center justify-center rounded-full bg-[#e53e3e] text-white shadow-[0_1px_3px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#e41212] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,0,0,0.06)] md:flex"
         >
           <User size={20} className="text-white transition-colors duration-300 group-hover:text-white" />

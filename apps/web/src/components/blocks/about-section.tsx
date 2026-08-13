@@ -1,5 +1,3 @@
-'use client';
-
 import { MapPin, Phone, Clock } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import {
@@ -68,7 +66,7 @@ export function AboutSection({ className = '' }: { className?: string }) {
                 <div>
                   <p className="font-['Open_Sans'] text-sm text-[#4a5568]">
                     Consultas y pedidos{' '}
-                    <a href={`tel:${PHONE.replace(/\s/g, '')}`} className="font-semibold text-[#e53e3e]">
+                    <a href={`tel:${PHONE.replace(/\s/g, '')}`} className="font-semibold text-[#c53030]">
                       {PHONE}
                     </a>
                   </p>
@@ -76,7 +74,7 @@ export function AboutSection({ className = '' }: { className?: string }) {
                     href={WHATSAPP_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-['Open_Sans'] text-sm font-semibold text-[#e53e3e] hover:underline"
+                    className="font-['Open_Sans'] text-sm font-semibold text-[#c53030] hover:underline"
                   >
                     Enviar WhatsApp (Pedidos)
                   </a>
@@ -106,7 +104,7 @@ export function AboutSection({ className = '' }: { className?: string }) {
                       href={GOOGLE_MAPS_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-[#e53e3e] hover:underline"
+                      className="font-semibold text-[#c53030] hover:underline"
                     >
                       (Ver en Mapa)
                     </a>
@@ -133,7 +131,7 @@ export function AboutSection({ className = '' }: { className?: string }) {
               href={GOOGLE_MAPS_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full bg-[#e53e3e] px-6 py-4 font-['Montserrat'] text-base font-bold uppercase text-white transition-all duration-200 hover:-translate-y-[2px] hover:bg-[#c53030]"
+              className="flex items-center justify-center gap-2 rounded-full bg-[#c53030] px-6 py-4 font-['Montserrat'] text-base font-bold uppercase text-white transition-all duration-200 hover:-translate-y-[2px] hover:bg-[#a82828]"
             >
               Abrir en Maps
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

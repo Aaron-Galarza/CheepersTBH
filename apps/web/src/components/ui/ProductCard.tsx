@@ -10,9 +10,10 @@ interface ProductCardProps {
   product: Product;
   onAddClick: () => void;
   isAdded?: boolean;
+  priority?: boolean;
 }
 
-export const ProductCard = memo(function ProductCard({ product, onAddClick, isAdded }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({ product, onAddClick, isAdded, priority }: ProductCardProps) {
   const title = product.title || product.name;
   const img = product.image || product.imageUrl;
 
@@ -20,7 +21,7 @@ export const ProductCard = memo(function ProductCard({ product, onAddClick, isAd
     <div className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative h-40 w-full overflow-hidden bg-gradient-to-b from-[#3a2a1a] to-[#1a1008] sm:h-48 md:h-52 lg:h-56">
         {img ? (
-          <Image src={img} alt={title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw" />
+          <Image src={img} alt={title} fill priority={priority} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw" className="object-cover transition-transform duration-300 group-hover:scale-105" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[#757575]">
             <ShoppingCart size={32} className="sm:size-[40px] md:size-[48px]" />

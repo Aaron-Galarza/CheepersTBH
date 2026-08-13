@@ -11,6 +11,7 @@ interface MenuSectionProps {
   products: Product[];
   className?: string;
   addedId?: string | null;
+  priorityId?: string;
 }
 
 function gridClass(count: number) {
@@ -20,7 +21,7 @@ function gridClass(count: number) {
   return 'grid-cols-1 md:grid-cols-3 lg:grid-cols-4';
 }
 
-export const MenuSection = memo(function MenuSection({ category, products, className = '', addedId }: MenuSectionProps) {
+export const MenuSection = memo(function MenuSection({ category, products, className = '', addedId, priorityId }: MenuSectionProps) {
   const addToCart = useCartStore((s) => s.addToCart);
   const handleAdd = useCallback((p: Product) => addToCart(p, []), [addToCart]);
 
@@ -45,6 +46,7 @@ export const MenuSection = memo(function MenuSection({ category, products, class
               product={p}
               onAddClick={() => handleAdd(p)}
               isAdded={addedId === p._id}
+              priority={priorityId === String(p._id)}
             />
           </div>
         ))}

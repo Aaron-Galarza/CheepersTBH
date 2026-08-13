@@ -9,21 +9,21 @@ import '../styles/globals.css';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
-  weight: ['400', '500', '700', '800'],
+  weight: ['400', '700', '800'],
   variable: '--font-montserrat',
   display: 'swap',
 });
 
 const openSans = Open_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '600', '700'],
   variable: '--font-open-sans',
   display: 'swap',
 });
 
 const oswald = Oswald({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '600', '700'],
   variable: '--font-oswald',
   display: 'swap',
 });
