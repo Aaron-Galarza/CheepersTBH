@@ -11,17 +11,33 @@ export function OrderNotification() {
   const [order, setOrder] = useState<Order | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastIdRef = useRef<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const audio = new Audio(SOUND_URL);
+    audio.preload = 'auto';
+    audio.volume = 0.6;
+    audioRef.current = audio;
+
     const playSound = () => {
-      try {
-        const audio = new Audio(SOUND_URL);
-        audio.volume = 0.6;
-        void audio.play().catch(() => {});
-      } catch {
-        // autoplay bloqueado, se ignora
-      }
+      const a = audioRef.current;
+      if (!a) return;
+      a.currentTime = 0;
+      a.play().catch(() => {});
     };
+
+    const unlock = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(() => a.pause()).catch(() => {});
+      a.currentTime = 0;
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('pointerdown', unlock);
+    window.addEventListener('keydown', unlock);
 
     const unsubscribe = socketService.onOrderCreated((newOrder: Order) => {
       const id = newOrder._id ?? '';
@@ -38,6 +54,8 @@ export function OrderNotification() {
     return () => {
       unsubscribe();
       if (timerRef.current) clearTimeout(timerRef.current);
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
     };
   }, []);
 
@@ -46,7 +64,7 @@ export function OrderNotification() {
   const totalItems = order.items.reduce((acc, i) => acc + i.quantity, 0);
 
   return (
-    <div className="fixed top-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-200 bg-white p-4 shadow-lg animate-[toastIn_0.35s_ease-out]">
+    <div className="fixed top-4 right-4 z-[1100] w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-200 bg-white p-4 shadow-lg animate-[toastIn_0.35s_ease-out]">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-[#D9383A]">
           <BellRing size={20} />
