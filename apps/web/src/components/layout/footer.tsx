@@ -41,9 +41,8 @@ export default function Footer() {
           <p className="text-gray-300">Desarrollada por AFdevelopers:</p>
           <p className="text-gray-300">Contacto:</p>
           <p className="font-medium tracking-wide">+54 3624250501</p>
-          <a href="mailto:AFdevelopers12@gmail.com" className="flex items-center gap-2 mt-1 hover:text-[#ff8c00] transition-colors">
-            <Mail size={14} />
-            <span>AFdevelopers12@gmail.com</span>
+          <a href="https://www.afdevelopers.com/" className="flex items-center gap-2 mt-1 hover:text-[#ff8c00] transition-colors">
+            <span>Toca acá y pedinos tu sistema</span>
           </a>
         </div>
 

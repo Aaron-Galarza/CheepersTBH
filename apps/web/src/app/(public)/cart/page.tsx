@@ -44,7 +44,7 @@ export default function CartPage() {
         <div className="fixed inset-0 -z-10">
           <Image src={FONDO_URL} alt="" fill sizes="100vw" aria-hidden className="object-cover object-center" />
         </div>
-        <div className="absolute inset-0 bg-white/70" />
+        <div className="fixed inset-0 bg-white/70" />
         <div className="relative z-10 text-center">
           <h1 className="mb-2 font-[var(--font-montserrat)] text-3xl font-extrabold text-[#D9383A]">
             <ShoppingCart className="mr-2 inline-block h-8 w-8" />Tu carrito esta vacio
@@ -57,12 +57,12 @@ export default function CartPage() {
   }
 
   return (
-    <div className="relative min-h-screen pb-40">
+      <div className="relative min-h-screen pb-40">
       <div className="fixed inset-0 -z-10">
         <Image src={FONDO_URL} alt="" fill sizes="100vw" aria-hidden className="object-cover object-center" />
       </div>
-      <div className="absolute inset-0 bg-white/70" />
-      <div className="relative z-10 mx-auto mb-10 mt-10 max-w-[700px] rounded-2xl bg-white/80 p-6 shadow-sm max-md:mt-[120px] max-md:mx-4"
+      <div className="fixed inset-0 bg-white/70" />
+      <div className="relative z-10 mx-auto mb-10 mt-10 max-w-[700px] rounded-2xl bg-white/80 p-6 shadow-sm max-md:mt-4 max-md:mx-4 max-md:p-4"
         style={{ opacity: fadeIn ? 1 : 0, transform: fadeIn ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease-out, transform 0.5s ease-out' }}>
         <h1 className="mb-8 text-center font-[var(--font-montserrat)] text-[2.5rem] font-extrabold uppercase tracking-[0.05em] text-[#D9383A] max-md:text-[2rem]">
           Tu Carrito
@@ -84,15 +84,15 @@ export default function CartPage() {
           ))}
         </div>
         <div className="mt-8 border-t-2 border-dashed border-[#e0e0e0] pt-6">
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-3 max-md:justify-center">
             <span className="text-[2rem] font-extrabold text-[#212121] font-[var(--font-montserrat)] max-md:text-[1.6rem]">
               Total: {formatCurrency(getTotal())}
             </span>
           </div>
         </div>
-        <div className="mt-6 flex justify-end gap-4 max-md:flex-col">
-          <button onClick={clearCart} className="rounded-xl bg-[#90A4AE] px-6 py-3 text-sm font-bold uppercase text-white transition-all duration-200 hover:-translate-y-[2px] hover:bg-[#78909C]">Vaciar Carrito</button>
-          <Link href="/checkout" className="inline-block rounded-xl bg-[#D9383A] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.05em] text-white shadow-[0_5px_15px_rgba(217,56,58,0.3)] transition-all duration-200 hover:-translate-y-[3px] hover:bg-[#b52d2f]">Confirmar Pedido</Link>
+        <div className="mt-6 flex justify-end gap-4 max-md:flex-col max-md:gap-3">
+          <button onClick={clearCart} className="rounded-xl bg-[#90A4AE] px-6 py-3 text-center text-sm font-bold uppercase text-white transition-all duration-200 hover:-translate-y-[2px] hover:bg-[#78909C]">Vaciar Carrito</button>
+          <Link href="/checkout" className="block rounded-xl bg-[#D9383A] px-7 py-3.5 text-center text-sm font-bold uppercase tracking-[0.05em] text-white shadow-[0_5px_15px_rgba(217,56,58,0.3)] transition-all duration-200 hover:-translate-y-[3px] hover:bg-[#b52d2f]">Confirmar Pedido</Link>
         </div>
       </div>
     </div>

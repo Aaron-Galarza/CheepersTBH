@@ -28,7 +28,7 @@ export function CTASection({ className = '' }: { className?: string }) {
             className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-8 py-4 font-['Montserrat'] text-lg font-bold uppercase text-white transition-all duration-300 hover:-translate-y-[2px] hover:bg-white hover:text-[#c53030]"
           >
             <WhatsappIcon className="h-5 w-5" />
-            Pedir por WhatsApp
+            WhatsApp
           </a>
         </div>
       </div>

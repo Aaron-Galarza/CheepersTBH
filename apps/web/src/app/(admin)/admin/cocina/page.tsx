@@ -3,6 +3,7 @@
 import { ChefHat } from 'lucide-react';
 import { useKitchenOrders } from '@/features/admin/cocina/hooks/useKitchenOrders';
 import { OrderList } from '@/features/admin/cocina/components/OrderList';
+import { OrderNotification } from '@/features/admin/components/OrderNotification';
 
 export default function CocinaPage() {
   const { orders, loading, error, updateStatus } = useKitchenOrders();
@@ -13,6 +14,7 @@ export default function CocinaPage() {
 
   return (
     <div className="cart-bg min-h-screen flex flex-col">
+      <OrderNotification />
       {error && <p className="text-red-600 text-sm p-2 bg-red-50">{error}</p>}
 
       <header className="px-4 pt-3 pb-1 flex flex-wrap items-center justify-between gap-2">

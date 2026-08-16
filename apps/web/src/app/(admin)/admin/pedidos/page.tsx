@@ -3,6 +3,7 @@
 import { Package } from 'lucide-react';
 import { usePedidos } from '@/features/admin/pedidos/hooks/usePedidos';
 import { OrderCard } from '@/features/admin/pedidos/components/OrderCard';
+import { OrderNotification } from '@/features/admin/components/OrderNotification';
 
 const STATUSES = ['', 'pending', 'preparing', 'ready', 'delivered', 'cancelled'];
 const LABELS: Record<string, string> = {
@@ -19,6 +20,7 @@ export default function PedidosPage() {
 
   return (
     <div className="cart-bg min-h-screen p-4">
+      <OrderNotification />
       <h1 className="text-xl sm:text-2xl font-extrabold font-[var(--font-montserrat)] text-[#212121] mb-1 flex items-center gap-2">
         <Package size={24} /> Pedidos
       </h1>

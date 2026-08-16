@@ -15,23 +15,23 @@ export function AboutSection({ className = '' }: { className?: string }) {
   return (
     <section
       className={cn(
-        'mx-auto mb-20 max-w-[1200px] rounded-3xl bg-white px-6 py-20 shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)] max-md:mb-12 max-md:px-4 max-md:py-10',
+        'mx-auto mb-20 max-w-[1200px] rounded-3xl bg-white px-6 py-20 shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.05)] max-md:mb-12 max-md:px-6 max-md:py-10',
         className
       )}
     >
       <div className="flex gap-12 max-md:flex-col max-md:gap-8">
         <div className="flex-[2]">
-          <h2 className="mb-6 font-['Montserrat'] text-[2.5rem] font-extrabold text-[#2d3748] max-md:text-center max-md:text-[2rem]">
+          <h2 className="mb-6 font-['Montserrat'] text-[2.5rem] font-extrabold text-[#2d3748] max-md:text-center max-md:text-[1.6rem] max-md:leading-tight">
            BIENVENIDOS A CHEEPERS THE BURGUER HOUSE, LA MEJOR CALIDAD AL MEJOR PRECIO
           </h2>
           
           <div className="mb-8 space-y-4">
-            <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-justify max-md:text-[1.05em]">
+            <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-left max-md:text-[1.05em]">
               Fundado en {FOUNDATION_YEAR} por {FOUNDER}, Cheepers nació con una idea clara:
               ofrecer comida rápida rica, accesible y sin vueltas.
             </p>
 
-            <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-justify max-md:text-[1.05em]">
+            <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-left max-md:text-[1.05em]">
               Actualmente contamos con una sucursal en Resistencia, Chaco, y aunque el camino no
               siempre fue fácil, seguimos avanzando con determinación. Este año apostamos fuerte
               por nuestro crecimiento, y por eso lanzamos esta nueva página web: como parte de
@@ -45,10 +45,8 @@ export function AboutSection({ className = '' }: { className?: string }) {
             ¿Y el nombre Cheepers?
           </h3>
 
-          <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-justify max-md:text-[1.05em]">
-            Nace de una historia familiar: el apodo de una persona muy querida que siempre
-            insistía en que una buena hamburguesa no necesita ser cara, solo necesita estar bien
-            hecha. Ese espíritu nos guía hasta hoy.
+          <p className="font-['Open_Sans'] text-[1.1em] leading-relaxed text-[#4a5568] max-md:text-left max-md:text-[1.05em]">
+          Es una de las preguntas que más nos hacen. La verdad es que no tiene una historia compleja, pero sí mucha personalidad. Surge de una mezcla casual de palabras: "cheep", una variación de chips (papas fritas en inglés), terminó evolucionando hasta convertirse en Cheepers. Nos gustó cómo sonaba... y se quedó.
           </p>
         </div>
 
