@@ -12,13 +12,15 @@ export const ConfigService = {
   isOpenNow: (config: IConfig): boolean => {
     if (!config.isOpen || config.isEmergencyClosed) return false;
 
-    const now = new Date();
-    const today = SPANISH_DAYS[now.getDay()];
+    // El server corre en UTC; el horario del local está en hora argentina (UTC-3).
+    // Restamos 3hs para leer la hora local argentina y comparar contra el schedule.
+    const now = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    const today = SPANISH_DAYS[now.getUTCDay()];
     const todaySchedule = config.dailySchedule?.find((d) => d.day === today);
 
     if (!todaySchedule?.isStoreOpen) return false;
 
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
     const [oh, om] = todaySchedule.openTime.split(':').map(Number);
     const [ch, cm] = todaySchedule.closeTime.split(':').map(Number);
     const openMin = oh * 60 + om;
