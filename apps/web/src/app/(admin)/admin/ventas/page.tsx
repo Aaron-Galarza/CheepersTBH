@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { DollarSign } from 'lucide-react';
 import { SalesMetrics } from '@/features/admin/ventas/components/SalesMetrics';
 import { OrdersTable } from '@/features/admin/ventas/components/OrdersTable';
+import { OwnerOnly } from '@/components/layout/OwnerOnly';
 
-export default function VentasPage() {
+function VentasContent() {
   const [range, setRange] = useState('today');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
@@ -42,4 +43,8 @@ export default function VentasPage() {
       </div>
     </div>
   );
+}
+
+export default function VentasPage() {
+  return <OwnerOnly><VentasContent /></OwnerOnly>;
 }

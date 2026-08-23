@@ -32,10 +32,20 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if (req.user?.role !== 'admin') {
+  if (req.user?.role !== 'admin' && req.user?.role !== 'owner') {
     return res.status(403).json({
       success: false,
       error: 'Acceso denegado - requiere rol admin',
+    });
+  }
+  next();
+};
+
+export const isOwner = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role !== 'owner') {
+    return res.status(403).json({
+      success: false,
+      error: 'Acceso denegado - solo owner tiene permitido ver esta pantalla',
     });
   }
   next();

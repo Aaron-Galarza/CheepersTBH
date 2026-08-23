@@ -5,9 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
 import { LayoutDashboard, ShoppingCart, ChefHat, Package, DollarSign, Image, Settings, LogOut, Utensils } from 'lucide-react';
 
-const tabs = [
+const allTabs = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard },
-  { href: '/admin/ventas', label: 'Estadisticas', Icon: DollarSign },
+  { href: '/admin/ventas', label: 'Estadisticas', Icon: DollarSign, ownerOnly: true },
   { href: '/admin/pedidos', label: 'Pedidos', Icon: Package },
   { href: '/admin/cocina', label: 'Cocina', Icon: ChefHat },
   { href: '/admin/pos', label: 'POS', Icon: ShoppingCart },
@@ -20,8 +20,11 @@ export function AdminTabs() {
   const pathname = usePathname();
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
+  const role = useAuthStore((s) => s.getRole());
 
   const handleLogout = () => { logout(); router.push('/login'); };
+
+  const tabs = allTabs.filter((tab) => !tab.ownerOnly || role === 'owner');
 
   return (
     <div className="flex overflow-x-auto hide-scrollbar bg-white shadow-sm border-b border-gray-200">

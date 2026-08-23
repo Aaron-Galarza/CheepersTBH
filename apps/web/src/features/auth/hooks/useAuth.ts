@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService } from '@/services/auth.service';
+import { authService, LoginResponse } from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth.store';
 
 export function useAuth() {
@@ -16,8 +16,8 @@ export function useAuth() {
     try {
       setLoading(true);
       setError(null);
-      const token = await authService.login(email, password);
-      login(token);
+      const { token, user } = await authService.login(email, password);
+      login(token, user);
       router.push('/admin');
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || 'Error al iniciar sesion');
