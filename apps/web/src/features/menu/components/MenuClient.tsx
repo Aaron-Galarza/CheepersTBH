@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Product, Category } from '@/types';
 import { useMenu } from '@/hooks/useMenu';
@@ -35,6 +35,10 @@ export function MenuClient({ initialProducts, initialCategories }: MenuClientPro
   });
   const addToCart = useCartStore((s) => s.addToCart);
   const [addedId, setAddedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [selectedCategory]);
 
   const firstProductId = products.length > 0 ? String(products[0]._id) : undefined;
 
