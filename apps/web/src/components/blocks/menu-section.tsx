@@ -39,7 +39,7 @@ export const MenuSection = memo(function MenuSection({ category, products, class
         {category}
       </h2>
 
-      <div className={`mx-auto grid w-full max-w-[1280px] ${cols} gap-3 md:gap-4 p-2 md:p-4`}>
+      <div className={`mx-auto grid w-full max-w-[1280px] ${cols} gap-y-4 gap-x-3 md:gap-x-4 px-2.5 py-2 md:p-4`}>
         {products.map((p) => (
           <div key={String(p._id)} className={isSingle ? 'w-full max-w-sm sm:max-w-md' : ''}>
             <ProductCard
