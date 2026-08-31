@@ -41,7 +41,7 @@ export const ProductCard = memo(function ProductCard({ product, onAddClick, isAd
         </h3>
 
         {product.description && (
-          <p className="mb-3 leading-relaxed text-[#757575] font-[var(--font-open-sans)] text-xs sm:text-sm line-clamp-2">
+          <p className="mb-3 leading-relaxed text-[#757575] font-[var(--font-open-sans)] text-xs sm:text-sm line-clamp-3">
             {product.description}
           </p>
         )}

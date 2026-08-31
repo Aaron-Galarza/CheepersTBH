@@ -90,7 +90,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             <h2 className="font-['Oswald'] text-4xl sm:text-5xl md:text-[4rem] font-bold uppercase leading-[1.1] tracking-wide text-[#e53e3e] max-md:text-3xl line-clamp-3">
               {slide.title}
             </h2>
-            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#2d3748] max-md:text-base line-clamp-2">
+            <p className="font-['Open_Sans'] text-lg sm:text-xl text-[#2d3748] max-md:text-base line-clamp-3">
               {slide.text}
             </p>
             <a

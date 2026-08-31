@@ -48,6 +48,7 @@ export const ALLOWED_ORIGINS = (() => {
   return [
     DEFAULT_CLIENT_URL,
     'https://cheepers-tbh.vercel.app',
+    'https://cheepersapp.vercel.app',
     ...envOrigins,
   ];
 })();
