@@ -2,6 +2,7 @@ import { CouponModel, ICoupon } from './coupons.model';
 import { makeCrud } from '../../utils/crudFactory';
 import { AppError } from '../../utils/appError';
 import { WEEK_DAYS } from '../../constants';
+import { toArgentina } from '../../utils/argentinaTime';
 
 export const CouponsService = {
   ...makeCrud(CouponModel),
@@ -21,7 +22,7 @@ export const CouponsService = {
     }
 
     if (coupon.validDays && coupon.validDays.length > 0) {
-      const today = WEEK_DAYS[new Date().getDay()];
+      const today = WEEK_DAYS[toArgentina(new Date()).getUTCDay()];
       if (!coupon.validDays.includes(today)) {
         throw new AppError('Este cupón no es válido hoy', 400);
       }

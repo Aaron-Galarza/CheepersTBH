@@ -4,6 +4,7 @@ import { asyncHandler } from '../../utils/asyncHandler';
 import { sendSuccess, sendError } from '../../utils/response';
 import { ORDER_STATUSES, PAYMENT_METHODS, DATE_RANGES, DateRange } from '../../constants';
 import { getRangeStartDate } from '../../utils/dateRange';
+import { arDayRange } from '../../utils/argentinaTime';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -58,10 +59,9 @@ export class OrdersController {
       if (!from || !to || !DATE_REGEX.test(from as string) || !DATE_REGEX.test(to as string)) {
         return sendError(res, "Debe indicar 'from' y 'to' en formato YYYY-MM-DD", 400);
       }
-      filter.createdAt = {
-        $gte: new Date(`${from}T00:00:00.000`),
-        $lte: new Date(`${to}T23:59:59.999`),
-      };
+      const { start } = arDayRange(from as string);
+      const { end } = arDayRange(to as string);
+      filter.createdAt = { $gte: start, $lte: end };
     }
 
     const orders = await OrdersService.viewAll(filter);

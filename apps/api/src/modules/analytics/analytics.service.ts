@@ -1,7 +1,7 @@
-import { format } from 'date-fns';
 import { OrderDailyStats, IProductDailyStat, IProductAddonStat } from './analytics.model';
 import { IOrder } from '../orders/orders.model';
 import { getRangeStartDate } from '../../utils/dateRange';
+import { arDateKey } from '../../utils/argentinaTime';
 import { DateRange } from '../../constants';
 
 export interface GetStatsParams {
@@ -37,7 +37,7 @@ export interface GetStatsResult {
   topProduct: ProductStatOutput | null;
 }
 
-const dateKey = (date: Date): string => format(date, 'yyyy-MM-dd');
+const dateKey = (date: Date): string => arDateKey(date);
 
 const productKey = (title: string): string => Buffer.from(title, 'utf-8').toString('base64');
 
