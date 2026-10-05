@@ -39,7 +39,7 @@ export function useMenu(initial?: { products: Product[]; categories: Category[] 
     fetchMenu();
   }, [initial]);
 
-  const filteredProducts = products.filter((product) => {
+  const filtered = products.filter((product) => {
     const categoryName = getCategoryName(product.category);
     const matchesCategory = !selectedCategory || categoryName === selectedCategory;
     const matchesSearch =
@@ -49,6 +49,8 @@ export function useMenu(initial?: { products: Product[]; categories: Category[] 
 
     return matchesCategory && matchesSearch;
   });
+
+  const filteredProducts = [...filtered].sort((a, b) => Number(a.price) - Number(b.price));
 
   const handleSelectCategory = (categoryId: string | null) => {
     setSelectedCategory(categoryId);

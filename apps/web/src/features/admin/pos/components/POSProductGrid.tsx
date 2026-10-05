@@ -32,12 +32,12 @@ export function POSProductGrid({ onProductSelect }: POSProductGridProps) {
     return () => { cancelled = true; window.removeEventListener('focus', onFocus); };
   }, []);
 
-  const filtered = products.filter((p) => {
+  const filtered = [...products.filter((p) => {
     const catName = typeof p.category === 'object' ? (p.category as any).name : p.category;
     const matchesCat = !selectedCategory || catName === selectedCategory;
     const matchesSearch = !searchQuery || (p.title || p.name).toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
-  });
+  })].sort((a, b) => Number(a.price) - Number(b.price));
 
   if (loading) return <p className="text-center py-8 text-[#757575]">Cargando productos...</p>;
 
